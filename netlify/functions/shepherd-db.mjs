@@ -92,9 +92,32 @@ export async function run(store, user, method, body) {
   return reply(503, { error: "busy" });
 }
 
+// Second lock: besides "Invite only" sign-up in Netlify, only accounts the
+// church actually invited may open the records. Netlify gives this function a
+// short-lived admin key for Identity, which lets it look up the account and
+// see whether it was created from an invitation (invited_at is set).
+const invitedCache = new Map(); // user id -> { ok, at }
+async function wasInvited(identity, userId) {
+  if (!identity || !identity.url || !identity.token || !userId) return null; // can't tell
+  const hit = invitedCache.get(userId);
+  if (hit && Date.now() - hit.at < 10 * 60 * 1000) return hit.ok;
+  try {
+    const r = await fetch(`${identity.url}/admin/users/${encodeURIComponent(userId)}`, { headers: { Authorization: `Bearer ${identity.token}` } });
+    if (!r.ok) return null;
+    const u = await r.json();
+    const ok = Boolean(u && u.invited_at);
+    invitedCache.set(userId, { ok, at: Date.now() });
+    return ok;
+  } catch {
+    return null;
+  }
+}
+
 export const handler = async (event, context) => {
-  const user = context && context.clientContext && context.clientContext.user;
+  const cc = (context && context.clientContext) || {};
+  const user = cc.user;
   if (!user) return reply(401, { error: "signin" });
+  if ((await wasInvited(cc.identity, user.sub)) === false) return reply(403, { error: "not_invited" });
 
   let body = null;
   if (event.httpMethod === "POST") {

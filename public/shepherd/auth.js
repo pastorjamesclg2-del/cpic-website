@@ -196,6 +196,7 @@
     try { r = await fetch(API, { method, cache: "no-store", headers: { Authorization: "Bearer " + t, "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); }
     catch (_) { throw err("unavailable", "offline"); }
     if (r.status === 401) { signedOut("bad:Your sign-in has ended. Please sign in again."); throw err("revoked"); }
+    if (r.status === 403) { signedOut("bad:This account wasn’t invited by the church, so it can’t open Shepherd. Ask Sam to send you an invitation."); throw err("revoked"); }
     const j = await r.json().catch(() => ({}));
     if (r.status === 413) throw err("quota_exceeded");
     if (r.status >= 500) throw err("unavailable");
