@@ -98,29 +98,38 @@
     if (document.getElementById("gateCss")) return;
     const st = document.createElement("style"); st.id = "gateCss";
     st.textContent = `
+/* CPIC Workers colours, light and navy, switching with the device's dark mode like Ekklesia */
+:root{--cw-bg:#F3F4F8;--cw-surface:#FFFFFF;--cw-surface-2:#EBEDF4;--cw-ink:#141833;--cw-muted:#5D6382;--cw-line:#DCDFEA;--cw-accent:#1F2A7A;--cw-accent-ink:#FFFFFF;--cw-accent-soft:#E4E7F6;--cw-ok:#0E7C53;--cw-ok-soft:#DDF3E9;--cw-bad:#B42335;--cw-bad-soft:#F8DFE2}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--cw-bg:#0F1122;--cw-surface:#181B30;--cw-surface-2:#22263F;--cw-ink:#ECEEF8;--cw-muted:#9EA3C0;--cw-line:#2D3150;--cw-accent:#8C9CFF;--cw-accent-ink:#0F1122;--cw-accent-soft:#232A55;--cw-ok:#4CC995;--cw-ok-soft:#12352A;--cw-bad:#F27C8A;--cw-bad-soft:#3D1A21}}
+:root[data-theme="dark"]{--cw-bg:#0F1122;--cw-surface:#181B30;--cw-surface-2:#22263F;--cw-ink:#ECEEF8;--cw-muted:#9EA3C0;--cw-line:#2D3150;--cw-accent:#8C9CFF;--cw-accent-ink:#0F1122;--cw-accent-soft:#232A55;--cw-ok:#4CC995;--cw-ok-soft:#12352A;--cw-bad:#F27C8A;--cw-bad-soft:#3D1A21}
 #gate[hidden],#importBox[hidden]{display:none!important}
-#gate{position:fixed;inset:0;z-index:60;background:var(--bg,#F3F4F8);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:max(28px,env(safe-area-inset-top,0px)) 16px 40px}
-#gate .card{width:100%;max-width:420px;background:var(--surface,#fff);border:1px solid var(--line,#DCDFEA);border-radius:16px;padding:24px 20px;display:flex;flex-direction:column;gap:14px;margin-top:6vh}
+#gate{color:var(--cw-ink);position:fixed;inset:0;z-index:60;background:var(--cw-bg);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:max(28px,env(safe-area-inset-top,0px)) 16px 40px}
+#gate .card{width:100%;max-width:420px;background:var(--cw-surface);border:1px solid var(--cw-line);border-radius:16px;padding:24px 20px;display:flex;flex-direction:column;gap:14px;margin-top:6vh}
 #gate .head{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
-#gate .head img{height:46px;width:auto;background:#fff;border-radius:8px;padding:3px 6px;border:1px solid var(--line,#DCDFEA)}
+#gate .head img{height:46px;width:auto;background:#fff;border-radius:8px;padding:3px 6px;border:1px solid var(--cw-line)}
 #gate h2{margin:0;font-family:var(--f-display,system-ui);font-size:22px}
 #gate p{margin:0}
-#gate .msg{border-radius:10px;padding:10px 12px;font-size:14px;background:var(--accent-soft,#E4E7F6)}
-#gate .msg.bad{background:var(--bad-soft,#F8DFE2);color:var(--bad,#B42335)}
-#gate .msg.ok{background:var(--ok-soft,#DDF3E9);color:var(--ok,#0E7C53)}
-#gate input[type=email],#gate input[type=password]{width:100%;border:1px solid var(--line,#DCDFEA);background:var(--bg,#F3F4F8);border-radius:10px;padding:10px 12px;min-height:44px;font:inherit;color:inherit}
+#gate .msg{border-radius:10px;padding:10px 12px;font-size:14px;background:var(--cw-accent-soft)}
+#gate .msg.bad{background:var(--cw-bad-soft);color:var(--cw-bad)}
+#gate .msg.ok{background:var(--cw-ok-soft);color:var(--cw-ok)}
+#gate input[type=email],#gate input[type=password]{width:100%;border:1px solid var(--cw-line);background:var(--cw-bg);border-radius:10px;padding:10px 12px;min-height:44px;font:inherit;color:inherit}
 #gate .links{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px}
-#gate .links a,#gate .links button{color:var(--accent,#1F2A7A);background:none;border:0;padding:0;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
-#gate .btn{width:100%}
+#gate .links a,#gate .links button{color:var(--cw-accent);background:none;border:0;padding:0;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+#gate .btn{width:100%;appearance:none;border:1px solid var(--cw-accent);background:var(--cw-accent);color:var(--cw-accent-ink);border-radius:10px;padding:10px 14px;min-height:44px;font:inherit;font-weight:600;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+#gate .btn:hover{filter:brightness(1.08)}
+#gate .btn:disabled{opacity:.6;cursor:default}
+#gate .field{display:flex;flex-direction:column;gap:6px;min-width:0}
+#gate label{font-size:13px;font-weight:600;color:var(--cw-ink)}
+#gate form{display:flex;flex-direction:column;gap:14px}
 .ws-bar{display:flex;align-items:center;gap:8px}
-.ws-bar a,.ws-bar button{font-size:12.5px;font-weight:600;color:var(--accent,#1F2A7A);background:#fff;border:1px solid var(--line,#DCDFEA);border-radius:8px;padding:4px 9px;cursor:pointer;text-decoration:none;white-space:nowrap;font-family:inherit}
-.ws-float{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:55;background:rgba(255,255,255,.96);border:1px solid #DCDFEA;border-radius:12px;padding:6px;box-shadow:0 8px 24px rgba(20,24,51,.15)}
-#importBox{max-width:760px;margin:16px auto 0;padding:0 16px;font-family:Inter,system-ui,sans-serif;color:#141833}
-#importBox .ib{background:#fff;border:2px solid #1F2A7A;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.ws-bar a,.ws-bar button{font-size:12.5px;font-weight:600;color:var(--cw-accent);background:var(--cw-surface);border:1px solid var(--cw-line);border-radius:8px;padding:4px 9px;cursor:pointer;text-decoration:none;white-space:nowrap;font-family:inherit}
+.ws-float{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:55;background:var(--cw-surface);border:1px solid var(--cw-line);border-radius:12px;padding:6px;box-shadow:0 8px 24px rgba(20,24,51,.15)}
+#importBox{max-width:760px;margin:16px auto 0;padding:0 16px;font-family:Inter,system-ui,sans-serif;color:var(--cw-ink)}
+#importBox .ib{background:var(--cw-surface);border:2px solid var(--cw-accent);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
 #importBox h3{margin:0;font-size:17px}
-#importBox p{margin:0;font-size:13.5px;color:#5D6382}
+#importBox p{margin:0;font-size:13.5px;color:var(--cw-muted)}
 #importBox .ibrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-#importBox .ibbtn{display:inline-flex;align-items:center;min-height:40px;padding:8px 14px;border-radius:10px;background:#1F2A7A;color:#fff;font-weight:600;font-size:14px;cursor:pointer}`;
+#importBox .ibbtn{display:inline-flex;align-items:center;min-height:40px;padding:8px 14px;border-radius:10px;background:var(--cw-accent);color:var(--cw-accent-ink);font-weight:600;font-size:14px;cursor:pointer}`;
     document.head.appendChild(st);
   }
 
@@ -409,7 +418,7 @@
     box = document.createElement("div"); box.id = "importBox";
     box.innerHTML = `<div class="ib"><h3>Bring your records over</h3>
       <p>${esc(TITLE)} on cpic.info is empty. If you have the records file from the Claude version (${esc(IMPORT.file)}), choose it here to bring ${esc(IMPORT.what)} across. This only works once, while ${esc(TITLE)} is empty.</p>
-      <div class="ibrow"><label class="ibbtn">Choose records file<input type="file" id="importFile" accept=".json,application/json" hidden></label><span id="importMsg" style="font-size:13px;color:#5D6382"></span></div></div>`;
+      <div class="ibrow"><label class="ibbtn">Choose records file<input type="file" id="importFile" accept=".json,application/json" hidden></label><span id="importMsg" style="font-size:13px;color:var(--cw-muted)"></span></div></div>`;
     const main = document.querySelector("main");
     if (main) main.parentNode.insertBefore(box, main); else document.body.insertBefore(box, document.body.firstChild);
     box.querySelector("#importFile").addEventListener("change", async e => {
