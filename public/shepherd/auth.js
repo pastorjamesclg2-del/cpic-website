@@ -141,7 +141,8 @@
     if (/Email not confirmed/i.test(m)) return "bad:This email hasn’t been confirmed yet. Open the invitation email and tap its link first.";
     if (/expired|invalid.*token|not found/i.test(m)) return "bad:This link has expired or was already used. Ask Sam to send a new invitation, or use “Forgot password?”.";
     if (e && e.status === 404) return "bad:Worker sign-in isn’t switched on for this site yet. Ask Sam to turn on Identity in Netlify.";
-    if (/Failed to fetch|NetworkError/i.test(m)) return "bad:No connection. Check your internet and try again.";
+    if (/Failed to fetch|NetworkError|^offline$/i.test(m)) return "bad:No connection. Check your internet and try again.";
+    if (/^server:/.test(m)) return "bad:You’re signed in, but Shepherd couldn’t load its records just now. Try again in a minute. If it keeps happening, tell Sam this: " + m.slice(7);
     return "bad:" + (m || "Something went wrong. Try again.");
   }
 
@@ -199,7 +200,7 @@
     if (r.status === 403) { signedOut("bad:This account wasn’t invited by the church, so it can’t open Shepherd. Ask Sam to send you an invitation."); throw err("revoked"); }
     const j = await r.json().catch(() => ({}));
     if (r.status === 413) throw err("quota_exceeded");
-    if (r.status >= 500) throw err("unavailable");
+    if (r.status >= 500) throw err("unavailable", "server:" + (j.detail || j.error || r.status));
     if (!r.ok) throw err("invalid_argument", j.error);
     return j;
   }
