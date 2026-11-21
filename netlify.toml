@@ -1,4 +1,10 @@
 # Netlify settings for cpic.info
-# No build step: the website files in the main folder are published as they are.
 [build]
-  publish = "."
+  # The website files live in /public. No build step is needed.
+  publish = "public"
+  command = ""
+
+[functions]
+  # Private Shepherd data API (workers only, needs sign-in).
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

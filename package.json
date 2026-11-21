@@ -1,0 +1,9 @@
+{
+  "name": "cpic-website",
+  "private": true,
+  "description": "cpic.info: CPIC Ekklesia (public) and Shepherd (workers only).",
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "~10.7.13"
+  }
+}

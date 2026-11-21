@@ -1,0 +1,1247 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>CPIC Shepherd · Workers</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1F2A7A">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: phone-first single column (max 760px), sticky header, fixed bottom tab bar with four desks: Sunday, Newcomers, Follow-up, Insights */
+:root{
+  --bg:#F3F4F8; --surface:#FFFFFF; --surface-2:#EBEDF4; --ink:#141833; --muted:#5D6382; --line:#DCDFEA;
+  --accent:#1F2A7A; --accent-ink:#FFFFFF; --accent-soft:#E4E7F6;
+  --ok:#0E7C53; --ok-soft:#DDF3E9; --warn:#9A5600; --warn-soft:#FBEBD3; --bad:#B42335; --bad-soft:#F8DFE2; --wa:#11804A; --wa-ink:#FFFFFF;
+  --f-display:"Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --f-body:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:12px; --tabh:64px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1122; --surface:#181B30; --surface-2:#22263F; --ink:#ECEEF8; --muted:#9EA3C0; --line:#2D3150;
+  --accent:#8C9CFF; --accent-ink:#0F1122; --accent-soft:#232A55;
+  --ok:#4CC995; --ok-soft:#12352A; --warn:#F0B45A; --warn-soft:#3A2A12; --bad:#F27C8A; --bad-soft:#3D1A21; --wa:#35C46F; --wa-ink:#06180D;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1122; --surface:#181B30; --surface-2:#22263F; --ink:#ECEEF8; --muted:#9EA3C0; --line:#2D3150;
+  --accent:#8C9CFF; --accent-ink:#0F1122; --accent-soft:#232A55;
+  --ok:#4CC995; --ok-soft:#12352A; --warn:#F0B45A; --warn-soft:#3A2A12; --bad:#F27C8A; --bad-soft:#3D1A21; --wa:#35C46F; --wa-ink:#06180D;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 0}
+.top-in{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{height:38px;width:auto;flex:none;background:#FFFFFF;border-radius:8px;padding:3px 6px;border:1px solid var(--line)}
+.brand h1{margin:0;font-family:var(--f-display);font-size:18px;line-height:1.1;font-weight:700}
+.brand p{margin:0;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sync{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.on{background:var(--ok)} .dot.wait{background:var(--warn)}
+
+main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px calc(28px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.banner{border-radius:var(--r);padding:12px 14px;font-size:14px;background:var(--warn-soft);color:var(--ink);border:1px solid var(--line)}
+.banner b{color:var(--warn)}
+
+h2.view-title{margin:0;font-family:var(--f-display);font-size:24px;line-height:1.15;font-weight:700;text-wrap:balance}
+.view-sub{margin:2px 0 0;color:var(--muted);font-size:14px}
+.section{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.section h3{margin:0;font-family:var(--f-display);font-size:16px;font-weight:600}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.label{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 14px;font-weight:600;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;color:var(--ink);min-height:40px}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.wa{background:var(--wa);border-color:var(--wa);color:var(--wa-ink)}
+.btn.danger{color:var(--bad);border-color:var(--bad-soft)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn svg{width:16px;height:16px;flex:none}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sunday-nav{display:flex;gap:8px;align-items:center}
+.sunday-nav .btn{flex:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* forms */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label{font-size:13px;font-weight:600}
+.field .hint{font-size:12px;color:var(--muted)}
+input[type=text],input[type=tel],input[type=date],input[type=search],select,textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;min-height:42px}
+textarea{min-height:76px;resize:vertical}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.check input{width:18px;height:18px;margin-top:2px;accent-color:var(--accent)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:500;cursor:pointer;min-height:34px}
+.seg button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+/* tallies */
+.tallies{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:600px){.tallies{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.tally{border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+.tally .n{font-family:var(--f-display);font-size:32px;font-weight:700;line-height:1}
+.tally .ctl{display:flex;gap:6px}
+.tally .ctl button{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:9px;min-height:44px;font-size:22px;font-weight:600;cursor:pointer;line-height:1}
+.tally .ctl button.plus{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.total-bar{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px;border-radius:var(--r);background:var(--accent);color:var(--accent-ink)}
+.total-bar .big{font-family:var(--f-display);font-size:40px;font-weight:700;line-height:1}
+.total-bar .meta{font-size:13.5px;opacity:.92}
+
+/* lists */
+.list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line);background:var(--surface);width:100%;text-align:left;border-left:0;border-right:0;border-bottom:0;cursor:pointer}
+.item:first-child{border-top:0}
+.item:hover{background:var(--surface-2)}
+.item .main{flex:1;min-width:0}
+.item .name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .sub{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.tick{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;flex:none}
+.item[aria-pressed=true] .tick{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.item[aria-pressed=true]{background:color-mix(in srgb,var(--ok-soft) 55%,var(--surface))}
+.gitem .name,.gitem .sub{white-space:normal!important;overflow:visible}
+.ncrow{display:flex;align-items:center;border-top:1px solid var(--line);background:var(--surface)} .ncrow:first-child{border-top:0} .ncrow .item{border-top:0;flex:1;min-width:0}
+.stagebtn{min-height:34px;padding:5px 11px;font-size:13px;margin-right:12px;flex:none;border-color:var(--accent);color:var(--accent)}
+.sundays{display:flex;flex-direction:column;gap:12px}
+details.sun>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;padding:4px 2px 8px}
+details.sun>summary::-webkit-details-marker{display:none}
+details.sun>summary::before{content:"▾";color:var(--muted);margin-right:-4px} details.sun:not([open])>summary::before{content:"▸"}
+.sun-h{font-family:var(--f-display);font-weight:700;font-size:16px;flex:1} .sun-c{font-size:13px;color:var(--muted)}
+.stager{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.stg{display:inline-flex;flex-direction:column;align-items:center;border-radius:10px;padding:5px 12px;font-size:13px;font-weight:700;background:var(--surface-2);color:var(--muted);line-height:1.2}
+.stg small{font-weight:500;font-size:11px} .stg.done{background:var(--ok-soft);color:var(--ok)} .stg.cur{background:var(--accent);color:var(--accent-ink)}
+@media (max-width:560px){.ncrow{flex-wrap:wrap}.ncrow .item{flex-basis:100%}.ncrow .item .name,.ncrow .item .sub{white-space:normal}.ncrow .steps{display:none}.stagebtn{margin:-4px 14px 12px auto}}
+.phonefield{display:flex;gap:6px}.phonefield select{width:auto;max-width:46%;flex:none}.phonefield input{flex:1;min-width:0}
+.dm{display:flex;gap:6px}.dm select{flex:1}
+.ncrow:has(.editbtn){flex-wrap:nowrap!important}.ncrow:has(.editbtn) .item{flex-basis:auto!important}
+.editbtn{min-height:34px;padding:5px 11px;font-size:13px;margin-right:12px;flex:none}
+.chipx{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border-radius:999px;padding:3px 4px 3px 11px;font-size:13.5px;font-weight:600}
+.mini{appearance:none;border:0;background:var(--surface);border-radius:999px;width:24px;height:24px;cursor:pointer;font-size:12px;color:var(--muted)}
+.sendnext{border-color:var(--wa);background:color-mix(in srgb,var(--ok-soft) 40%,var(--surface))}
+.btn.big{min-height:48px;padding:10px 18px;font-size:15px}
+.note{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);font-size:14px}.note.prayer{border-color:var(--accent);background:var(--accent-soft)}
+ul.hist{margin:8px 0 0;padding-left:18px;font-size:13px;display:flex;flex-direction:column;gap:3px}
+pre.report{margin:0;white-space:pre-wrap;font-family:var(--f-body);font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tablewrap{overflow-x:auto} table.coh{width:100%;border-collapse:collapse;font-size:14px} table.coh th,table.coh td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)} table.coh th{font-size:12px;color:var(--muted);font-weight:600} table.coh .num{text-align:right}
+.pres{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.empty{padding:22px 16px;text-align:center;color:var(--muted);font-size:14px}
+.empty b{display:block;color:var(--ink);font-family:var(--f-display);font-size:16px;margin-bottom:4px}
+
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--surface-2);color:var(--muted)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.acc{background:var(--accent-soft);color:var(--accent)}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.steps{display:flex;gap:4px;flex:none}
+.steps i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}
+.steps i.done{background:var(--ok)} .steps i.due{background:var(--warn)}
+
+/* follow-up */
+.fu{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:10px}
+.track{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:6px}
+.tstep{font-size:12px;font-weight:600;border-radius:999px;padding:2px 9px;background:var(--surface-2);color:var(--muted)}
+.tstep.done{background:var(--ok-soft);color:var(--ok)} .tstep.cur{background:var(--accent);color:var(--accent-ink)}
+.tsep{color:var(--muted);font-size:12px}
+.confirm{display:flex;flex-direction:column;gap:8px;background:var(--accent-soft);border-radius:10px;padding:10px 12px;font-size:14px}
+.fu.donecard{border-left:4px solid var(--ok);background:color-mix(in srgb,var(--ok-soft) 50%,var(--surface))}
+.ok-line{color:var(--ok);font-weight:700}
+.checks{display:flex;flex-direction:column;gap:6px;border-top:1px dashed var(--line);padding-top:10px}
+.checks-in{display:flex;flex-wrap:wrap;gap:8px}
+.tickbox{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:10px;padding:7px 11px;font-size:14px;font-weight:600;cursor:pointer;background:var(--surface);min-height:40px}
+.tickbox input{width:20px;height:20px;accent-color:var(--ok);margin:0}
+.tickbox.cur{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.tickbox:has(input:checked){background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.rem-row.on{background:color-mix(in srgb,var(--ok-soft) 45%,var(--surface))}
+.rem-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+.rem-row:first-child{border-top:0}
+.rem-row .main{flex:1;min-width:0}
+.fu.overdue{border-left:4px solid var(--bad)} .fu.today{border-left:4px solid var(--warn)} .fu.soon{border-left:4px solid var(--line)}
+.fu-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.fu-msg{overflow-wrap:anywhere;background:var(--bg);border-radius:10px;padding:10px 12px;font-size:13.5px;white-space:pre-wrap;color:var(--ink);border:1px solid var(--line)}
+.phone{font-variant-numeric:tabular-nums;user-select:all;font-weight:600}
+.group-label{display:flex;align-items:center;gap:8px;margin-top:4px}
+.group-label .count{font-size:12px;color:var(--muted)}
+
+/* insights */
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:640px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:4px}
+.kpi .v{font-family:var(--f-display);font-size:28px;font-weight:700;line-height:1.1}
+.kpi .d{font-size:12.5px;color:var(--muted)}
+.bars{display:flex;align-items:flex-end;gap:6px;height:170px;padding-top:18px;border-bottom:1px solid var(--line);
+  background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 25%;background-position:0 18px}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0;position:relative}
+.bar span.v{font-size:12px;font-weight:600;margin-bottom:3px}
+.bar div{width:100%;max-width:44px;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px}
+.bar.cur div{background:color-mix(in srgb,var(--accent) 60%,var(--surface))}
+.bar-labels{display:flex;gap:6px;margin-top:6px}
+.bar-labels span{flex:1;text-align:center;font-size:11px;color:var(--muted);min-width:0;overflow:hidden;white-space:nowrap}
+.hbars{display:flex;flex-direction:column;gap:8px}
+.hbar{display:grid;grid-template-columns:minmax(90px,38%) 1fr 34px;gap:10px;align-items:center;font-size:13.5px}
+.hbar .track{height:10px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.hbar .fill{height:100%;background:var(--accent);border-radius:999px}
+.hbar .fill.hl{background:var(--warn)}
+.hbar .c{text-align:right;font-weight:600}
+
+/* tab bar */
+nav.tabs{margin-top:10px}
+.tabs-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--tabh)}
+.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;color:var(--muted);font-size:11.5px;font-weight:600;position:relative}
+.tabs a svg{width:22px;height:22px}
+.tabs a{border-bottom:3px solid transparent}
+.tabs a[aria-current=page]{color:var(--accent);border-bottom-color:var(--accent)}
+.tabs a .badge{position:absolute;top:8px;left:calc(50% + 6px);background:var(--bad);color:var(--surface);border-radius:999px;font-size:10.5px;padding:0 5px;min-width:17px;text-align:center;line-height:17px}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(10,12,30,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:640px;max-height:88%;overflow:auto;border-radius:18px 18px 0 0;
+  padding:18px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+@media (min-width:700px){.scrim{align-items:center}.sheet{border-radius:18px;max-height:85%}}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:14px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;font-weight:500;z-index:30;max-width:calc(100% - 32px)}
+details.tpl summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.tpl summary::-webkit-details-marker{display:none}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(16px);opacity:.6}}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <img class="logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwQDAwQEBAQFBQQFBwsHBwYGBw4KCggLEA4RERAOEA8SFBoWEhMYEw8QFh8XGBsbHR0dERYgIh8cIhocHRz/2wBDAQUFBQcGBw0HBw0cEhASHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBz/wAARCADyAoADASIAAhEBAxEB/8QAHQABAAEEAwEAAAAAAAAAAAAAAAkFBgcIAQMEAv/EAFwQAAEDAwEEBQUJCQwHBgcBAAEAAgMEBREGBxIhMQgTQVFhFCIycYEYQlZydZGxs9IVIzM0N1KSlKEWNlVic3SClaKywdMXNUNTwsPRJCUnY5PhJkRFRmSD8KP/xAAcAQEAAQUBAQAAAAAAAAAAAAAABQECAwQGBwj/xAA/EQACAQMBAgkJBgUFAQAAAAAAAQIDBBEFITESFBUyQVFxodEGEzNSYYGRscEHIjRT4fAjQkSSwhYXQ1TSgv/aAAwDAQACEQMRAD8A3+REQBERAEREARF8SysgjfJI5rI2Auc5xwGgcyT2BAfa4c4NBJPAcz3LWvan0xtKaPdPb9MRjUd2Zlpkik3aOJ3jJ7/1MyPELTzaDt415tKfKy83yaK3vPC3UJMFOB3FoOX/ANIlSltpNev96X3V7fAwzrxjs3kgetukbs40I6WG4ajp6muj50duHlMue47nBp+MQsCan6eIBdHpjSLnAHzZ7rU7uR/Jx5/vLS8AAYAAHcEU1R0W3hz8yf76jXlcSe7YZ2vnS/2qXgvEF2orXE/3lDRMyP6T94qxLhts2j3Qk1Wub+4O4FrKx0bcepmArERb8LShDmwXwMbnJ72Vd+rNQSkl9+uzieZNdLx/tL5Gpr4DkXu6A/z2X7SpSLL5uHUW5ZcFFrzVVtkEtHqe908g99HcJQf7yue3bftp9rLfJ9c3pwBzieYTD+2CscIrZUKUudFfAKTXSbB2Tpm7T7W9vllRabqwcxVUQYT/AEoy36FlTTPTxpXlkepNITxfnT2ypEg/QeGn+0tKEWrU0y1qb4Y7NhkVaa6SUnRvSQ2a63dHDQ6lp6Wsk5UtxBppM9w38NJ9RKyqx7ZGhzSC1wyCDkEKGEgEYIBHcVkDQO2zXOzWSMWG/VDaJp40FUeupnDu3Hej62kFRlfQlvoy9z8TNG59ZEsCLFmwLaxPtj0M6/Vdtjt9XBVvo5Y4ZC+N7mta7ebkZAO/yOcY5lZTXP1Kcqc3Ce9GymmsoIiKwqEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBEWF9vPSDtGx22CmibHX6oqmF1LQb3msHLrZSOIZnkObuQ7SMlKlOrNQgstlG1FZZd+03a1pnZPZDcr/AFm7JICKaiiw6epcOxjfpJwB2lR8bYOkXqva3NLSyzG16cz97tdM87rx2GV/AyHw9Edg7VjrVur71rq+1N7v9wlrrjUHzpH8A1vY1jeTWjsaOCoi6yx0unbpTntl8uzxNKpWcti3BERSpgCIvdaLLctQVzaG02+ruFa/lBSQulefY0FUbSWWDwos66Z6JG0i/Bj66kobHE8A/wDeNRmXH8lGHO9hwsl2boRQyudHcNX1dRPHgSNt1vaxkbu4vldx4dgGeK0ampWtPY5/Db8jKqM30Gn6LfWj6D+i2CN1VcNRyFo89rKiBocfXucFUndC3ZuI3Dc1K1+ODvLWOx44DeK13rVt7fgXcXmR8It6rj0PNm8bnUsN31C2u3QRG2Vrnt8S0x4APiR61a956EDC0utGpq2JxHmsuVLFgn47H49mFfHWLV7217g7eZp6iz5qLog7RbOZnUEFHd2RcS2nk6uUjvDH4z7CVhzUGkr9pSXq75Z663O7DUwuY0+p3I+wrdpXVGr6OSZjlCUd6KMiIs5YSEdBz8kVx+Wp/qolswtZ+g5+SK4/LU/1US2YXDah+JqdpI0uYgiItMyBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAERWntH2gWvZlpC4ajuzj5PStxHC04fPKeDI2+Lj8wyeQVYxcmoxWWyjeNrLJ6QG3Oh2OabBhEVTqava5tBRuPAd8sg57jf7R4DtIjSvt9uWprxWXe71ktZcqyQyTTynLnu/wAAOQA4ADAVS11ra77RNU3DUV7m6yurH53WnzIWD0Y2Dsa0cB7SeJKtxdpp9jG1ht5z3v6GhVqOb9gREUgYgqpp3Td31bdo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KmKcTTWUawREVQFw4B3pAH1jK5RAcNa1votDfUMLk+cMHiO4oiA4DGt5NaPUMLnOURAdkH4eL47fpWWzzKxJB+Hi+O36QstnmVwHltz6P/19D2D7LeZc9sf8jhddR+LzfEd9C7F9R0r617aWLHW1BETN44G847oz7SuIpc+Paep1/RS7H8i7uhfrn9ze06Wwzy7tFqOn6kAnA8ojy+M+1vWN9oUiS1b2OdDu26KuVuv+p7q+5XuikZPDT0ZdFTQSNOQd7g6Qg9+6PAraRehanWpVq3DpPOzafLlKMorDCIijjKEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREBQNVaL0/ra3G36hs9Hc6Q8mVMQdunvaebT4gha1646Denri6Wo0le6q0SnJFLWDymDPcHcHtHrLltmi2KF3WoP+HLBbKEZb0Rl6r6KG1DS7nujsbLxTNJxNaphKT/APrO6/8AYViO72G7afmdDdrXXW+VpILKynfEQR8YBTIYXRU0kFZC6GphjmhcMOZK0OafWCpWlrtWPpIp9xgdsnuZDK0h3okH1HK5wVLPd9jWz6+7xuGi7DM9/pP8hja4/wBJoBVrVXRZ2R1fpaNpoj/5FRPH/detuOvUv5ovuLHbS6GRgopLX9EPZK85Gnp2+DbhP9teiDom7I4HAnSpkI/3ldUEfNvq/l236n3eJTi8iMrBHNI/vzwyPz3k4DWecfmClSt/R42W2uQPp9D2YuHbNCZv75Kve1aWsdhAFqs1uoABujyWlZFw7vNAWKevQXNg/wB/EqrZ9LIstN7Gtf6mMctt0heJKcHeM8tOYYwAePnSboVxHmpQS0OBBGQe9aAbYNm1bs71VVRuhcbNVyuloagDzXNJzuE9jm5xjuAK4/ykuql4oVHHCjnvx4HqP2bXFGhVrW0pfenhr24zn5mPV7rJ/rq2fzqH6xq8Ky1sE2a1mtNXUVzmgcLDapmzzzOHmyyNOWxN7znBPcB4hczRpyqVFGJ6fql3Ss7SpXrPCSf6LtZvQERF2B81hERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAFRNV2+kuenbjT1tLBVQGB7urnjD25AODg8ERY6vo5dht2H4qn2r5mg9poaWTXjKV9NC6m8pLeqcwFmM8scsKQW1UVNb6CmpqSnip6aONoZFCwMY0eAHAIiidK50j0P7QPR0D3IiKaPMQiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgP/2Q==" alt="C.P.I.C." width="90" height="34">
+      <div style="min-width:0">
+        <h1>Shepherd</h1>
+        <p id="todayLine">Newcomers, follow-up and attendance</p>
+      </div>
+    </div>
+    <div class="sync"><span class="dot wait" id="syncDot"></span><span id="syncText">Connecting</span></div>
+  </div>
+<nav class="tabs" aria-label="Sections">
+  <div class="tabs-in">
+    <a href="#sunday" data-view="sunday"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M9 5h6"/><path d="M5 22V12l7-4 7 4v10"/><path d="M10 22v-5h4v5"/></svg>Sunday</a>
+    <a href="#newcomers" data-view="newcomers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/><path d="M19 8v6M16 11h6"/></svg>Newcomers</a>
+    <a href="#follow-up" data-view="follow-up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.2A8.5 8.5 0 1 1 21 12z"/></svg>Follow-up<span class="badge" id="fuBadge" hidden></span></a>
+    <a href="#groups" data-view="groups"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3.3 2.7-6 6-6 1.5 0 2.9.6 4 1.5A6 6 0 0 1 22 20"/></svg>Groups</a>
+    <a href="#insights" data-view="insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Insights</a>
+  </div>
+</nav>
+</header>
+
+<main><div class="wrap" id="app"></div></main>
+
+
+
+<div id="sheetRoot"></div>
+<div class="toast" id="toast" hidden></div>
+
+
+
+<script src="/shepherd/auth.js"></script>
+<script>
+(function(){
+"use strict";
+/* ---------- constants ---------- */
+const VISA = ["Employment visa","Visit visa","Freelance visa","Family / residence visa","Golden visa","Student visa","Citizen / GCC national","Other / not sure"];
+const WORK = ["Employed","Looking for a job","Self-employed / business","Student","Not working"];
+const GROUPS = [["men","Men"],["women","Women"],["youth","Youth"],["children","Children"]];
+const FELLOW = [["men","Men"],["women","Women"],["youth","Youth"],["teens","Teens"]];
+const FNAME = {men:"Men’s fellowship",women:"Women’s fellowship",youth:"Youth fellowship",teens:"Teens fellowship"};
+const DEFAULT_PRES = {men:{name:"Brother Willie",phone:""},women:{name:"Sister Vivian",phone:""},youth:{name:"Brother Samuel",phone:""},teens:{name:"Sister Margaret",phone:""}};
+const BUFFER_DAYS = 91;   /* about 3 months of coming regularly before someone can be confirmed as a member */
+const STATUS = {new:["Newcomer","acc"],returned:["Regular","ok"],member:["Member","ok"],inactive:["Not reachable","bad"]};
+/* three stages: Newcomer (first Sunday) → Regular (has come back, in the 3 months) → Member (confirmed) */
+const STAGE_NEXT = {new:["returned","Make Regular"], returned:["member","Make Member"]};
+const COUNTRY = [["+971","UAE"],["+234","Nigeria"],["+233","Ghana"],["+254","Kenya"],["+256","Uganda"],["+237","Cameroon"],["+263","Zimbabwe"],["+27","South Africa"],["+251","Ethiopia"],["+255","Tanzania"],["+250","Rwanda"],["+260","Zambia"],["+243","DR Congo"],["+232","Sierra Leone"],["+231","Liberia"],["+91","India"],["+63","Philippines"],["+92","Pakistan"],["+94","Sri Lanka"],["+44","UK"],["+1","USA / Canada"],["+20","Egypt"],["+961","Lebanon"],["+966","Saudi Arabia"],["+968","Oman"],["+974","Qatar"],["+973","Bahrain"],["+965","Kuwait"]];
+const READY_MIN = 8;   /* times they must have come (first visit included) before "Ready to confirm" shows, once 3 months have passed */
+const MISS_N = 3;      /* recorded Sundays in a row someone can miss before they show under "We miss you" */
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const STEPS = [
+  {key:"welcome", label:"Welcome message", offset:0},
+  {key:"checkin", label:"Midweek check-in", offset:3},
+  {key:"invite",  label:"Invite back for Sunday", offset:6}
+];
+const DEFAULT_TPL = {
+  welcome:"Hi {name}, thank you so much for worshipping with us at CPIC today! It was a real joy to have you. Please save this number so we can stay in touch.\n\nPray with us every Monday to Friday, 7 to 8 am, at Morning Glory, live on:\nTikTok: https://www.tiktok.com/@christpowerintchurch\nYouTube: https://www.youtube.com/@christpowerintchurch\n\nGod bless your week.",
+  mg:"Good morning {name}! Morning Glory prayers with Pastor Blessing are on now, 7 to 8 am. Start your day in God's presence with us, live on:\nTikTok: https://www.tiktok.com/@christpowerintchurch\nYouTube: https://www.youtube.com/@christpowerintchurch\nGod bless your day!",
+  bible:"Hi {name}, it's Bible study night! Digging Deep is on today from 7 to 8 pm. Join us live and let's go deeper into God's Word together:\nYouTube: https://www.youtube.com/@christpowerintchurch\nFacebook: https://www.facebook.com/cpicchurch\nSee you there!",
+  service:"Hi {name}, happy Sunday! Service at CPIC is today from 2 to 6 pm and we would love to see you. Bring a friend! If you can't make it in person, watch live on YouTube: https://www.youtube.com/@christpowerintchurch",
+  service_sat:"Hi {name}, we're looking forward to worshipping with you tomorrow at CPIC! Sunday service is from 2 to 6 pm. Feel free to bring a friend or your family. If you need directions, just reply to this message. God bless you!",
+  service_thanks:"Hi {name}, thank you so much for coming to church today! We're so glad to have you with us at CPIC, and we hope you were blessed. We'd love to see you again next Sunday at 2 pm, and we pray you'll become part of this family. God bless you!",
+  service_live:"Hi {name}, service has just started at CPIC and God is moving! Come and join us now. If you can't be here in person, watch live on YouTube: https://www.youtube.com/@christpowerintchurch",
+  mg_eve:"Hi {name}, start your day with God tomorrow! Join Pastor Blessing for Morning Glory prayers from 7 to 8 am, live on:\nTikTok: https://www.tiktok.com/@christpowerintchurch\nYouTube: https://www.youtube.com/@christpowerintchurch\nSee you in the morning!",
+  bible_live:"Hi {name}, Digging Deep Bible study has just started! Grab your Bible and join us live now:\nYouTube: https://www.youtube.com/@christpowerintchurch\nFacebook: https://www.facebook.com/cpicchurch",
+  checkin:"Hi {name}, this is {sender} from CPIC. Just checking in to see how your week is going. Is there anything we can pray with you about? We are here for you.",
+  invite:"Hi {name}! We are looking forward to seeing you again tomorrow at CPIC. Service starts at 2 pm. Feel free to bring a friend. If you need directions or a ride, just reply to this message.",
+  missed:"Hi {name}, we've missed you at CPIC these past few Sundays! We hope you and your family are well. Is there anything we can pray with you about? We'd love to see you this Sunday at 2 pm. God bless you!",
+  birthday:"Happy birthday, {name}! 🎉 Everyone at CPIC is celebrating you today. May God bless you with a year full of joy, good health and His favour. We love you!",
+  anniversary:"Happy wedding anniversary, {name}! 💛 Everyone at CPIC is celebrating with you both today. May God keep blessing your marriage with love, joy and peace."
+};
+/* reminders for everyone with a phone number, on the days they apply (0 = Sunday) */
+/* reminders for everyone with a phone number: a heads-up before, and a "we're live, join us" when it starts */
+const REMINDERS = [
+  {key:"service", label:"Sunday service", when:"Sunday, 2 to 6 pm", days:[0], msgs:[["service_sat","Saturday: see you tomorrow"],["service","Sunday: today at 2 pm"],["service_live","Started: join us now"],["service_thanks","After service: thank you for coming"]]},
+  {key:"mg", label:"Morning Glory", when:"Monday to Friday, 7 to 8 am, on TikTok and YouTube", days:[1,2,3,4,5], msgs:[["mg_eve","The evening before"],["mg","Live now"]]},
+  {key:"bible", label:"Bible study", when:"Tuesday, 7 to 8 pm, on YouTube and Facebook", days:[2], msgs:[["bible","Earlier on Tuesday"],["bible_live","Starting now"]]}
+];
+const TPL_KEYS = ["welcome","checkin","invite","missed","birthday","anniversary","service_sat","service","service_live","service_thanks","mg_eve","mg","bible","bible_live"];
+const TPL_LABEL = {welcome:"Welcome message · Sunday", checkin:"Midweek check-in · Wednesday", invite:"Invite back · Saturday", missed:"We miss you · after 3 Sundays away", birthday:"Birthday greeting", anniversary:"Wedding anniversary greeting",
+  service_sat:"Sunday service · Saturday, see you tomorrow", service:"Sunday service · Sunday morning", service_live:"Sunday service · started, join us now", service_thanks:"Sunday service · after, thank you for coming",
+  mg_eve:"Morning Glory · the evening before", mg:"Morning Glory · live now", bible:"Bible study · earlier on Tuesday", bible_live:"Bible study · starting now"};
+const NATIONS = ["Nigerian","Ghanaian","Kenyan","Ugandan","Cameroonian","Zimbabwean","South African","Ethiopian","Indian","Filipino","Pakistani","Sri Lankan","British","American","Emirati","Egyptian","Lebanese","Congolese","Rwandan","Tanzanian","Zambian","Sierra Leonean","Liberian"];
+
+/* ---------- date helpers ---------- */
+const pad = n => String(n).padStart(2,"0");
+const iso = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parse = s => { const [y,m,d] = String(s).split("-").map(Number); return new Date(y,(m||1)-1,d||1); };
+const addDays = (s,n) => { const d = parse(s); d.setDate(d.getDate()+n); return iso(d); };
+const today = () => iso(new Date());
+const weekStart = s => { const d = parse(s); d.setDate(d.getDate()-d.getDay()); return iso(d); };
+const fmt = s => s ? parse(s).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : "";
+const fmtLong = s => parse(s).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+/* a list of Sundays to choose from, newest first, so no other day can be picked */
+function sundayOptions(sel, weeks){ const last=lastSunday(today()); const list=[]; for(let i=0;i<weeks;i++) list.push(addDays(last,-7*i));
+  if(sel && !list.includes(sel)) list.push(sel);
+  return list.map(d=>`<option value="${d}" ${d===sel?"selected":""}>${parse(d).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}${d===last?" · latest":""}</option>`).join(""); }
+const daysBetween = (a,b) => Math.round((parse(b)-parse(a))/86400000);
+const lastSunday = s => weekStart(s); /* the Sunday on or before a date */
+
+/* ---------- utils ---------- */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const initials = n => String(n||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase() || "?";
+const firstName = n => String(n||"").trim().split(/\s+/)[0] || "there";
+const $ = id => document.getElementById(id);
+function lsGet(k,d){ try{ const v = localStorage.getItem(k); return v==null?d:v; }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function normPhone(raw, cc){
+  const s = String(raw||"").trim(); if(!s) return "";
+  let d = s.replace(/\D/g,"");
+  if(!d) return "";
+  if(s.startsWith("+")) return "+"+d;
+  if(d.startsWith("00")) return "+"+d.slice(2);
+  cc = cc || "+971"; const ccd = cc.slice(1);
+  if(d.startsWith(ccd) && d.length >= ccd.length+8) return "+"+d;   /* typed with the country code but no + */
+  d = d.replace(/^0+/,"");
+  return cc+d;
+}
+/* the country code part of a saved number, for the edit form */
+function splitPhone(p){ if(!p) return [lsGet("cpic.cc","+971"),""]; const c=COUNTRY.map(x=>x[0]).sort((a,b)=>b.length-a.length).find(c=>p.startsWith(c)); return c?[c,p.slice(c.length)]:["+971",p.replace(/^\+/,"")]; }
+const ccOptions = sel => COUNTRY.map(([c,l])=>`<option value="${c}" ${c===sel?"selected":""}>${l} ${c}</option>`).join("");
+const dayMonthSel = (id,val,label) => { const [m,d]=(val||"-").split("-"); return `<div class="field"><span class="lbl">${label}</span><div class="dm"><select id="${id}_d" aria-label="${label}: day"><option value="">Day</option>${Array.from({length:31},(_,i)=>pad(i+1)).map(x=>`<option ${x===d?"selected":""}>${x}</option>`).join("")}</select><select id="${id}_m" aria-label="${label}: month"><option value="">Month</option>${MONTHS.map((x,i)=>`<option value="${pad(i+1)}" ${pad(i+1)===m?"selected":""}>${x}</option>`).join("")}</select></div></div>`; };
+const readDM = id => { const d=$(id+"_d")&&$(id+"_d").value, m=$(id+"_m")&&$(id+"_m").value; return d&&m?m+"-"+d:""; };
+const fmtDM = v => { if(!v) return ""; const [m,d]=v.split("-"); return Number(d)+" "+MONTHS[Number(m)-1]; };
+function prettyPhone(p){
+  if(!p) return "";
+  if(p.startsWith("+971") && p.length===13) return "+971 "+p.slice(4,6)+" "+p.slice(6,9)+" "+p.slice(9);
+  return p;
+}
+const waLink = (phone,text) => "https://wa.me/"+String(phone).replace(/\D/g,"")+"?text="+encodeURIComponent(text);
+let toastT;
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2600); }
+
+/* ---------- state ---------- */
+const S = {
+  db:null, uid:null, canWrite:true, readOnlyReason:"",
+  newcomers:[], members:[], services:{}, templates:{...DEFAULT_TPL},
+  loaded:{n:false,m:false,s:false}, stale:false, offline:false,
+  view:"sunday", date: weekStart(today()), memberQuery:"", ncQuery:"", ncFilter:"all",
+  formOpen:false, editingId:null, sheetId:null, delArm:null, memberFormOpen:false,
+  sender: lsGet("cpic.sender",""), team:[], fuMine: lsGet("cpic.mine","0")==="1", repMonth:"this", dupWarn:null, dupOk:false, spForm:false, memberEditId:null, locked:false, tplOpen:false, grp:"men", grpRange:"unsent", pres:JSON.parse(JSON.stringify(DEFAULT_PRES)), presEdit:false, grpMsg:{}
+};
+const svcPending = {}; const svcBusy = {};
+const OPENED = {};   /* "id|step" → WhatsApp was opened for this message on this phone */
+const JUST = {};
+S.reminders = {}; S.remKey = null;     /* id → {key, t}: just marked as sent; holds the card for a few seconds so a second tap can't mark the next step */
+
+/* ---------- the saved copy anyone with the link can see without signing in ---------- */
+const readJSON = id => { try{ const el=document.getElementById(id); return el?JSON.parse(el.textContent):null; }catch(_){ return null; } };
+const SNAP = readJSON("snapshot"), SELF = readJSON("selfsrc");
+const WRAP_HEAD = '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>';
+const PUB = {art:null, dirty:false, busy:false, lastWrite:0, visa: !!(SNAP&&SNAP.visa), at: SNAP&&SNAP.at};
+if(SNAP){ S.newcomers=SNAP.newcomers||[]; S.members=SNAP.members||[]; S.services=SNAP.services||{}; S.tplSaved=SNAP.templates||{}; S.templates={...DEFAULT_TPL,...S.tplSaved}; S.loaded={n:true,m:true,s:true}; }
+const fmtWhen = t => { if(!t) return ""; const d=new Date(t); return d.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+", "+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}); };
+function publicData(){ return { newcomers:S.newcomers.map(n=>{ const c={...n}; if(!PUB.visa) delete c.visa; return c; }), members:S.members, services:S.services, templates:S.tplSaved||{}, visa:PUB.visa }; }
+function copyOutdated(){ if(!S.db||!SNAP) return !SNAP; const a=JSON.stringify(publicData()); const {at,...rest}=SNAP; return a!==JSON.stringify(rest); }
+const jsonTag = (id,obj) => '<script type="application/json" id="'+id+'">'+JSON.stringify(obj).replace(/</g,"\\u003c")+'<\/script>';
+async function publishCopy(manual){
+  if(!PUB.art||!SELF||PUB.busy) return;
+  if(!(S.loaded.n&&S.loaded.m&&S.loaded.s)||S.stale){ if(manual) toast("Still loading the latest records. Try again in a moment."); return; }
+  PUB.busy=true; if(manual) toast("Updating the copy everyone sees…");
+  const data=Object.assign(publicData(),{at:new Date().toISOString()});
+  const html=WRAP_HEAD+"\n"+SELF.replace("<!-"+"-SNAP-"+"->",jsonTag("snapshot",data)).replace("<!-"+"-SELF-"+"->",jsonTag("selfsrc",SELF))+"\n</body></html>";
+  try{ await PUB.art.publish(html); PUB.dirty=false; }
+  catch(e){ const c=e&&e.code; if(c!=="conflict"&&manual) toast(c==="not_writer"||c==="not_granted"?"Only people with edit access can update the copy.":"The copy couldn’t be updated. Try again."); }
+  PUB.busy=false;
+}
+/* after someone saves a change, refresh the shared copy once they've paused (every open page reloads when it updates) */
+function markDirty(){ PUB.dirty=true; PUB.lastWrite=Date.now(); }
+setInterval(()=>{ if(!PUB.dirty||PUB.busy) return; const a=document.activeElement; const typing=a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName);
+  if(Date.now()-PUB.lastWrite>90000 && !typing && !S.sheetId && !S.formOpen && !S.memberFormOpen) publishCopy(false); }, 15000);
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden"&&PUB.dirty) publishCopy(false); });
+
+/* ---------- derived ---------- */
+function stepDue(n, step){ return addDays(n.firstVisit||today(), step.offset); }
+function followups(){
+  const t = today(); const out = [];
+  for(const n of S.newcomers){
+    if(!n.consent || !n.phone || n.status==="member" || n.status==="inactive") continue;
+    const steps = n.steps||{};
+    if(JUST[n.id] && Date.now()-JUST[n.id].t<8000){ const st=STEPS.find(x=>x.key===JUST[n.id].key), due=stepDue(n,st), diff=daysBetween(t,due); out.push({n, st, due, diff, bucket: diff<0?"overdue":diff===0?"today":"soon", done:true}); continue; }
+    for(const st of STEPS){
+      if(steps[st.key]) continue;
+      const due = stepDue(n,st);
+      const diff = daysBetween(t,due);
+      if(diff>7) break;
+      out.push({n, st, due, diff, bucket: diff<0?"overdue":diff===0?"today":"soon"});
+      break; // one step at a time per person
+    }
+  }
+  out.sort((a,b)=> a.due<b.due?-1:a.due>b.due?1:0);
+  return out;
+}
+function fillTpl(key, n){
+  const tpl = (S.templates && S.templates[key]) || DEFAULT_TPL[key];
+  return tpl.replaceAll("{name}", firstName(n.name)).replaceAll("{sender}", S.sender.trim() || "the CPIC team");
+}
+function svc(date){ return S.services[date] || {date, label:isSunday(date)?"Sunday Service":"Special service", tallies:{men:0,women:0,youth:0,children:0}, present:[], presentNc:[]}; }
+function headcount(s){ const t=s.tallies||{}; return GROUPS.reduce((a,[k])=>a+(Number(t[k])||0),0); }
+
+/* ---------- attendance (members, newcomers and regulars) ---------- */
+const isSunday = d => parse(d).getDay()===0;
+const taken = s => ((s.present||[]).length + (s.presentNc||[]).length) > 0;
+function svcList(){ return Object.values(S.services).filter(s=>s.date<=today()).sort((a,b)=>a.date.localeCompare(b.date)); }
+function visitsOf(n){ const dates=[]; if(n.firstVisit) dates.push(n.firstVisit); for(const s of Object.values(S.services)){ if(s.date!==n.firstVisit && (s.presentNc||[]).includes(n.id)) dates.push(s.date); } dates.sort(); return {count:dates.length, last:dates[dates.length-1]||null, dates}; }
+function memberLast(m){ let last=null; for(const s of Object.values(S.services)) if((s.present||[]).includes(m.id) && (!last||s.date>last)) last=s.date;
+  if(m.fromNewcomer){ const n=S.newcomers.find(x=>x.id===m.fromNewcomer); if(n){ const v=visitsOf(n).last; if(v&&(!last||v>last)) last=v; } } return last; }
+function missedSince(last){ if(!last) return 0; return svcList().filter(s=>s.date>last && taken(s)).length; }
+function readyToConfirm(n){ return n.status==="returned" && n.firstVisit && daysBetween(n.firstVisit,today())>=BUFFER_DAYS && visitsOf(n).count>=READY_MIN; }
+function missingPeople(){ const out=[];
+  for(const n of S.newcomers){ if(n.status!=="returned"||!n.phone||!n.consent) continue; const last=visitsOf(n).last; const k=missedSince(last); if(k>=MISS_N && !(n.missedSent && n.missedSent>last)) out.push({kind:"nc",id:n.id,name:n.name,phone:n.phone,last,k,stage:"Regular"}); }
+  for(const m of S.members){ if(!m.phone) continue; const last=memberLast(m); if(!last) continue; const k=missedSince(last); if(k>=MISS_N && !(m.missedSent && m.missedSent>last)) out.push({kind:"m",id:m.id,name:m.name,phone:normPhone(m.phone),last,k,stage:"Member"}); }
+  return out.sort((a,b)=>b.k-a.k); }
+/* follow-up team: new people are shared out to whoever has the fewest */
+function nextOwner(){ if(!S.team.length) return ""; const load=Object.fromEntries(S.team.map(t=>[t,0])); for(const n of S.newcomers) if(inBuffer(n) && n.owner in load) load[n.owner]++; return S.team.slice().sort((a,b)=>load[a]-load[b])[0]; }
+const me = () => S.sender.trim();
+const logE = (what, i=0) => ({[String(Date.now()+i)]:{at:new Date().toISOString(), by:me()||"Someone", what}});
+function findDup(name, phone, exceptId){ const nm=String(name||"").trim().toLowerCase();
+  const n=S.newcomers.find(x=>x.id!==exceptId && ((phone && x.phone===phone) || (nm && String(x.name||"").trim().toLowerCase()===nm)));
+  if(n) return {kind:"nc", rec:n, why: phone && n.phone===phone ? "number" : "name"};
+  const m=S.members.find(x=>(phone && normPhone(x.phone)===phone) || (nm && String(x.name||"").trim().toLowerCase()===nm));
+  if(m) return {kind:"m", rec:m, why: phone && normPhone(m.phone)===phone ? "number" : "name"};
+  return null; }
+/* the service dates to choose from: Sundays plus any special services that were recorded */
+function dateOptions(sel, weeks){ const last=lastSunday(today()); const list=[]; for(let i=0;i<weeks;i++) list.push(addDays(last,-7*i));
+  for(const d of Object.keys(S.services)) if(!isSunday(d) && !list.includes(d)) list.push(d);
+  if(sel && !list.includes(sel)) list.push(sel); list.sort((a,b)=>b.localeCompare(a));
+  return list.map(d=>`<option value="${d}" ${d===sel?"selected":""}>${parse(d).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}${isSunday(d)?(d===last?" · latest":""):" · "+esc((S.services[d]||{}).label||"Special service")}</option>`).join(""); }
+function celebrations(){ const out=[]; const t=today();
+  for(let i=0;i<7;i++){ const d=addDays(t,i), md=d.slice(5);
+    for(const m of S.members){ if(!m.phone) continue; if(m.birthday===md) out.push({type:"birthday",pid:"m_"+m.id,name:m.name,phone:normPhone(m.phone),date:d,kind:"Member"}); if(m.anniversary===md) out.push({type:"anniversary",pid:"m_"+m.id,name:m.name,phone:normPhone(m.phone),date:d,kind:"Member"}); }
+    for(const n of S.newcomers){ if(!n.consent||!n.phone||!inBuffer(n)) continue; if(n.birthday===md) out.push({type:"birthday",pid:"n_"+n.id,name:n.name,phone:n.phone,date:d,kind:STATUS[n.status||"new"][0]}); } }
+  return out; }
+function prayerList(days){ const from=addDays(today(),-days), out=[];
+  for(const n of S.newcomers){ for(const [k,v] of Object.entries(n.notesLog||{})){ if(v&&v.prayer && (v.at||"").slice(0,10)>=from) out.push({id:n.id,name:n.name,text:v.text,at:v.at,by:v.by}); }
+    if(n.notes && n.firstVisit && n.firstVisit>=from) out.push({id:n.id,name:n.name,text:n.notes,at:n.firstVisit,by:"Visitor card"}); }
+  return out.sort((a,b)=>String(b.at).localeCompare(String(a.at))); }
+
+/* ---------- groups (fellowships) ---------- */
+const fellowOf = n => n.fellowship || (n.gender==="Female"?"women":n.gender==="Male"?"men":"");
+const memberFellow = m => m.fellowship || (["men","women","youth"].includes(m.group)?m.group:"");
+const inBuffer = n => n.status!=="member" && n.status!=="inactive";
+function grpNewcomers(g){ return S.newcomers.filter(n=>inBuffer(n)&&fellowOf(n)===g).sort((a,b)=>(b.firstVisit||"").localeCompare(a.firstVisit||"")||String(a.name).localeCompare(String(b.name))); }
+function grpPick(g,range){ const all=grpNewcomers(g), sun=lastSunday(today());
+  if(range==="unsent") return all.filter(n=>!(n.groupSent||{})[g]);
+  if(range==="sunday") return all.filter(n=>n.firstVisit===sun);
+  if(range==="month") return all.filter(n=>n.firstVisit&&daysBetween(n.firstVisit,today())<=28);
+  return all; }
+function grpMessage(g,list){ const p=S.pres[g]||{}; const who=p.name||"there"; const many=list.length!==1;
+  const lines=list.map((n,i)=>`${i+1}. ${n.name}${n.phone&&n.consent!==false?" – "+n.phone:" – (no number shared)"}${n.firstVisit?", first came "+fmt(n.firstVisit):""}${n.area?", lives in "+n.area:""}`);
+  return `Hello ${who}, greetings from the CPIC follow-up team 🙏\n\nHere ${many?"are the newcomers":"is the newcomer"} in the ${FNAME[g]}:\n\n${lines.join("\n")}\n\n${many?"They are":"They’re"} in their first 3 months with us. Please reach out when you can, welcome ${many?"them":"them"} into the ${FNAME[g]} and help ${many?"them":"them"} feel at home.\n\nGod bless,\n${S.sender.trim()||"The CPIC team"}`; }
+
+/* ---------- rendering ---------- */
+function render(){
+  document.querySelectorAll("nav.tabs a").forEach(a=>{ if(a.dataset.view===S.view) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  const due = followups().filter(f=>f.diff<=0).length;
+  const b = $("fuBadge"); b.hidden = !due; b.textContent = due;
+  $("todayLine").textContent = "Workers only · " + fmtLong(today());
+  const app = $("app");
+  if(S.locked){ app.innerHTML=`<section class="section" style="text-align:center;padding:32px 18px"><h3 style="font-size:20px">For CPIC workers only</h3><p class="muted" style="margin:0">This page holds people’s private details, so only invited workers can open it. If you’re on the follow-up team, ask Sam to invite your email address, then open the invitation email.</p></section>`; document.querySelector("nav.tabs").hidden=true; return; }
+  const ui = captureUI();
+  let html = "";
+  if(!S.db && SNAP) html += `<div class="banner" style="background:var(--accent-soft)"><b style="color:var(--accent)">Saved copy from ${esc(fmtWhen(SNAP.at))}.</b> Anyone with the link can follow up from here. To add or change records, sign in to Claude.</div>`;
+  else if(!S.db) html += `<div class="banner"><b>Not connected.</b> Sign in again to record and share entries with your team.</div>`;
+  else if(!me() && S.view!=="follow-up") html += `<div class="banner" style="background:var(--accent-soft)"><b style="color:var(--accent)">Who’s using this phone?</b> Add your name on the Follow-up tab, so the team can see who sent each message. <a href="#follow-up" class="btn" style="min-height:32px;padding:4px 10px;margin-left:6px">Add my name</a></div>`;
+  else if(S.canWrite && PUB.art && !S.stale && S.loaded.n && S.loaded.m && S.loaded.s && !PUB.dirty && copyOutdated()) html += `<div class="banner" style="background:var(--accent-soft)"><b style="color:var(--accent)">The copy people see without signing in is from ${esc(fmtWhen(PUB.at)||"before today")}.</b> It updates by itself a minute or two after you save. <button class="btn" id="pubNow" style="margin-left:6px;min-height:32px;padding:4px 10px">Update it now</button></div>`;
+  else if(!S.canWrite) html += `<div class="banner"><b>View only.</b> ${esc(S.readOnlyReason||"Ask the page owner to give you Contributor access so you can add records.")}</div>`;
+  else if(S.stale) html += `<div class="banner"><b>Still connecting.</b> Records may be out of date until the connection is back.</div>`;
+  if(S.view==="sunday") html += viewSunday();
+  else if(S.view==="newcomers") html += viewNewcomers();
+  else if(S.view==="follow-up") html += viewFollowup();
+  else if(S.view==="groups") html += viewGroups();
+  else html += viewInsights();
+  app.innerHTML = html;
+  restoreUI(ui);
+  renderSheet();
+}
+/* keep what someone is typing when a teammate's update re-renders the page */
+function captureUI(){
+  const app=$("app"); const vals=[];
+  app.querySelectorAll("input,select,textarea").forEach(el=>{
+    if(!el.id || el.type==="search") return;
+    vals.push({id:el.id, k: el.form ? (el.form.dataset.k||"") : "", v: el.type==="checkbox" ? el.checked : el.value});
+  });
+  const a=document.activeElement;
+  const foc = a && a.id && app.contains(a) ? {id:a.id, s:a.selectionStart, e:a.selectionEnd} : null;
+  return {vals, foc};
+}
+function restoreUI(ui){
+  for(const x of ui.vals){
+    const el=$(x.id); if(!el) continue;
+    if((el.form ? (el.form.dataset.k||"") : "") !== x.k) continue;
+    if(x.id==="svcDate" || x.id==="svcLabel" || x.id==="senderName" || x.id==="grpMsg") continue;
+    if(el.type==="checkbox") el.checked=x.v; else el.value=x.v;
+  }
+  if(ui.foc){ const el=$(ui.foc.id); if(el){ try{ el.focus({preventScroll:true}); if(ui.foc.s!=null) el.setSelectionRange(ui.foc.s, ui.foc.e); }catch(_){} } }
+}
+
+function viewSunday(){
+  const s = svc(S.date); const hc = headcount(s); const sun=isSunday(S.date);
+  const ncToday = S.newcomers.filter(n=>n.firstVisit===S.date);
+  const present = new Set(s.present||[]), presentNc = new Set(s.presentNc||[]);
+  const q = S.memberQuery.trim().toLowerCase();
+  const members = S.members.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name)))
+    .filter(m=>!q || String(m.name).toLowerCase().includes(q));
+  const ncs = S.newcomers.filter(n=>(n.status==="new"||n.status==="returned"||!n.status) && n.firstVisit && n.firstVisit<S.date && daysBetween(n.firstVisit,S.date)<=200)
+    .filter(n=>!q || String(n.name).toLowerCase().includes(q)).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  const dis = S.canWrite?"":"disabled";
+  const tick = on => `<span class="tick">${on?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>':""}</span>`;
+  const me_ = S.memberEditId ? S.members.find(m=>m.id===S.memberEditId)||{} : {};
+  const [mcc,mnum] = splitPhone(me_.phone?normPhone(me_.phone):"");
+  return `
+  <div><h2 class="view-title">${sun?"Sunday attendance":esc(s.label||"Special service")}</h2><p class="view-sub">${esc(fmtLong(S.date))}${sun?" · 2:00 to 6:00 pm":" · special service"}${S.date===today()?" · today":""}</p></div>
+  <section class="section">
+    <div class="sunday-nav">
+      <button class="btn" id="prevSun" aria-label="Previous Sunday">‹ Previous</button>
+      <div class="field" style="flex:1"><label for="svcDate" class="sr">Choose a service</label><select id="svcDate">${dateOptions(S.date,104)}</select></div>
+      <button class="btn" id="nextSun" aria-label="Next Sunday" ${addDays(lastSunday(S.date),7)>today()?"disabled":""}>Next ›</button>
+    </div>
+    ${!sun?`<div class="field"><label for="svcLabel">Name of this service</label><input type="text" id="svcLabel" value="${esc(s.label||"")}" ${dis}></div>`:""}
+    ${S.spForm?`<div class="grid2" style="align-items:end"><div class="field"><label for="spDate">Date of the special service</label><input type="date" id="spDate" max="${today()}" value="${today()}"></div>
+      <div class="field"><label for="spName">Name</label><input type="text" id="spName" placeholder="e.g. Good Friday service, Convention night 1"></div>
+      <div class="row"><button class="btn primary" id="spGo" ${dis}>Open it</button><button class="btn ghost" id="spCancel">Cancel</button></div></div>`
+    :`<button class="btn ghost" id="spOpen" style="align-self:flex-start" ${dis}>+ Record a special service (not on a Sunday)</button>`}
+  </section>
+  <div class="total-bar"><div><div class="label" style="color:inherit;opacity:.85">Headcount</div><div class="big num">${hc}</div></div>
+    <div class="meta num">${present.size} members · ${presentNc.size} returning newcomers & regulars ticked · ${ncToday.length} newcomer${ncToday.length===1?"":"s"} registered</div></div>
+  <section class="section">
+    <div class="section-head"><h3>Usher count</h3><span class="small muted">Tap + as people walk in</span></div>
+    <div class="tallies">${GROUPS.map(([k,l])=>`
+      <div class="tally"><span class="label">${l}</span><span class="n num">${Number((s.tallies||{})[k])||0}</span>
+        <div class="ctl"><button aria-label="Remove one from ${l}" data-tally="${k}" data-d="-1" ${dis}>−</button><button class="plus" aria-label="Add one to ${l}" data-tally="${k}" data-d="1" ${dis}>+</button></div></div>`).join("")}
+    </div>
+  </section>
+  <section class="section">
+    <div class="section-head"><h3>Roll call</h3><button class="btn" id="toggleMemberForm" ${dis}>${S.memberFormOpen&&!S.memberEditId?"Close":"Add member"}</button></div>
+    ${S.memberFormOpen?`
+    <form id="memberForm" data-k="${esc(S.memberEditId||"new")}" class="grid2" autocomplete="off">
+      <div class="field" style="grid-column:1/-1"><b>${S.memberEditId?"Edit "+esc(me_.name):"New member"}</b></div>
+      <div class="field"><label for="mName">Full name</label><input type="text" id="mName" required value="${esc(me_.name)}"></div>
+      <div class="field"><label for="mPhone">Phone</label><div class="phonefield"><select id="mCC" aria-label="Country code">${ccOptions(mcc)}</select><input type="tel" id="mPhone" placeholder="50 123 4567" value="${esc(mnum)}"></div></div>
+      <div class="field"><label for="mGroup">Group</label><select id="mGroup">${GROUPS.map(([k,l])=>`<option value="${k}" ${me_.group===k?"selected":""}>${l}</option>`).join("")}</select></div>
+      ${dayMonthSel("mBday",me_.birthday,"Birthday (optional)")}
+      ${dayMonthSel("mAnniv",me_.anniversary,"Wedding anniversary (optional)")}
+      <div class="row" style="grid-column:1/-1"><button class="btn primary" type="submit">${S.memberEditId?"Save changes":"Save member"}</button><button class="btn ghost" type="button" id="cancelMember">Cancel</button>${S.memberEditId?`<button class="btn danger" type="button" id="delMember">${S.mDelArm?"Tap again to remove":"Remove member"}</button>`:""}</div>
+    </form>`:""}
+    <input type="search" id="memberSearch" placeholder="Search names" value="${esc(S.memberQuery)}" aria-label="Search names">
+    <div class="label" style="margin-top:2px">Members</div>
+    <div class="list" id="memberList">${
+      !S.loaded.m && S.db ? `<div class="empty">Loading members…</div>` :
+      members.length ? members.map(m=>`<div class="ncrow">
+        <button class="item" data-member="${esc(m.id)}" aria-pressed="${present.has(m.id)}" ${dis}>
+          <span class="avatar">${esc(initials(m.name))}</span>
+          <span class="main"><span class="name" style="display:block">${esc(m.name)}</span><span class="sub" style="display:block">${esc((GROUPS.find(g=>g[0]===m.group)||[0,""])[1])}${m.phone?" · "+esc(prettyPhone(normPhone(m.phone))):""}${m.birthday?" · 🎂 "+esc(fmtDM(m.birthday)):""}</span></span>
+          ${tick(present.has(m.id))}
+        </button><button class="btn editbtn" data-medit="${esc(m.id)}" aria-label="Edit ${esc(m.name)}" ${dis}>Edit</button></div>`).join("") :
+      S.members.length ? `<div class="empty">No member matches “${esc(S.memberQuery)}”.</div>` :
+      `<div class="empty"><b>No members on the register yet</b>Add your regular members with “Add member”, then tick them off each service. Newcomers who become members are added here automatically.</div>`
+    }</div>
+    <div class="label" style="margin-top:8px">Newcomers & Regulars who came back</div>
+    <p class="small muted" style="margin:0">Tick anyone who came again. A Newcomer who comes back becomes a Regular automatically, and every tick counts towards their 3 months.</p>
+    <div class="list">${ncs.length?ncs.map(n=>{ const v=visitsOf(n); return `
+      <button class="item gitem" data-ncp="${esc(n.id)}" aria-pressed="${presentNc.has(n.id)}" ${dis}>
+        <span class="avatar">${esc(initials(n.name))}</span>
+        <span class="main"><span class="name" style="display:block">${esc(n.name)} <span class="muted" style="font-weight:500">(${n.status==="returned"?"Regular":"Newcomer"})</span></span><span class="sub" style="display:block">First came ${esc(fmt(n.firstVisit))} · came ${v.count} time${v.count===1?"":"s"}</span></span>
+        ${tick(presentNc.has(n.id))}
+      </button>`; }).join(""):`<div class="empty">${q?"Nobody matches.":"Nobody to tick yet. People registered on earlier Sundays appear here."}</div>`}</div>
+    ${ncToday.length?`<p class="small muted" style="margin:0">Registered at this service: ${ncToday.map(n=>esc(n.name)).join(", ")}.</p>`:""}
+  </section>`;
+}
+
+function bySunday(list){ const by={}; for(const n of list){ const d=n.firstVisit; const k=!d?"unknown":(isSunday(d)||S.services[d])?d:lastSunday(d); (by[k]=by[k]||[]).push(n); }
+  return Object.keys(by).sort((a,b)=>b.localeCompare(a)).map(k=>{ const ns=by[k]; const cnt=st=>ns.filter(n=>(n.status||"new")===st).length;
+    const head=k==="unknown"?"No date recorded":!isSunday(k)?((S.services[k]||{}).label||"Special service")+" · "+fmtLong(k):(k===lastSunday(today())?"This Sunday · ":"")+fmtLong(k);
+    const bits=[cnt("new")&&`${cnt("new")} newcomer${cnt("new")===1?"":"s"}`,cnt("returned")&&`${cnt("returned")} regular${cnt("returned")===1?"":"s"}`,cnt("member")&&`${cnt("member")} member${cnt("member")===1?"":"s"}`].filter(Boolean).join(" · ");
+    const mixed=["new","returned","member","inactive"].filter(x=>cnt(x)).length>1;
+    return `<details class="sun" ${S.sunClosed&&S.sunClosed[k]?"":"open"} data-sun="${k}"><summary><span class="sun-h">${esc(head)}</span><span class="sun-c num">${ns.length} ${ns.length===1?"person":"people"}${mixed&&bits?" · "+bits:""}</span></summary><div class="list">${ns.map(ncRow).join("")}</div></details>`; }).join(""); }
+function ncRow(n){
+  const st = STATUS[n.status||"new"]||STATUS.new;
+  const steps = n.steps||{};
+  const t = today();
+  const nx=STAGE_NEXT[n.status||"new"];
+  return `<div class="ncrow"><button class="item" data-nc="${esc(n.id)}">
+    <span class="avatar">${esc(initials(n.name))}</span>
+    <span class="main"><span class="name" style="display:block">${esc(n.name)}</span>
+      <span class="sub" style="display:block">${esc([n.nationality, n.occupation].filter(Boolean).join(" · ")||"No details yet")} · first came ${esc(fmt(n.firstVisit))}${inBuffer(n)?` · came ${visitsOf(n).count}×`:""}</span>
+      <span class="pills"><span class="pill ${st[1]}">${st[0]}</span>${readyToConfirm(n)?`<span class="pill ok">Ready to confirm</span>`:""}${n.owner&&inBuffer(n)?`<span class="pill acc">${esc(n.owner)}</span>`:""}${fellowOf(n)&&inBuffer(n)?`<span class="pill">${esc(FNAME[fellowOf(n)])}</span>`:""}${n.visa?`<span class="pill">${esc(n.visa)}</span>`:""}${n.work==="Looking for a job"?`<span class="pill warn">Job seeking</span>`:n.work?`<span class="pill">${esc(n.work)}</span>`:""}</span>
+    </span>
+    <span class="steps" title="Follow-up progress">${STEPS.map(s=>`<i class="${steps[s.key]?"done":(stepDue(n,s)<=t&&n.consent?"due":"")}"></i>`).join("")}</span>
+  </button>${nx&&S.canWrite?`<button class="btn stagebtn" data-stage="${esc(n.id)}|${nx[0]}">${nx[1]}</button>`:""}</div>`;
+}
+
+function viewNewcomers(){
+  const q = S.ncQuery.trim().toLowerCase();
+  let list = S.newcomers.slice().sort((a,b)=> (b.firstVisit||"").localeCompare(a.firstVisit||"") || String(a.name).localeCompare(String(b.name)));
+  const f = S.ncFilter;
+  if(f==="jobs") list = list.filter(n=>n.work==="Looking for a job");
+  else if(f==="visit") list = list.filter(n=>n.visa==="Visit visa");
+  else if(f==="month"){ const m=today().slice(0,7); list=list.filter(n=>(n.firstVisit||"").startsWith(m)); }
+  else if(f==="new") list = list.filter(n=>(n.status||"new")==="new");
+  else if(f==="regular") list = list.filter(n=>n.status==="returned");
+  else if(f==="member") list = list.filter(n=>n.status==="member");
+  if(q) list = list.filter(n=>[n.name,n.nationality,n.occupation,n.phone,n.area,n.invitedBy].join(" ").toLowerCase().includes(q));
+  const e = S.editingId ? S.newcomers.find(n=>n.id===S.editingId) || {} : {};
+  const dis = S.canWrite?"":"disabled";
+  return `
+  <div class="section-head"><div><h2 class="view-title">Newcomers</h2><p class="view-sub num">${S.newcomers.length} recorded · ${S.newcomers.filter(n=>n.firstVisit && weekStart(n.firstVisit)===weekStart(today())).length} this week</p></div>
+    <button class="btn primary" id="openForm" ${dis}>${S.formOpen && !S.editingId?"Close form":"Register newcomer"}</button></div>
+  ${S.formOpen?`
+  <section class="section" id="ncFormWrap">
+    <h3>${S.editingId?"Edit "+esc(e.name):"New visitor card"}</h3>
+    <form id="ncForm" data-k="${esc(S.editingId||"new")}" autocomplete="off" style="display:flex;flex-direction:column;gap:12px">
+      <div class="grid2">
+        <div class="field"><label for="fName">Full name</label><input type="text" id="fName" required value="${esc(e.name)}"></div>
+        <div class="field"><label for="fPhone">WhatsApp number</label><div class="phonefield"><select id="fCC" aria-label="Country code">${ccOptions(splitPhone(e.phone)[0])}</select><input type="tel" id="fPhone" placeholder="50 123 4567" value="${esc(splitPhone(e.phone)[1])}"></div><span class="hint">Pick their country, then type the number as they wrote it.</span></div>
+        <div class="field"><label for="fGender">Gender</label><select id="fGender"><option value="">Select</option>${["Male","Female"].map(g=>`<option ${e.gender===g?"selected":""}>${g}</option>`).join("")}</select></div>
+        <div class="field"><label for="fFellow">Group</label><select id="fFellow"><option value="">Same as gender (Men or Women)</option>${FELLOW.map(([k,l])=>`<option value="${k}" ${e.fellowship===k?"selected":""}>${l}</option>`).join("")}</select><span class="hint">Choose Youth or Teens for younger people.</span></div>
+        <div class="field"><label for="fNation">Nationality</label><input type="text" id="fNation" list="nations" value="${esc(e.nationality)}"><datalist id="nations">${NATIONS.map(x=>`<option value="${x}">`).join("")}</datalist></div>
+        <div class="field"><label for="fVisa">Visa status in UAE</label><select id="fVisa"><option value="">Select</option>${VISA.map(v=>`<option ${e.visa===v?"selected":""}>${v}</option>`).join("")}</select></div>
+        <div class="field"><label for="fWork">Work situation</label><select id="fWork"><option value="">Select</option>${WORK.map(v=>`<option ${e.work===v?"selected":""}>${v}</option>`).join("")}</select></div>
+        <div class="field"><label for="fOcc">Occupation / profession</label><input type="text" id="fOcc" placeholder="e.g. Nurse, Accountant" value="${esc(e.occupation)}"></div>
+        <div class="field"><label for="fArea">Lives in</label><input type="text" id="fArea" placeholder="e.g. Al Qusais, Sharjah" value="${esc(e.area)}"></div>
+        <div class="field"><label for="fInvited">Invited by / heard about us</label><input type="text" id="fInvited" placeholder="Friend's name, Instagram, walked in…" value="${esc(e.invitedBy)}"></div>
+        <div class="field"><label for="fFirst">First visit</label><select id="fFirst">${dateOptions(e.firstVisit?((isSunday(e.firstVisit)||S.services[e.firstVisit])?e.firstVisit:lastSunday(e.firstVisit)):S.date,104)}</select><span class="hint">The service they first came to.</span></div>
+        ${dayMonthSel("fBday",e.birthday,"Birthday (optional)")}
+      </div>
+      <div class="field"><label for="fNotes">Prayer request or notes</label><textarea id="fNotes">${esc(e.notes)}</textarea></div>
+      <label class="check"><input type="checkbox" id="fConsent" ${e.consent===false?"":"checked"}><span>They are happy for CPIC to contact them on WhatsApp</span></label>
+      ${S.dupWarn?`<div class="banner"><b>Already recorded?</b> This ${S.dupWarn.why==="number"?"number":"name"} belongs to <b>${esc(S.dupWarn.rec.name)}</b> (${S.dupWarn.kind==="m"?"member":esc(STATUS[S.dupWarn.rec.status||"new"][0])+", first came "+esc(fmt(S.dupWarn.rec.firstVisit))}).
+        <div class="row" style="margin-top:8px">${S.dupWarn.kind==="nc"?`<button class="btn" type="button" data-nc="${esc(S.dupWarn.rec.id)}">Open their record</button>`:""}<button class="btn" type="button" id="dupSave">It’s a different person, save anyway</button></div></div>`:""}
+      <div class="row"><button class="btn primary" type="submit">${S.editingId?"Save changes":"Save newcomer"}</button><button class="btn ghost" type="button" id="cancelForm">Cancel</button></div>
+    </form>
+  </section>`:""}
+  <input type="search" id="ncSearch" placeholder="Search name, nationality, job, area" value="${esc(S.ncQuery)}" aria-label="Search newcomers">
+  <div class="seg" role="group" aria-label="Filter">${[["all","Everyone"],["new","Newcomers"],["regular","Regulars"],["member","Members"],["month","This month"],["jobs","Job seeking"],["visit","On visit visa"]].map(([k,l])=>`<button data-filter="${k}" aria-pressed="${S.ncFilter===k}">${l}</button>`).join("")}</div>
+  <p class="view-sub" style="margin:0">Newcomer (first Sunday) → Regular (came back; moves automatically when ticked on a later Sunday) → Member (confirmed after 3 months of coming regularly).</p>
+  ${(()=>{ const r=S.newcomers.filter(readyToConfirm); return r.length?`<section class="section" style="border-color:var(--ok)"><h3>Ready to confirm as members <span class="muted num" style="font-weight:500">${r.length}</span></h3><p class="small muted" style="margin:0">3 months since their first visit, and they’ve come at least ${READY_MIN} times.</p><div class="list">${r.map(ncRow).join("")}</div></section>`:""; })()}
+  <div class="sundays">${
+    !S.loaded.n && S.db ? `<div class="empty">Loading newcomers…</div>` :
+    list.length ? bySunday(list) :
+    S.newcomers.length ? `<div class="empty">Nobody matches this filter.</div>` :
+    `<div class="empty"><b>No newcomers recorded yet</b>Tap “Register newcomer” when a first-time visitor fills in their card. Their welcome message shows up under Follow-up straight away.</div>`
+  }</div>`;
+}
+
+function viewFollowup(){
+  const all = followups(); const mine = S.fuMine && me();
+  const items = mine ? all.filter(f=>f.n.owner===me()) : all;
+  const groups = [["overdue","Overdue"],["today","Due today"],["soon","Coming up this week"]];
+  const noConsent = S.newcomers.filter(n=>!n.consent).length;
+  const dueNow = items.filter(f=>f.diff<=0 && !f.done && !(S.skip&&S.skip[f.n.id])); const nx = dueNow[0];
+  const miss = missingPeople(), cel = celebrations(), pray = prayerList(14);
+  const celSent = S.reminders["celebrate_"+today().slice(0,4)]||{};
+  const dis = S.canWrite&&S.db?"":"disabled";
+  return `
+  <div><h2 class="view-title">Follow-up</h2><p class="view-sub">Welcome on Sunday evening, check in on Wednesday, invite back on Saturday for the 2 pm service.</p></div>
+  <section class="section">
+    <div class="grid2">
+      <div class="field"><label for="senderName">Your name</label><input type="text" id="senderName" list="teamList" placeholder="e.g. Sam" value="${esc(S.sender)}"><datalist id="teamList">${S.team.map(t=>`<option value="${esc(t)}">`).join("")}</datalist><span class="hint">Shows who sent what, and fills {sender} in messages.</span></div>
+      <div class="field"><span class="lbl">Show</span><div class="seg" role="group" aria-label="Whose follow-up"><button data-fumine="0" aria-pressed="${!S.fuMine}">Everyone’s</button><button data-fumine="1" aria-pressed="${S.fuMine}" ${me()?"":"disabled"}>Only mine</button></div>${S.fuMine&&me()&&!S.team.includes(me())?`<span class="hint" style="color:var(--warn)">${esc(me())} isn’t on the follow-up team yet, so nothing is assigned to you.</span>`:""}</div>
+    </div>
+    <details class="tpl" ${S.teamOpen?"open":""} id="teamDetails"><summary><span class="small" style="font-weight:600">Follow-up team (${S.team.length})</span><span class="small muted">${S.team.length?"New people are shared out between them":"Add names to share out new people"}</span></summary>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+        ${S.team.length?`<div class="row" style="gap:6px">${S.team.map(t=>{ const c=S.newcomers.filter(n=>inBuffer(n)&&n.owner===t).length; return `<span class="chipx">${esc(t)} <span class="muted num">${c}</span><button class="mini" data-teamdel="${esc(t)}" aria-label="Remove ${esc(t)}" ${dis}>✕</button></span>`; }).join("")}</div>`:""}
+        <div class="row" style="gap:6px"><input type="text" id="teamNew" placeholder="Add a name, e.g. Sister Vivian" style="flex:1;min-width:160px"><button class="btn" id="teamAdd" ${dis}>Add</button></div>
+        ${S.team.length&&S.newcomers.some(n=>inBuffer(n)&&!n.owner)?`<button class="btn" id="shareOut" style="align-self:flex-start" ${dis}>Share out the ${S.newcomers.filter(n=>inBuffer(n)&&!n.owner).length} people with no one assigned</button>`:""}
+      </div></details>
+  </section>
+  ${nx?`<section class="section sendnext"><div class="section-head"><h3>Send next</h3><span class="small muted num">${dueNow.length} due now</span></div>
+    <div><b>${esc(nx.n.name)}</b> · ${esc(nx.st.label)}${nx.n.owner?` <span class="pill acc">${esc(nx.n.owner)}</span>`:""}</div>
+    <div class="row"><a class="btn wa big" href="${esc(waLink(nx.n.phone,fillTpl(nx.st.key,nx.n)))}" target="_blank" rel="noopener" data-sendnext="${esc(nx.n.id)}|${nx.st.key}">Open WhatsApp and tick it</a><button class="btn" data-skipnext="${esc(nx.n.id)}">Skip for now</button></div>
+    <span class="hint">Tap, send in WhatsApp, come back, tap again. Each one is ticked as sent${me()?" by "+esc(me()):""}.</span></section>`:""}
+  <div class="group-label"><span class="label">Newcomer follow-up${mine?" · mine":""}</span></div>
+  ${!S.loaded.n && S.db ? `<div class="empty">Loading…</div>` : items.length ? groups.map(([k,l])=>{
+    const g = items.filter(i=>i.bucket===k); if(!g.length) return "";
+    return `<div class="group-label"><span class="label">${l}</span><span class="count num">${g.length}</span></div>` + g.map(fuCard).join("");
+  }).join("") : `<div class="list"><div class="empty"><b>All caught up</b>No follow-up messages are due in the next 7 days${mine?" for you":""}.</div></div>`}
+  <section class="section"><div class="section-head"><h3>We miss you</h3><span class="small muted num">${miss.length}</span></div>
+    <p class="small muted" style="margin:0">Regulars and members who have missed ${MISS_N} or more Sundays in a row (only Sundays where the roll call was taken count).</p>
+    ${miss.length?`<div class="list">${miss.map(p=>`<div class="rem-row"><div class="avatar">${esc(initials(p.name))}</div><div class="main"><div class="name" style="font-weight:600">${esc(p.name)}</div><div class="small muted">${p.stage} · last came ${esc(fmt(p.last))} · missed ${p.k}</div></div>
+      <a class="btn wa" href="${esc(waLink(p.phone,fillTpl("missed",{name:p.name})))}" target="_blank" rel="noopener">Send</a>
+      <button class="btn" data-missed="${p.kind}|${esc(p.id)}" ${dis}>Reached out</button></div>`).join("")}</div>`:`<div class="list"><div class="empty">Nobody is missing right now.</div></div>`}
+  </section>
+  <section class="section"><div class="section-head"><h3>Birthdays & anniversaries this week</h3><span class="small muted num">${cel.length}</span></div>
+    ${cel.length?`<div class="list">${cel.map(c=>{ const key=c.type+"|"+c.pid+"|"+c.date; const was=celSent[key]; return `<div class="rem-row ${was?"on":""}"><div class="avatar">${c.type==="birthday"?"🎂":"💍"}</div><div class="main"><div class="name" style="font-weight:600">${esc(c.name)}</div><div class="small muted">${c.type==="birthday"?"Birthday":"Wedding anniversary"} · ${c.date===today()?"<b>today</b>":esc(parse(c.date).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"}))}</div></div>
+      <a class="btn wa" href="${esc(waLink(c.phone,fillTpl(c.type,{name:c.name})))}" target="_blank" rel="noopener">Send</a>
+      <label class="tickbox"><input type="checkbox" data-cel="${esc(key)}" ${was?"checked":""} ${dis}><span>Sent</span></label></div>`; }).join("")}</div>`:`<div class="list"><div class="empty">No birthdays or anniversaries in the next 7 days. Add them when you edit a member.</div></div>`}
+  </section>
+  <section class="section"><div class="section-head"><h3>Prayer requests · last 2 weeks</h3><span class="small muted num">${pray.length}</span></div>
+    ${pray.length?`<div class="list">${pray.map(p=>`<div class="rem-row"><div class="main"><div class="name" style="font-weight:600">${esc(p.name)}</div><div class="small" style="white-space:pre-wrap">${esc(p.text)}</div><div class="small muted">${esc(fmt(String(p.at).slice(0,10)))} · ${esc(p.by)}</div></div><button class="btn" data-nc="${esc(p.id)}">Open</button></div>`).join("")}</div>
+      <button class="btn" id="copyPrayer" style="align-self:flex-start">Copy prayer list for the prayer team</button>`:`<div class="list"><div class="empty">No prayer requests in the last 2 weeks. Add them as notes on a person.</div></div>`}
+  </section>
+  ${viewReminders()}
+  ${noConsent?`<p class="small muted">${noConsent} newcomer${noConsent===1?"":"s"} did not agree to WhatsApp contact and ${noConsent===1?"is":"are"} left out of these lists.</p>`:""}
+  <section class="section">
+    <details class="tpl" ${S.tplOpen?"open":""} id="tplDetails"><summary><h3>Message templates</h3><span class="small muted">Edit</span></summary>
+      <form id="tplForm" style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+        ${TPL_KEYS.map(k=>`<div class="field"><label for="tpl_${k}">${TPL_LABEL[k]}</label><textarea id="tpl_${k}" rows="5">${esc(S.templates[k]||DEFAULT_TPL[k])}</textarea></div>`).join("")}
+        <p class="small muted" style="margin:0">Use {name} for their first name and {sender} for yours.</p>
+        <div class="row"><button class="btn primary" type="submit" ${S.canWrite?"":"disabled"}>Save templates</button><button class="btn ghost" type="button" id="resetTpl">Restore defaults</button></div>
+      </form>
+    </details>
+  </section>`;
+}
+/* ---------- reminders (Morning Glory, Bible study, Sunday service) ---------- */
+/* the message that fits right now: [group, message] */
+function remDefault(){ const d=new Date(), wd=d.getDay(), h=d.getHours();
+  if(wd===6) return ["service","service_sat"];
+  if(wd===0) return h>=21?["mg","mg_eve"]:h>=17?["service","service_thanks"]:h>=14?["service","service_live"]:["service","service"];
+  if(wd===2&&h>=12) return h>=19?["bible","bible_live"]:["bible","bible"];
+  if(wd>=1&&wd<=5&&h<12) return ["mg","mg"];
+  if(wd>=1&&wd<=4) return ["mg","mg_eve"];
+  return ["service","service_sat"]; }
+function remPeople(){ const seen=new Set(), out=[];
+  for(const n of S.newcomers){ if(!n.consent||!n.phone||n.status==="inactive") continue; const k=n.phone; if(seen.has(k)) continue; seen.add(k); out.push({id:"n_"+n.id,name:n.name,phone:n.phone,kind:"Newcomer"}); }
+  for(const m of S.members){ if(!m.phone) continue; const k=normPhone(m.phone); if(seen.has(k)) continue; seen.add(k); out.push({id:"m_"+m.id,name:m.name,phone:k,kind:"Member"}); }
+  return out.sort((a,b)=>String(a.name).localeCompare(String(b.name))); }
+async function markReminder(key,pid,val){
+  if(!guard()) return; const id=key+"_"+today(); const cur={...(S.reminders[id]||{})};
+  if(val) cur[pid]=new Date().toISOString(); else delete cur[pid];
+  S.reminders[id]=cur; delete OPENED["r|"+key+"|"+pid]; render();
+  try{ await retry(()=>S.db.collection("reminders").doc(id).set({key,date:today(),sent:cur})); }catch(e){ writeErr(e); }
+}
+function viewReminders(){
+  const def=remDefault(), gk=S.remKey||def[0], R=REMINDERS.find(r=>r.key===gk);
+  const mk=(S.remMsg&&R.msgs.some(m=>m[0]===S.remMsg))?S.remMsg:(def[0]===gk?def[1]:R.msgs[0][0]);
+  const isDay=R.days.includes(new Date().getDay());
+  const ppl=remPeople(), sent=S.reminders[mk+"_"+today()]||{}, done=ppl.filter(p=>sent[p.id]).length, msgFor=p=>fillTpl(mk,{name:p.name});
+  return `<section class="section"><div class="section-head"><h3>Reminders</h3><span class="small muted num">${done} of ${ppl.length} sent today</span></div>
+    <div class="seg" role="group" aria-label="What for">${REMINDERS.map(r=>`<button data-rkey="${r.key}" aria-pressed="${r.key===gk}">${esc(r.label)}</button>`).join("")}</div>
+    <p class="small muted" style="margin:0">${esc(R.when)}.${isDay?" <b style=\"color:var(--ok)\">That’s today.</b>":""}</p>
+    <div class="field"><span class="label">Which message</span><div class="seg" role="group" aria-label="Which message">${R.msgs.map(([k,l])=>`<button data-rmsg="${k}" aria-pressed="${k===mk}">${esc(l)}</button>`).join("")}</div></div>
+    <div class="fu-msg">${esc(fillTpl(mk,{name:"{name}"}))}</div>
+    <div class="row"><button class="btn" data-rcopy="${mk}">Copy for broadcast or Status</button><span class="small muted">Or send one by one below, and tick each person once it’s sent.</span></div>
+    ${ppl.length?`<div class="list">${ppl.map(p=>{ const was=sent[p.id];
+      return `<div class="rem-row ${was?"on":""}"><div class="avatar">${esc(initials(p.name))}</div><div class="main"><div class="name" style="font-weight:600">${esc(p.name)}</div><div class="small muted">${p.kind} · <span class="phone">${esc(prettyPhone(p.phone))}</span></div></div>
+      <a class="btn wa" href="${esc(waLink(p.phone,msgFor(p)))}" target="_blank" rel="noopener">Send</a>
+      <label class="tickbox"><input type="checkbox" data-rtick="${mk}|${p.id}" ${was?"checked":""} ${S.canWrite&&S.db?"":"disabled"}><span>Sent</span></label></div>`; }).join("")}</div>`
+      :`<div class="list"><div class="empty"><b>No one to remind yet</b>Newcomers who agreed to WhatsApp contact and members with a phone number appear here.</div></div>`}
+  </section>`;
+}
+function stepTrack(n, cur){
+  const steps=n.steps||{};
+  return `<div class="track">${STEPS.map((s,ix)=>{ const done=!!steps[s.key]; return `<span class="tstep ${done?"done":s.key===cur?"cur":""}">${done?"✓":ix+1} ${esc(s.label.split(" ")[0]==="Invite"?"Invite back":s.label.replace(" message",""))}</span>`; }).join('<span class="tsep">›</span>')}</div>`;
+}
+function fuCard(i){
+  const n=i.n, steps=n.steps||{}, msg=fillTpl(i.st.key, n);
+  const when = i.diff<0 ? `${-i.diff} day${i.diff===-1?"":"s"} late` : i.diff===0 ? "Today" : fmt(i.due);
+  const next = STEPS.find(s=>!steps[s.key]);
+  const short = s => s.key==="welcome"?"Welcome":s.key==="checkin"?"Midweek":"Invite back";
+  return `<article class="fu ${i.done?"donecard":i.bucket}">
+    <div class="fu-head"><div><div style="font-weight:600">${esc(n.name)} · <span class="phone small">${esc(prettyPhone(n.phone))}</span>${n.owner?` <span class="pill acc">${esc(n.owner)}</span>`:""}</div>
+      <div class="small" style="margin-top:2px">${i.done?`<span class="ok-line">✓ ${esc(i.st.label)} sent.</span> ${next?`Next: ${esc(next.label)} in a moment.`:"All three messages are done."}`:`Now: <b>${esc(i.st.label)}</b>`}</div></div>
+      ${i.done?"":`<span class="pill ${i.bucket==="overdue"?"bad":i.bucket==="today"?"warn":""}">${esc(when)}</span>`}</div>
+    ${i.done?"":`<div class="fu-msg">${esc(msg)}</div>
+    <div class="row">
+      <a class="btn wa" href="${esc(waLink(n.phone,msg))}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.2A8.5 8.5 0 1 1 21 12z"/></svg>Send on WhatsApp</a>
+      <button class="btn" data-copy="${esc(n.id)}|${i.st.key}">Copy message</button>
+    </div>`}
+    <div class="checks"><span class="label">Tick when sent</span><div class="checks-in">${STEPS.map(s=>`<label class="tickbox ${s.key===i.st.key&&!i.done?"cur":""}"><input type="checkbox" data-tick="${esc(n.id)}|${s.key}" ${steps[s.key]?"checked":""} ${S.canWrite&&S.db?"":"disabled"}><span>${short(s)} sent</span>${steps[s.key]?`<span class="small muted num">${esc(fmt(steps[s.key]))}${(n.stepsBy||{})[s.key]?" · "+esc(n.stepsBy[s.key]):""}</span>`:""}</label>`).join("")}</div></div>
+  </article>`;
+}
+function barChart(data, curIdx){
+  const max = Math.max(1, ...data.map(d=>d.v));
+  return `<div class="bars">${data.map((d,i)=>`<div class="bar ${i===curIdx?"cur":""}"><span class="v num">${d.v}</span><div style="height:${(d.v/max*100).toFixed(1)}%"></div></div>`).join("")}</div>
+  <div class="bar-labels">${data.map(d=>`<span>${esc(d.l)}</span>`).join("")}</div>`;
+}
+function hbars(counts, hlKey){
+  const entries = Object.entries(counts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length) return `<p class="small muted" style="margin:0">No data yet.</p>`;
+  const max = Math.max(...entries.map(e=>e[1]));
+  return `<div class="hbars">${entries.map(([k,v])=>`<div class="hbar"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(k)}</span><span class="track"><span class="fill ${k===hlKey?"hl":""}" style="display:block;width:${(v/max*100).toFixed(1)}%"></span></span><span class="c num">${v}</span></div>`).join("")}</div>`;
+}
+function viewGroups(){
+  const g=S.grp, p=S.pres[g]||{}, dis=S.canWrite?"":"disabled";
+  const ncs=grpNewcomers(g), mem=S.members.filter(m=>memberFellow(m)===g).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  const unplaced=S.newcomers.filter(n=>inBuffer(n)&&!fellowOf(n));
+  const ranges=[["unsent","Not sent yet"],["sunday","This Sunday"],["month","Last 4 weeks"],["all","Everyone in the 3 months"]];
+  const pick=grpPick(g,S.grpRange); const msgKey=g+"|"+S.grpRange+"|"+pick.map(n=>n.id).join(","); const msg=S.grpMsg[msgKey]??grpMessage(g,pick);
+  const sel=(id,cur,attr)=>`<select ${attr}="${esc(id)}" aria-label="Move to another group" style="width:auto;min-height:34px;font-size:13px" ${dis}>${FELLOW.map(([k,l])=>`<option value="${k}" ${cur===k?"selected":""}>${l}</option>`).join("")}</select>`;
+  const weekOf=n=>{ const d=n.firstVisit?daysBetween(n.firstVisit,today()):0; return d>=BUFFER_DAYS?`<span class="pill ok">3 months reached</span>`:`<span class="pill num">Week ${Math.max(1,Math.floor(d/7)+1)} of 13</span>`; };
+  return `
+  <div><h2 class="view-title">Groups</h2><p class="view-sub">Newcomers join a group straight away, so they find community while they complete their 3 months before becoming confirmed members.</p></div>
+  <div class="seg" role="group" aria-label="Group">${FELLOW.map(([k,l])=>{ const c=grpNewcomers(k).length; return `<button data-grp="${k}" aria-pressed="${g===k}">${l}${c?` <span class="num" style="opacity:.75">· ${c} new</span>`:""}</button>`; }).join("")}</div>
+  ${unplaced.length?`<section class="section" style="border-color:var(--warn)"><h3>Not in a group yet <span class="muted num" style="font-weight:500">${unplaced.length}</span></h3><p class="view-sub" style="margin:0">No gender was recorded for these newcomers, so pick their group.</p>
+    <div class="list">${unplaced.map(n=>`<div class="item gitem" style="cursor:default"><span class="avatar">${esc(initials(n.name))}</span><span class="main"><span class="name" style="display:block">${esc(n.name)} <span class="muted" style="font-weight:500">(Newcomer)</span></span><span class="sub" style="display:block">First came ${esc(fmt(n.firstVisit))}</span></span><select data-fel="${esc(n.id)}" aria-label="Group for ${esc(n.name)}" style="width:auto;min-height:34px;font-size:13px" ${dis}><option value="">Choose group</option>${FELLOW.map(([k,l])=>`<option value="${k}">${l}</option>`).join("")}</select></div>`).join("")}</div></section>`:""}
+  <section class="section">
+    <div class="section-head"><div><h3>${esc(FNAME[g])}</h3><p class="view-sub num" style="margin:0">${ncs.length} newcomer${ncs.length===1?"":"s"} · ${mem.length} member${mem.length===1?"":"s"}</p></div></div>
+    ${S.presEdit?`<form id="presForm" data-k="${g}" class="grid2" style="align-items:end">
+        <div class="field"><label for="pName">President</label><input type="text" id="pName" value="${esc(p.name)}"></div>
+        <div class="field"><label for="pPhone">President’s WhatsApp number</label><input type="tel" id="pPhone" value="${esc(p.phone)}" placeholder="+971 50 123 4567"></div>
+        <div class="row"><button class="btn primary" type="submit">Save</button><button class="btn ghost" type="button" id="presCancel">Cancel</button></div></form>`
+    :`<div class="pres"><span class="avatar">${esc(initials(p.name))}</span><div style="flex:1;min-width:0"><div class="label">President</div><div class="name" style="font-weight:700">${esc(p.name||"Not set")}</div><div class="sub num">${p.phone?esc(p.phone):`<span style="color:var(--warn)">No WhatsApp number yet</span>`}</div></div><button class="btn" id="presEditBtn" ${dis}>${p.phone?"Edit":"Add number"}</button></div>`}
+  </section>
+  <section class="section">
+    <h3>Send newcomers to ${esc(p.name||"the president")}</h3>
+    <div class="seg" role="group" aria-label="Which newcomers">${ranges.map(([k,l])=>`<button data-grange="${k}" aria-pressed="${S.grpRange===k}">${l} <span class="num" style="opacity:.75">${grpPick(g,k).length}</span></button>`).join("")}</div>
+    ${pick.length?`<div class="field"><label for="grpMsg">Message (you can edit it)</label><textarea id="grpMsg" data-mk="${esc(msgKey)}" rows="${Math.min(16,8+pick.length)}">${esc(msg)}</textarea></div>
+      <div class="row">${p.phone?`<a class="btn primary" href="${esc(waLink(p.phone,msg))}" target="_blank" rel="noopener" id="grpSend" data-gsend="${g}">Open WhatsApp to ${esc(firstName(p.name.replace(/^(Brother|Sister|Pastor|Deacon|Deaconess|Elder)\s+/i,"")))}</a>`:`<button class="btn primary" id="presEditBtn2" ${dis}>Add ${esc(p.name||"the president")}’s number first</button>`}
+        <button class="btn" id="grpMark" data-gmark="${g}" ${dis}>Mark these ${pick.length} as sent</button></div>
+      <span class="hint">Opening WhatsApp marks them as sent to ${esc(p.name||"the president")}, so “Not sent yet” only shows new people next time.${pick.some(n=>!n.phone||n.consent===false)?" Numbers are only shared for people who agreed to be contacted on WhatsApp.":""}</span>`
+    :`<div class="empty" style="padding:12px">${S.grpRange==="unsent"?`Everyone in the ${esc(FNAME[g])} has been sent to ${esc(p.name||"the president")}.`:"No newcomers in this range."}</div>`}
+  </section>
+  <section class="section">
+    <h3>Newcomers <span class="muted num" style="font-weight:500">${ncs.length}</span></h3>
+    <div class="list">${ncs.length?ncs.map(n=>{ const sent=(n.groupSent||{})[g]; return `<div class="item gitem" style="cursor:default">
+      <button class="avatar" data-nc="${esc(n.id)}" aria-label="Open ${esc(n.name)}" style="border:0;cursor:pointer">${esc(initials(n.name))}</button>
+      <span class="main"><span class="name" style="display:block">${esc(n.name)} <span class="muted" style="font-weight:500">(${n.status==="returned"?"Regular":"Newcomer"})</span></span>
+        <span class="sub" style="display:block">${esc([n.phone,"first came "+fmt(n.firstVisit),n.area].filter(Boolean).join(" · "))}</span>
+        <span class="pills">${weekOf(n)}${n.firstVisit&&daysBetween(n.firstVisit,today())>=BUFFER_DAYS&&n.status==="returned"?`<button class="pill acc" data-nc="${esc(n.id)}" style="border:0;cursor:pointer">Ready to confirm?</button>`:""}${sent?`<span class="pill ok">Sent to president ${esc(fmt(sent))}</span>`:`<span class="pill warn">Not sent to president</span>`}</span></span>
+      ${sel(n.id,g,"data-fel")}</div>`; }).join(""):`<div class="empty">No newcomers in this group right now.</div>`}</div>
+  </section>
+  <section class="section">
+    <h3>Members <span class="muted num" style="font-weight:500">${mem.length}</span></h3>
+    <div class="list">${mem.length?mem.map(m=>`<div class="item gitem" style="cursor:default"><span class="avatar">${esc(initials(m.name))}</span><span class="main"><span class="name" style="display:block">${esc(m.name)}</span><span class="sub" style="display:block">${esc(m.phone||"No number")}</span></span>${sel(m.id,g,"data-mfel")}</div>`).join(""):`<div class="empty">No members in this group yet. Members from the Sunday register appear here by their group.</div>`}</div>
+  </section>`;
+}
+
+function monthReport(which){
+  const t=parse(today()); if(which==="last"){ t.setDate(1); t.setMonth(t.getMonth()-1); } const ym=iso(t).slice(0,7);
+  const name=t.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+  const inM=d=>(d||"").startsWith(ym);
+  const pt=parse(ym+"-01"); pt.setMonth(pt.getMonth()-1); const pym=iso(pt).slice(0,7);
+  const ncs=S.newcomers.filter(n=>inM(n.firstVisit)), prev=S.newcomers.filter(n=>(n.firstVisit||"").startsWith(pym)).length;
+  const back=ncs.filter(n=>visitsOf(n).count>1||n.status==="returned"||n.status==="member").length;
+  const newReg=S.newcomers.filter(n=>inM(n.regularSince)).length, newMem=S.newcomers.filter(n=>inM(n.memberSince)).length;
+  const svcs=Object.values(S.services).filter(s=>inM(s.date)); const counts=svcs.map(s=>Math.max(headcount(s),(s.present||[]).length+(s.presentNc||[]).length)).filter(x=>x>0);
+  const avg=counts.length?Math.round(counts.reduce((a,b)=>a+b,0)/counts.length):0;
+  let due=0, sent=0; for(const n of S.newcomers){ if(!n.consent) continue; for(const st of STEPS){ const d=stepDue(n,st); if(inM(d)&&d<=today()){ due++; if((n.steps||{})[st.key]) sent++; } } }
+  const pr=S.newcomers.reduce((a,n)=>a+Object.values(n.notesLog||{}).filter(x=>x&&x.prayer&&inM(String(x.at).slice(0,10))).length+(n.notes&&inM(n.firstVisit)?1:0),0);
+  const gs=FELLOW.map(([k,l])=>`${l} ${S.members.filter(m=>memberFellow(m)===k).length+S.newcomers.filter(n=>inBuffer(n)&&fellowOf(n)===k).length}`).join(" · ");
+  return `CPIC Shepherd report · ${name}
+
+Newcomers: ${ncs.length}${which==="this"?" so far":""} (${prev} the month before)
+Came back at least once: ${back} of ${ncs.length}${ncs.length?" ("+Math.round(back/ncs.length*100)+"%)":""}
+New Regulars: ${newReg} · New members: ${newMem}
+Services recorded: ${svcs.length}${counts.length?" · average attendance "+avg:""}
+Follow-up messages sent: ${due?Math.round(sent/due*100)+"% ("+sent+" of "+due+")":"none due"}
+Missing 3+ Sundays right now: ${missingPeople().length}
+Ready to confirm as members: ${S.newcomers.filter(readyToConfirm).length}
+Prayer requests recorded: ${pr}
+Groups: ${gs}`;
+}
+function viewInsights(){
+  const t = today(); const thisWeek = weekStart(t);
+  const weeks = []; for(let i=7;i>=0;i--){ const w = addDays(thisWeek,-7*i); weeks.push({w, l:fmt(w), v:0}); }
+  for(const n of S.newcomers){ if(!n.firstVisit) continue; const w = weekStart(n.firstVisit); const x = weeks.find(k=>k.w===w); if(x) x.v++; }
+  const month = t.slice(0,7); const lm = (()=>{const d=parse(t); d.setDate(1); d.setMonth(d.getMonth()-1); return iso(d).slice(0,7);})();
+  const thisMonth = S.newcomers.filter(n=>(n.firstVisit||"").startsWith(month)).length;
+  const lastMonth = S.newcomers.filter(n=>(n.firstVisit||"").startsWith(lm)).length;
+  const svcs = Object.values(S.services).filter(s=>s.date<=t).sort((a,b)=>a.date.localeCompare(b.date)).slice(-8);
+  const svcData = svcs.map(s=>({l:fmt(s.date), v:Math.max(headcount(s),(s.present||[]).length)}));
+  const last = svcData[svcData.length-1];
+  let dueSoFar=0, sent=0;
+  for(const n of S.newcomers){ if(!n.consent) continue; for(const s of STEPS){ if(stepDue(n,s)<=t){ dueSoFar++; if((n.steps||{})[s.key]) sent++; } } }
+  const visa={}, work={}, nat={};
+  for(const n of S.newcomers){ if(n.visa) visa[n.visa]=(visa[n.visa]||0)+1; if(n.work) work[n.work]=(work[n.work]||0)+1; if(n.nationality){ const k=n.nationality.trim(); nat[k]=(nat[k]||0)+1; } }
+  const returned = S.newcomers.filter(n=>n.status==="returned"||n.status==="member").length;
+  /* each Sunday's newcomers: how many came back, are Regulars now, became members */
+  const coh={}; for(const n of S.newcomers){ const d=n.firstVisit; if(!d) continue; const k=(isSunday(d)||S.services[d])?d:lastSunday(d); (coh[k]=coh[k]||[]).push(n); }
+  const cohRows=Object.keys(coh).sort((a,b)=>b.localeCompare(a)).slice(0,10).map(k=>{ const ns=coh[k]; const back=ns.filter(n=>visitsOf(n).count>1||n.status==="returned"||n.status==="member").length; return {k, came:ns.length, back, reg:ns.filter(n=>n.status==="returned").length, mem:ns.filter(n=>n.status==="member").length}; });
+  const gsz=FELLOW.map(([k,l])=>({l, m:S.members.filter(m=>memberFellow(m)===k).length, n:S.newcomers.filter(n=>inBuffer(n)&&fellowOf(n)===k).length}));
+  const speeds=S.newcomers.filter(n=>n.firstVisit&&(n.steps||{}).welcome).map(n=>Math.max(0,daysBetween(n.firstVisit,n.steps.welcome)));
+  const speed=speeds.length?(speeds.reduce((a,b)=>a+b,0)/speeds.length):null;
+  const miss=missingPeople().length;
+  return `
+  <div class="section-head"><div><h2 class="view-title">Insights</h2><p class="view-sub">Live from what your team records</p></div>
+    <div class="row">${S.db&&S.canWrite&&PUB.art?`<button class="btn" id="pubNow">Update the public copy</button>`:""}<button class="btn" id="csvNc">Export newcomers</button><button class="btn" id="csvAtt">Export attendance</button></div></div>
+  <div class="kpis">
+    <div class="kpi"><span class="label">Newcomers this month</span><span class="v num">${thisMonth}</span><span class="d num">${lastMonth} last month</span></div>
+    <div class="kpi"><span class="label">This week</span><span class="v num">${weeks[7].v}</span><span class="d num">${weeks[6].v} last week</span></div>
+    <div class="kpi"><span class="label">Last headcount</span><span class="v num">${last?last.v:"–"}</span><span class="d">${last?esc(last.l):"No service recorded"}</span></div>
+    <div class="kpi"><span class="label">Follow-ups sent</span><span class="v num">${dueSoFar?Math.round(sent/dueSoFar*100)+"%":"–"}</span><span class="d num">${sent} of ${dueSoFar} due so far</span></div>
+    <div class="kpi"><span class="label">Welcome sent after</span><span class="v num">${speed==null?"–":speed<0.5?"Same day":speed.toFixed(1)+" days"}</span><span class="d">on average, from first visit</span></div>
+    <div class="kpi"><span class="label">Ready to confirm</span><span class="v num">${S.newcomers.filter(readyToConfirm).length}</span><span class="d">3 months and ${READY_MIN}+ visits</span></div>
+    <div class="kpi"><span class="label">Missing 3+ Sundays</span><span class="v num">${miss}</span><span class="d">regulars and members</span></div>
+    <div class="kpi"><span class="label">Regulars now</span><span class="v num">${S.newcomers.filter(n=>n.status==="returned").length}</span><span class="d">in their 3 months</span></div>
+  </div>
+  <section class="section"><div class="section-head"><h3>Report for leadership</h3><div class="seg" role="group" aria-label="Month"><button data-rep="this" aria-pressed="${S.repMonth==="this"}">This month</button><button data-rep="last" aria-pressed="${S.repMonth==="last"}">Last month</button></div></div>
+    <pre class="report" id="reportTxt">${esc(monthReport(S.repMonth))}</pre>
+    <div class="row"><button class="btn primary" id="copyReport">Copy report</button><span class="small muted">Paste it into WhatsApp or an email to Pastor Blessing.</span></div></section>
+  <section class="section"><div class="section-head"><h3>What happened to each Sunday’s newcomers</h3><span class="small muted">Last ${cohRows.length}</span></div>
+    ${cohRows.length?`<div class="tablewrap"><table class="coh"><thead><tr><th>Service</th><th class="num">Came</th><th class="num">Came back</th><th class="num">Regulars now</th><th class="num">Members</th></tr></thead><tbody>${cohRows.map(r=>`<tr><td>${esc(fmt(r.k))}${isSunday(r.k)?"":" · "+esc((S.services[r.k]||{}).label||"Special")}</td><td class="num">${r.came}</td><td class="num">${r.back} <span class="muted">(${Math.round(r.back/r.came*100)}%)</span></td><td class="num">${r.reg}</td><td class="num">${r.mem}</td></tr>`).join("")}</tbody></table></div>
+    <p class="small muted" style="margin:0">“Came back” counts people ticked on a later Sunday, plus anyone already moved to Regular or Member.</p>`:`<p class="small muted" style="margin:0">No newcomers yet.</p>`}</section>
+  <section class="section"><h3>Group sizes</h3><div class="tablewrap"><table class="coh"><thead><tr><th>Group</th><th class="num">Members</th><th class="num">Newcomers & Regulars</th><th class="num">Total</th></tr></thead><tbody>${gsz.map(g=>`<tr><td>${esc(g.l)}</td><td class="num">${g.m}</td><td class="num">${g.n}</td><td class="num"><b>${g.m+g.n}</b></td></tr>`).join("")}</tbody></table></div></section>
+  <section class="section"><div class="section-head"><h3>Newcomers per week</h3><span class="small muted">Weeks start on Sunday</span></div>${barChart(weeks.map(w=>({l:w.l,v:w.v})),7)}</section>
+  <section class="section"><div class="section-head"><h3>Attendance per service</h3><span class="small muted">Last ${svcData.length||0} recorded</span></div>${svcData.length?barChart(svcData,-1):`<p class="small muted" style="margin:0">Record a service on the Sunday tab to see the trend here.</p>`}</section>
+  <div class="grid2">
+    <section class="section"><h3>Visa status</h3>${hbars(visa,"Visit visa")}${S.db&&S.canWrite&&PUB.art?`<label class="check small"><input type="checkbox" id="pubVisa" ${PUB.visa?"checked":""}><span>Show each person’s visa status to people who aren’t signed in</span></label>`:""}</section>
+    <section class="section"><h3>Work situation</h3>${hbars(work,"Looking for a job")}</section>
+  </div>
+  <div class="grid2">
+    <section class="section"><h3>Nationalities</h3>${hbars(nat)}</section>
+    <section class="section"><h3>Retention</h3><div class="kv"><dt>Recorded</dt><dd class="num">${S.newcomers.length}</dd><dt>Became Regulars</dt><dd class="num">${returned}</dd><dt>Members</dt><dd class="num">${S.newcomers.filter(n=>n.status==="member").length}</dd><dt>Job seekers</dt><dd class="num">${work["Looking for a job"]||0}</dd></div></section>
+  </div>`;
+}
+
+function renderSheet(){
+  const root = $("sheetRoot");
+  const n = S.sheetId && S.newcomers.find(x=>x.id===S.sheetId);
+  if(!n){ root.innerHTML=""; return; }
+  const keepNote=$("noteTxt")?$("noteTxt").value:"", keepPr=$("notePrayer")?$("notePrayer").checked:false, noteFocus=document.activeElement&&document.activeElement.id==="noteTxt";
+  const st = STATUS[n.status||"new"]||STATUS.new; const steps=n.steps||{};
+  const v = visitsOf(n);
+  const notes = Object.values(n.notesLog||{}).filter(Boolean).sort((a,b)=>String(b.at).localeCompare(String(a.at)));
+  const hist = Object.values(n.log||{}).filter(Boolean).sort((a,b)=>String(b.at).localeCompare(String(a.at))).slice(0,15);
+  const dis = S.canWrite?"":"disabled";
+  root.innerHTML = `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="section-head"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="avatar">${esc(initials(n.name))}</span><div style="min-width:0"><h3 id="sheetTitle" style="margin:0;font-family:var(--f-display);font-size:20px">${esc(n.name)}</h3><span class="pill ${st[1]}">${st[0]}</span></div></div>
+      <button class="btn ghost" id="closeSheet" aria-label="Close">✕</button></div>
+    <dl class="kv">
+      <dt>WhatsApp</dt><dd><span class="phone">${esc(prettyPhone(n.phone)||"—")}</span></dd>
+      <dt>Nationality</dt><dd>${esc(n.nationality||"—")}</dd>
+      <dt>Gender</dt><dd>${esc(n.gender||"—")}</dd>
+      <dt>Visa</dt><dd>${esc(n.visa||"—")}</dd>
+      <dt>Work</dt><dd>${esc(n.work||"—")}</dd>
+      <dt>Occupation</dt><dd>${esc(n.occupation||"—")}</dd>
+      <dt>Lives in</dt><dd>${esc(n.area||"—")}</dd>
+      <dt>Invited by</dt><dd>${esc(n.invitedBy||"—")}</dd>
+      <dt>First visit</dt><dd>${esc(n.firstVisit?fmtLong(n.firstVisit):"—")}</dd>
+      <dt>Times came</dt><dd class="num">${v.count}${v.count>1?` · last ${esc(fmt(v.last))}`:""}${readyToConfirm(n)?` <span class="pill ok">Ready to confirm</span>`:""}</dd>
+      ${n.birthday?`<dt>Birthday</dt><dd>${esc(fmtDM(n.birthday))}</dd>`:""}
+      <dt>Contact OK</dt><dd>${n.consent?"Yes, on WhatsApp":"No"}</dd>
+    </dl>
+    <div class="field"><label for="ownerSel">Followed up by</label><select id="ownerSel" data-owner="${esc(n.id)}" ${dis}><option value="">No one yet</option>${[...new Set([...S.team, n.owner].filter(Boolean))].map(t=>`<option ${n.owner===t?"selected":""}>${esc(t)}</option>`).join("")}</select>${S.team.length?"":`<span class="hint">Add your follow-up team on the Follow-up tab.</span>`}</div>
+    <div><span class="label">Follow-up</span>
+      <div class="list" style="margin-top:6px">${STEPS.map(s=>`<div class="item gitem" style="cursor:default"><span class="main"><span class="name" style="display:block">${s.label}</span><span class="sub" style="display:block">${steps[s.key]?"Sent "+esc(fmt(steps[s.key])):"Due "+esc(fmt(stepDue(n,s)))}</span></span>
+        <button class="btn" data-toggle-step="${s.key}" ${dis}>${steps[s.key]?"Undo":"Mark sent"}</button></div>`).join("")}</div></div>
+    <div><span class="label">Stage</span>
+      <div class="stager">${[["new","Newcomer",n.firstVisit],["returned","Regular",n.regularSince],["member","Member",n.memberSince]].map(([k,l,d],i,arr)=>{ const order={new:0,returned:1,member:2,inactive:-1}; const cur=order[n.status||"new"]; const me=order[k]; return `<span class="stg ${me<cur?"done":me===cur?"cur":""}">${l}${d&&me<=cur?`<small>${esc(fmt(d))}</small>`:""}</span>${i<arr.length-1?`<span class="tsep">→</span>`:""}`; }).join("")}</div>
+      ${STAGE_NEXT[n.status||"new"]?`<div class="row" style="margin-top:8px"><button class="btn primary" data-stage="${esc(n.id)}|${STAGE_NEXT[n.status||"new"][0]}" ${dis}>${STAGE_NEXT[n.status||"new"][1]}</button><span class="small muted">${n.firstVisit?`Coming for ${Math.max(1,Math.floor(daysBetween(n.firstVisit,today())/7)+1)} week${daysBetween(n.firstVisit,today())<7?"":"s"} · members are usually confirmed after 3 months`:""}</span></div>`:""}
+      <div class="seg" style="margin-top:8px" aria-label="Set stage">${Object.entries(STATUS).map(([k,[l]])=>`<button data-status="${k}" aria-pressed="${(n.status||"new")===k}" ${dis}>${l}</button>`).join("")}</div></div>
+    <div><span class="label">Notes & prayer requests</span>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+        ${notes.map(x=>`<div class="note ${x.prayer?"prayer":""}"><div class="small muted">${esc(fmtWhen(x.at))} · ${esc(x.by||"")}${x.prayer?` · <b style="color:var(--accent)">Prayer request</b>`:""}</div><div style="white-space:pre-wrap">${esc(x.text)}</div></div>`).join("")}
+        ${n.notes?`<div class="note"><div class="small muted">From their visitor card</div><div style="white-space:pre-wrap">${esc(n.notes)}</div></div>`:""}
+        <textarea id="noteTxt" rows="2" placeholder="What did they share? e.g. Job interview on Thursday" ${dis}></textarea>
+        <div class="row"><label class="check" style="flex:1"><input type="checkbox" id="notePrayer" ${dis}><span>This is a prayer request</span></label><button class="btn" id="addNote" ${dis}>Add note</button></div>
+      </div></div>
+    ${hist.length?`<details><summary class="small" style="cursor:pointer;font-weight:600">Who did what (${hist.length})</summary><ul class="hist">${hist.map(x=>`<li><span class="muted num">${esc(fmtWhen(x.at))}</span> · <b>${esc(x.by||"")}</b> · ${esc(x.what)}</li>`).join("")}</ul></details>`:""}
+    <div class="row">
+      ${n.phone?`<a class="btn wa" href="${esc(waLink(n.phone,"Hi "+firstName(n.name)+", "))}" target="_blank" rel="noopener">Message on WhatsApp</a>`:""}
+      <button class="btn" id="editNc" ${dis}>Edit details</button>
+      <button class="btn danger" id="delNc" ${dis}>${S.delArm===n.id?"Tap again to delete":"Delete"}</button>
+    </div>
+  </div></div>`;
+  if(keepNote||keepPr){ const t=$("noteTxt"); if(t) t.value=keepNote; const c=$("notePrayer"); if(c) c.checked=keepPr; }
+  if(noteFocus){ const t=$("noteTxt"); if(t){ t.focus({preventScroll:true}); t.setSelectionRange(t.value.length,t.value.length); } }
+}
+
+/* ---------- writes ---------- */
+function guard(){ if(!S.db){ toast("Sign in to save changes"); return false; } if(!S.canWrite){ toast("You have view-only access"); return false; } markDirty(); return true; }
+function writeErr(e){
+  const c = e && e.code;
+  if(c==="invalid_argument"){ S.canWrite=false; S.readOnlyReason="Your access level does not allow changes. Ask the page owner for Contributor access."; render(); }
+  else if(c==="quota_exceeded") toast("Storage is full. Export and remove old records first.");
+  else toast("Could not save. Check your connection and try again.");
+}
+async function retry(fn){ try{ return await fn(); }catch(e){ if(e && e.code==="unavailable"){ await new Promise(r=>setTimeout(r,600+Math.random()*900)); return fn(); } throw e; } }
+
+function queueService(date){
+  if(!guard()) return;
+  svcPending[date] = true;
+  clearTimeout(queueService["t"+date]);
+  queueService["t"+date] = setTimeout(()=>flushService(date), 700);
+}
+async function flushService(date){
+  if(svcBusy[date]){ svcPending[date]=true; return; }
+  svcBusy[date] = true; delete svcPending[date];
+  const body = JSON.parse(JSON.stringify(svc(date)));
+  try{ await retry(()=>S.db.collection("services").doc(date).set(body)); }
+  catch(e){ writeErr(e); }
+  svcBusy[date] = false;
+  if(svcPending[date]) flushService(date);
+}
+function changeService(mut){
+  if(!guard()) return;
+  const s = JSON.parse(JSON.stringify(svc(S.date)));
+  s.tallies = s.tallies || {men:0,women:0,youth:0,children:0}; s.present = s.present || []; s.presentNc = s.presentNc || [];
+  mut(s); s.date = S.date; s.updatedAt = new Date().toISOString();
+  S.services[S.date] = s; render(); queueService(S.date);
+}
+
+async function saveNewcomer(data){
+  if(!guard()) return;
+  try{
+    if(S.editingId){
+      await retry(()=>S.db.collection("newcomers").doc(S.editingId).update(data));
+      toast("Changes saved");
+    } else {
+      const owner = nextOwner();
+      const body = {...data, status:"new", owner, steps:{welcome:null,checkin:null,invite:null}, createdAt:new Date().toISOString(), createdBy:S.uid||null, log:logE("Registered"+(owner?" · follow-up by "+owner:""))};
+      const ref = S.db.collection("newcomers").doc();
+      await retry(()=>ref.set(body));
+      toast(firstName(data.name)+" is registered."+(owner?" "+owner+" will follow up.":" Welcome message is ready under Follow-up."));
+    }
+    S.formOpen=false; S.editingId=null; S.dupWarn=null; S.dupOk=false; render();
+  }catch(e){ writeErr(e); }
+}
+async function saveGroups(patch){ const ref=S.db.collection("settings").doc("groups"); try{ await retry(()=>ref.update(patch)); }catch(e){ if(e&&e.code==="invalid_argument") await retry(()=>ref.set(patch)); else throw e; } }
+async function markGroupSent(g){ const list=grpPick(g,S.grpRange); if(!list.length||!guard()) return; const d=today();
+  for(const n of list){ n.groupSent={...(n.groupSent||{}),[g]:d}; } render();
+  try{ await Promise.all(list.map((n,i)=>retry(()=>S.db.collection("newcomers").doc(n.id).update({groupSent:{[g]:d}, log:logE("Sent to "+(S.pres[g].name||"the group president"),i)})))); toast(`${list.length} marked as sent to ${S.pres[g].name||"the president"}`); }catch(e){ writeErr(e); } }
+function setStage(n,k,date,auto){
+  const was=n.status||"new"; if(was===k) return; const patch={status:k, log:logE((auto?"Came back, so moved to ":"Moved to ")+STATUS[k][0])};
+  if(k==="returned"&&!n.regularSince) patch.regularSince=date||today();
+  if(k==="member") patch.memberSince=today();
+  updateNc(n.id,patch);
+  if(k==="member" && was!=="member" && S.db && S.canWrite && !S.members.some(m=>m.fromNewcomer===n.id)){
+    S.db.collection("members").doc().set({name:n.name, phone:n.phone||"", group:fellowOf(n)==="youth"?"youth":n.gender==="Female"?"women":"men", fellowship:fellowOf(n)||"", birthday:n.birthday||"", fromNewcomer:n.id, createdAt:new Date().toISOString()})
+      .then(()=>toast(firstName(n.name)+" is now a full member and in the members register")).catch(writeErr);
+  } else if(k==="returned") toast(firstName(n.name)+(auto?" came back, so they’re now a Regular":" is now a Regular"));
+}
+function markStep(id,key,on){ const st=STEPS.find(s=>s.key===key);
+  updateNc(id,{steps:{[key]:on?today():null}, stepsBy:{[key]:on?(me()||""):null}, log:logE((on?"Sent the ":"Unticked the ")+(st?st.label.toLowerCase():key))}); }
+async function updateMember(id,patch){ if(!guard()) return; const m=S.members.find(x=>x.id===id); if(m) Object.assign(m,patch); render(); try{ await retry(()=>S.db.collection("members").doc(id).update(patch)); }catch(e){ writeErr(e); } }
+async function saveTeam(names){ if(!guard()) return; S.team=names; render(); try{ await retry(()=>S.db.collection("settings").doc("team").set({names})); }catch(e){ writeErr(e); } }
+async function markCelebrate(key,val){ if(!guard()) return; const id="celebrate_"+today().slice(0,4); const cur={...(S.reminders[id]||{})};
+  if(val) cur[key]=new Date().toISOString(); else delete cur[key]; S.reminders[id]=cur; render();
+  try{ await retry(()=>S.db.collection("reminders").doc(id).set({key:"celebrate",date:today().slice(0,4),sent:cur})); }catch(e){ writeErr(e); } }
+async function updateNc(id, patch){
+  if(!guard()) return;
+  const n = S.newcomers.find(x=>x.id===id);
+  if(n){ for(const [k,v] of Object.entries(patch)){ if(v && typeof v==="object" && !Array.isArray(v) && n[k] && typeof n[k]==="object") n[k]={...n[k],...v}; else n[k]=v; } }
+  render();
+  try{ await retry(()=>S.db.collection("newcomers").doc(id).update(patch)); }catch(e){ writeErr(e); }
+}
+
+/* ---------- CSV ---------- */
+function csv(rows){ return rows.map(r=>r.map(v=>{ const s=String(v??""); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }).join(",")).join("\n"); }
+async function saveFile(name, text){
+  try{
+    const dl = await claude.use("downloads");
+    if(!dl){ toast("Downloads are not available in this view"); return; }
+    await dl.save({filename:name, data:text});
+  }catch(e){ if(e && e.code!=="declined") toast("Could not export the file"); }
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", e=>{
+  const t = e.target.closest("button,a"); if(!t) { if(e.target.id==="scrim"){ S.sheetId=null; S.delArm=null; renderSheet(); } return; }
+  if(t.dataset.tally){ const k=t.dataset.tally, d=Number(t.dataset.d); changeService(s=>{ s.tallies[k]=Math.max(0,(Number(s.tallies[k])||0)+d); }); return; }
+  if(t.dataset.member){ const id=t.dataset.member; changeService(s=>{ const i=s.present.indexOf(id); if(i>=0) s.present.splice(i,1); else s.present.push(id); }); return; }
+  if(t.dataset.ncp){ const id=t.dataset.ncp; const n=S.newcomers.find(x=>x.id===id); let on=false;
+    changeService(s=>{ const i=s.presentNc.indexOf(id); if(i>=0) s.presentNc.splice(i,1); else { s.presentNc.push(id); on=true; } });
+    if(on && n && (n.status||"new")==="new" && S.date>n.firstVisit) setStage(n,"returned",S.date,true);
+    return; }
+  if(t.dataset.medit){ S.memberEditId=t.dataset.medit; S.memberFormOpen=true; S.mDelArm=false; render(); setTimeout(()=>{ const f=$("memberForm"); f&&f.scrollIntoView({block:"center"}); },0); return; }
+  if(t.id==="cancelMember"){ S.memberEditId=null; S.memberFormOpen=false; render(); return; }
+  if(t.id==="delMember"){ if(!S.mDelArm){ S.mDelArm=true; render(); setTimeout(()=>{ S.mDelArm=false; if(S.memberEditId) render(); },4000); return; }
+    if(!guard()) return; const id=S.memberEditId; S.memberEditId=null; S.memberFormOpen=false; S.mDelArm=false; S.members=S.members.filter(m=>m.id!==id); render();
+    retry(()=>S.db.collection("members").doc(id).delete()).then(()=>toast("Member removed")).catch(writeErr); return; }
+  if(t.id==="prevSun"){ S.date = isSunday(S.date) ? addDays(S.date,-7) : lastSunday(S.date); S.spForm=false; render(); return; }
+  if(t.id==="nextSun"){ const n=addDays(lastSunday(S.date),7); if(n<=today()){ S.date=n; S.spForm=false; render(); } return; }
+  if(t.id==="spOpen"){ S.spForm=true; render(); setTimeout(()=>$("spName")&&$("spName").focus(),0); return; }
+  if(t.id==="spCancel"){ S.spForm=false; render(); return; }
+  if(t.id==="spGo"){ const d=$("spDate").value, nm=$("spName").value.trim(); if(!d){ toast("Pick the date first"); return; } if(d>today()){ toast("That date is in the future"); return; }
+    S.spForm=false; S.date=d; if(isSunday(d)&&!nm){ render(); return; } changeService(s=>{ s.label=nm||(isSunday(d)?"Sunday Service":"Special service"); }); toast("Recording "+(nm||"the service")+" on "+fmt(d)); return; }
+  if(t.id==="toggleMemberForm"){ if(S.memberEditId){ S.memberEditId=null; S.memberFormOpen=true; } else S.memberFormOpen=!S.memberFormOpen; render(); if(S.memberFormOpen) setTimeout(()=>$("mName")&&$("mName").focus(),0); return; }
+  if(t.id==="dupSave"){ S.dupOk=true; S.dupWarn=null; const f=$("ncForm"); if(f) f.requestSubmit(); return; }
+  if(t.dataset.sendnext){ const [id,key]=t.dataset.sendnext.split("|"); setTimeout(()=>{ const n=S.newcomers.find(x=>x.id===id); if(n&&!(n.steps||{})[key]){ markStep(id,key,true); toast("Ticked. Send the next one when you’re back."); } },500); return; }
+  if(t.dataset.skipnext){ S.skip=S.skip||{}; S.skip[t.dataset.skipnext]=true; render(); return; }
+  if(t.dataset.fumine){ S.fuMine=t.dataset.fumine==="1"; lsSet("cpic.mine",S.fuMine?"1":"0"); render(); return; }
+  if(t.id==="teamAdd"){ const v=($("teamNew").value||"").trim().slice(0,40); if(!v) return; if(S.team.includes(v)){ toast(v+" is already on the team"); return; } S.teamOpen=true; $("teamNew").value=""; saveTeam([...S.team,v]); return; }
+  if(t.dataset.teamdel){ S.teamOpen=true; saveTeam(S.team.filter(x=>x!==t.dataset.teamdel)); toast(t.dataset.teamdel+" removed. Their people keep their name until you reassign them."); return; }
+  if(t.id==="shareOut"){ if(!guard()) return; const free=S.newcomers.filter(n=>inBuffer(n)&&!n.owner); free.forEach(n=>{ const o=nextOwner(); n.owner=o; updateNc(n.id,{owner:o, log:logE("Assigned to "+o)}); }); toast(free.length+" shared out between the team"); return; }
+  if(t.dataset.missed){ const [kind,id]=t.dataset.missed.split("|"); if(kind==="nc") updateNc(id,{missedSent:today(), log:logE("Reached out after missing Sundays")}); else updateMember(id,{missedSent:today()}); toast("Marked as reached out"); return; }
+  if(t.id==="copyPrayer"){ const list=prayerList(14); const txt="CPIC prayer list · "+fmt(today())+"\n\n"+list.map(p=>"• "+firstName(p.name)+": "+p.text.replace(/\s+/g," ")).join("\n"); try{ navigator.clipboard.writeText(txt).then(()=>toast("Prayer list copied (first names only)"),()=>toast("Copy blocked here.")); }catch(_){ toast("Copy blocked here."); } return; }
+  if(t.id==="addNote"){ const n=S.newcomers.find(x=>x.id===S.sheetId); const txt=($("noteTxt").value||"").trim(); if(!n||!txt) return; const pr=$("notePrayer").checked; const k=String(Date.now());
+    $("noteTxt").value=""; $("notePrayer").checked=false; updateNc(n.id,{notesLog:{[k]:{at:new Date().toISOString(), by:me()||"Someone", text:txt.slice(0,1000), prayer:pr}}, log:logE(pr?"Added a prayer request":"Added a note")}); toast(pr?"Prayer request saved":"Note saved"); return; }
+  if(t.dataset.rep){ S.repMonth=t.dataset.rep; render(); return; }
+  if(t.id==="copyReport"){ const txt=monthReport(S.repMonth); try{ navigator.clipboard.writeText(txt).then(()=>toast("Report copied"),()=>toast("Copy blocked here. Select the text and copy it.")); }catch(_){ toast("Copy blocked here."); } return; }
+  if(t.id==="openForm"){ if(S.formOpen && !S.editingId){ S.formOpen=false; } else { S.formOpen=true; S.editingId=null; } render(); if(S.formOpen) setTimeout(()=>$("fName")&&$("fName").focus(),0); return; }
+  if(t.id==="cancelForm"){ S.formOpen=false; S.editingId=null; S.dupWarn=null; S.dupOk=false; render(); return; }
+  if(t.dataset.filter){ S.ncFilter=t.dataset.filter; render(); return; }
+  if(t.dataset.grp){ S.grp=t.dataset.grp; S.presEdit=false; render(); return; }
+  if(t.dataset.grange){ S.grpRange=t.dataset.grange; render(); return; }
+  if(t.id==="presEditBtn"||t.id==="presEditBtn2"){ S.presEdit=true; render(); setTimeout(()=>$("pPhone")&&$("pPhone").focus(),0); return; }
+  if(t.id==="presCancel"){ S.presEdit=false; render(); return; }
+  if(t.dataset.gsend){ const g=t.dataset.gsend; setTimeout(()=>markGroupSent(g),400); return; }
+  if(t.dataset.gmark){ markGroupSent(t.dataset.gmark); return; }
+  if(t.dataset.nc){ S.sheetId=t.dataset.nc; S.delArm=null; renderSheet(); setTimeout(()=>$("closeSheet")&&$("closeSheet").focus(),0); return; }
+  if(t.id==="closeSheet"){ S.sheetId=null; S.delArm=null; renderSheet(); return; }
+  if(t.dataset.toggleStep){ const n=S.newcomers.find(x=>x.id===S.sheetId); if(!n) return; const k=t.dataset.toggleStep; markStep(n.id,k,!(n.steps||{})[k]); return; }
+  if(t.dataset.status){ const n=S.newcomers.find(x=>x.id===S.sheetId); if(n) setStage(n,t.dataset.status); return; }
+  if(t.dataset.stage){ const [id,k]=t.dataset.stage.split("|"); const n=S.newcomers.find(x=>x.id===id); if(!n) return;
+    if(k==="member"&&n.firstVisit&&daysBetween(n.firstVisit,today())<BUFFER_DAYS&&t.dataset.armed!=="1"){ t.dataset.armed="1"; t.textContent="Under 3 months. Tap again"; setTimeout(()=>{ if(t.isConnected){ t.dataset.armed=""; t.textContent=STAGE_NEXT.returned[1]; } },4000); return; }
+    setStage(n,k); return; }
+  if(t.id==="editNc"){ S.editingId=S.sheetId; S.formOpen=true; S.sheetId=null; location.hash="newcomers"; S.view="newcomers"; render(); setTimeout(()=>{ const w=$("ncFormWrap"); w&&w.scrollIntoView({block:"start"}); },0); return; }
+  if(t.id==="delNc"){
+    if(S.delArm!==S.sheetId){ S.delArm=S.sheetId; renderSheet(); setTimeout(()=>{ if(S.delArm){ S.delArm=null; renderSheet(); } },4000); return; }
+    if(!guard()) return; const id=S.sheetId; S.sheetId=null; S.delArm=null;
+    S.newcomers = S.newcomers.filter(n=>n.id!==id); render();
+    retry(()=>S.db.collection("newcomers").doc(id).delete()).then(()=>toast("Record deleted")).catch(writeErr); return; }
+  if(t.dataset.copy || t.dataset.sent){
+    const [id,key] = (t.dataset.copy||t.dataset.sent).split("|"); const n=S.newcomers.find(x=>x.id===id); if(!n) return;
+    if(t.dataset.copy){ const msg=fillTpl(key,n);
+      try{ navigator.clipboard.writeText(msg).then(()=>toast("Message copied"),()=>toast("Copy blocked here. Long-press the message to copy it.")); }catch(_){ toast("Copy blocked here. Long-press the message to copy it."); }
+    } else {
+      if(n.steps&&n.steps[key]) return;   /* already marked: a double tap does nothing */
+      delete OPENED[id+"|"+key]; JUST[id]={key,t:Date.now()}; markStep(id,key,true);
+      setTimeout(()=>{ if(JUST[id]&&Date.now()-JUST[id].t>=11900){ delete JUST[id]; if(S.view==="follow-up") render(); } },12000);
+    }
+    return; }
+  if(t.dataset.open){ OPENED[t.dataset.open]=true; setTimeout(render,400); return; }
+  if(t.dataset.notyet){ delete OPENED[t.dataset.notyet]; render(); return; }
+  if(t.dataset.undo){ const [id,key]=t.dataset.undo.split("|"); delete JUST[id]; markStep(id,key,false); toast("Undone. It’s back on the list."); return; }
+  if(t.dataset.rsend){ const [key,pid]=t.dataset.rsend.split("|"); OPENED["r|"+key+"|"+pid]=true; setTimeout(render,400); return; }
+  if(t.dataset.rdone){ const [key,pid]=t.dataset.rdone.split("|"); markReminder(key,pid,true); return; }
+  if(t.dataset.rundo){ const [key,pid]=t.dataset.rundo.split("|"); markReminder(key,pid,false); return; }
+  if(t.dataset.rkey){ S.remKey=t.dataset.rkey; S.remMsg=null; render(); return; }
+  if(t.dataset.rmsg){ S.remMsg=t.dataset.rmsg; render(); return; }
+  if(t.dataset.rcopy){ const msg=fillTpl(t.dataset.rcopy,{name:"everyone"}); try{ navigator.clipboard.writeText(msg).then(()=>toast("Message copied for a broadcast list or Status"),()=>toast("Copy blocked here.")); }catch(_){ toast("Copy blocked here."); } return; }
+  if(t.id==="resetTpl"){ TPL_KEYS.forEach(k=>{ const el=$("tpl_"+k); if(el) el.value=DEFAULT_TPL[k]; }); toast("Defaults restored. Save to apply."); return; }
+  if(t.id==="pubNow"){ publishCopy(true); return; }
+  if(t.id==="csvNc"){
+    const rows=[["Name","WhatsApp","Gender","Nationality","Visa status","Work","Occupation","Lives in","Invited by","First visit","Stage","Times came","Group","Followed up by","Birthday","Contact OK","Welcome sent","Check-in sent","Invite sent","Notes"]];
+    S.newcomers.slice().sort((a,b)=>(a.firstVisit||"").localeCompare(b.firstVisit||"")).forEach(n=>{ const s=n.steps||{}; rows.push([n.name,n.phone,n.gender,n.nationality,n.visa,n.work,n.occupation,n.area,n.invitedBy,n.firstVisit,(STATUS[n.status||"new"]||STATUS.new)[0],visitsOf(n).count,FNAME[fellowOf(n)]||"",n.owner||"",fmtDM(n.birthday),n.consent?"Yes":"No",s.welcome||"",s.checkin||"",s.invite||"",n.notes]); });
+    saveFile("cpic-newcomers-"+today()+".csv", csv(rows)); return; }
+  if(t.id==="csvAtt"){
+    const rows=[["Date","Service","Men","Women","Youth","Children","Headcount","Members ticked","Newcomers & Regulars ticked","Newcomers registered"]];
+    Object.values(S.services).sort((a,b)=>a.date.localeCompare(b.date)).forEach(s=>{ const tl=s.tallies||{}; rows.push([s.date,s.label,tl.men||0,tl.women||0,tl.youth||0,tl.children||0,headcount(s),(s.present||[]).length,(s.presentNc||[]).length,S.newcomers.filter(n=>n.firstVisit===s.date).length]); });
+    saveFile("cpic-attendance-"+today()+".csv", csv(rows)); return; }
+});
+document.addEventListener("keydown", e=>{ if(e.key==="Enter" && e.target.id==="teamNew"){ e.preventDefault(); $("teamAdd")&&$("teamAdd").click(); return; } if(e.key==="Escape" && S.sheetId){ S.sheetId=null; S.delArm=null; renderSheet(); } });
+document.addEventListener("input", e=>{
+  const t=e.target;
+  if(t.id==="memberSearch"){ S.memberQuery=t.value; render(); }
+  else if(t.id==="ncSearch"){ S.ncQuery=t.value; render(); }
+  else if(t.id==="senderName"){ S.sender=t.value; lsSet("cpic.sender",t.value); clearTimeout(S._st); S._st=setTimeout(render,700); }
+  else if(t.id==="grpMsg"){ S.grpMsg[t.dataset.mk]=t.value; const a=$("grpSend"); const p=S.pres[S.grp]; if(a&&p&&p.phone) a.href=waLink(p.phone,t.value); }
+});
+document.addEventListener("toggle", e=>{ const d=e.target; if(d.classList&&d.classList.contains("sun")){ S.sunClosed=S.sunClosed||{}; S.sunClosed[d.dataset.sun]=!d.open; } }, true);
+document.addEventListener("change", e=>{
+  const t=e.target;
+  if(t.dataset.tick){ const [id,key]=t.dataset.tick.split("|"); const n=S.newcomers.find(x=>x.id===id); if(!n) return;
+    if(t.checked){ const cur=followups().find(f=>f.n.id===id&&!f.done); if(cur&&cur.st.key===key) JUST[id]={key,t:Date.now()};
+      markStep(id,key,true); setTimeout(()=>{ if(JUST[id]&&Date.now()-JUST[id].t>=7900){ delete JUST[id]; if(S.view==="follow-up") render(); } },8000); }
+    else { if(JUST[id]&&JUST[id].key===key) delete JUST[id]; markStep(id,key,false); }
+    return; }
+  if(t.dataset.fel){ if(t.value){ updateNc(t.dataset.fel,{fellowship:t.value, log:logE("Moved to the "+FNAME[t.value])}); toast("Moved to "+FNAME[t.value]); } return; }
+  if(t.dataset.owner){ const o=t.value; updateNc(t.dataset.owner,{owner:o, log:logE(o?"Assigned to "+o:"Unassigned")}); toast(o?o+" will follow up":"No one assigned"); return; }
+  if(t.dataset.cel){ markCelebrate(t.dataset.cel,t.checked); return; }
+  if(t.id==="svcLabel"){ const v=t.value.trim(); changeService(s=>{ s.label=v||"Special service"; }); return; }
+  if(t.dataset.mfel){ if(!guard()) return; const m=S.members.find(x=>x.id===t.dataset.mfel); if(m){ m.fellowship=t.value; render(); } retry(()=>S.db.collection("members").doc(t.dataset.mfel).update({fellowship:t.value})).then(()=>toast("Moved to "+FNAME[t.value])).catch(writeErr); return; }
+  if(t.dataset.rtick){ const [key,pid]=t.dataset.rtick.split("|"); markReminder(key,pid,t.checked); return; }
+  if(t.id==="pubVisa"){ PUB.visa=t.checked; markDirty(); PUB.lastWrite=0; toast(t.checked?"Visa status will show in the public copy":"Visa status is hidden from people who aren’t signed in"); return; }
+  if(t.id==="svcDate" && t.value){
+    if(!isSunday(t.value) && S.services[t.value]){ S.date=t.value; render(); return; }
+    let d = lastSunday(t.value); const max = lastSunday(today()); if(d>max) d=max;
+    if(d!==t.value) toast("Services are on Sundays, so this shows "+fmt(d));
+    S.date=d; render();
+  }
+});
+document.addEventListener("toggle", e=>{ if(e.target.id==="tplDetails") S.tplOpen=e.target.open; if(e.target.id==="teamDetails") S.teamOpen=e.target.open; }, true);
+document.addEventListener("submit", e=>{
+  e.preventDefault(); const f=e.target;
+  if(f.id==="ncForm"){
+    const name=$("fName").value.trim(); if(!name){ toast("Add their name first"); return; }
+    const cc=$("fCC").value; lsSet("cpic.cc",cc); const phone=normPhone($("fPhone").value,cc);
+    if(!S.dupOk){ const d=findDup(name,phone,S.editingId); if(d && !(S.editingId)){ S.dupWarn=d; render(); return; } }
+    saveNewcomer({ name, phone, birthday:readDM("fBday"), gender:$("fGender").value, nationality:$("fNation").value.trim(), visa:$("fVisa").value, work:$("fWork").value,
+      occupation:$("fOcc").value.trim(), area:$("fArea").value.trim(), invitedBy:$("fInvited").value.trim(), firstVisit:$("fFirst").value||today(), notes:$("fNotes").value.trim(), consent:$("fConsent").checked, fellowship:$("fFellow").value });
+  } else if(f.id==="memberForm"){
+    if(!guard()) return; const name=$("mName").value.trim(); if(!name) return;
+    const body={name, phone:normPhone($("mPhone").value,$("mCC").value), group:$("mGroup").value, birthday:readDM("mBday"), anniversary:readDM("mAnniv")};
+    if(S.memberEditId){ const id=S.memberEditId; S.memberEditId=null; S.memberFormOpen=false; updateMember(id,body); toast("Saved"); return; }
+    body.createdAt=new Date().toISOString();
+    retry(()=>S.db.collection("members").doc().set(body)).then(()=>{ toast(firstName(name)+" added"); S.memberFormOpen=false; render(); }).catch(writeErr);
+  } else if(f.id==="presForm"){
+    if(!guard()) return; const g=f.dataset.k; const val={name:$("pName").value.trim()||DEFAULT_PRES[g].name, phone:normPhone($("pPhone").value)};
+    S.pres[g]=val; S.presEdit=false; render(); saveGroups({presidents:{[g]:val}}).then(()=>toast("Saved for the whole team")).catch(writeErr);
+  } else if(f.id==="tplForm"){
+    if(!guard()) return; const body={}; TPL_KEYS.forEach(k=>body[k]=$("tpl_"+k).value.trim()||DEFAULT_TPL[k]);
+    S.templates=body; S.tplSaved=body; retry(()=>S.db.collection("settings").doc("templates").set(body)).then(()=>{ toast("Templates saved for the whole team"); render(); }).catch(writeErr);
+  }
+});
+
+/* ---------- routing ---------- */
+const VIEWS=["sunday","newcomers","follow-up","groups","insights"];
+function route(){ const h=location.hash.replace("#",""); S.view = VIEWS.includes(h)?h:"sunday"; S.sheetId=null; render(); window.scrollTo(0,0); }
+window.addEventListener("hashchange", route);
+
+/* ---------- sync status ---------- */
+function setSync(){
+  const dot=$("syncDot"), txt=$("syncText");
+  if(!S.db){ dot.className="dot"; txt.textContent=SNAP?"Saved "+fmtWhen(SNAP.at):"Offline copy"; return; }
+  const all = S.loaded.n && S.loaded.m && S.loaded.s;
+  if(all && !S.stale){ dot.className="dot on"; txt.textContent="Live"; }
+  else { dot.className="dot wait"; txt.textContent = S.stale?"Reconnecting":"Connecting"; }
+}
+
+/* ---------- boot ---------- */
+async function boot(){
+  route(); setSync();
+  if(!window.claude || !claude.use){ S.db=null; render(); setSync(); return; }
+  let db=null, user=null;
+  let art=null;
+  try{ [db,user] = await Promise.all([claude.use("db"), claude.use("user")]);   /* the shared no-sign-in copy is switched off: the page stays invite-only */ }catch(_){}
+  PUB.art=art;
+  S.db = db;
+  /* only people the page is shared with for editing (the invited workers) can open the records */
+  if(user && typeof user.canEdit==="function"){ let ok=true; try{ ok = await user.canEdit(); }catch(_){} if(!ok){ S.locked=true; S.db=null; render(); setSync(); return; } }
+  if(user){ try{ S.uid = await user.id(); }catch(_){} try{ const c = await user.can("data.write"); if(c===false){ S.canWrite=false; S.readOnlyReason="Ask the page owner for Contributor access so you can record newcomers and attendance."; } }catch(_){} }
+  if(!db){ render(); setSync(); return; }
+  const timer = setTimeout(()=>{ S.stale=true; S.loaded={n:true,m:true,s:true}; render(); setSync(); }, 10000);
+  const done = k => { S.loaded[k]=true; if(S.loaded.n&&S.loaded.m&&S.loaded.s){ clearTimeout(timer); S.stale=false; } setSync(); };
+  const onErr = k => e => { done(k); if(e && e.code==="revoked"){ S.db=null; } render(); setSync(); };
+  db.collection("newcomers").onSnapshot(snap=>{
+    S.newcomers = snap.docs.map(d=>({id:d.id, ...JSON.parse(JSON.stringify(d.data()||{}))}));
+    if(!snap.metadata.fromCache) done("n"); render();
+  }, onErr("n"));
+  db.collection("members").onSnapshot(snap=>{
+    S.members = snap.docs.map(d=>({id:d.id, ...(d.data()||{})}));
+    if(!snap.metadata.fromCache) done("m"); render();
+  }, onErr("m"));
+  db.collection("services").onSnapshot(snap=>{
+    for(const d of snap.docs){ if(svcPending[d.id] || svcBusy[d.id]) continue; S.services[d.id] = JSON.parse(JSON.stringify({...d.data(), date:d.id})); }
+    if(!snap.metadata.fromCache) done("s"); render();
+  }, onErr("s"));
+  db.collection("reminders").onSnapshot(snap=>{ for(const d of snap.docs){ const v=d.data()||{}; S.reminders[d.id]=v.sent||{}; } if(S.view==="follow-up") render(); }, ()=>{});
+  db.doc("settings/groups").onSnapshot(d=>{ const v=d.exists?(d.data()||{}):{}; const pr=v.presidents||{}; for(const [k] of FELLOW) S.pres[k]={...DEFAULT_PRES[k],...(pr[k]||{})}; if(S.view==="groups"&&!S.presEdit) render(); }, ()=>{});
+  db.doc("settings/team").onSnapshot(d=>{ const v=d.exists?(d.data()||{}):{}; S.team=Array.isArray(v.names)?v.names.filter(x=>typeof x==="string"):[]; render(); }, ()=>{});
+  db.doc("settings/templates").onSnapshot(d=>{ S.tplSaved = d.exists ? {...d.data()} : {}; S.templates = {...DEFAULT_TPL, ...S.tplSaved}; render(); }, ()=>{});
+}
+boot();
+})();
+</script>
+
+</body></html>
