@@ -1,28 +1,45 @@
-/* CPIC Shepherd on cpic.info: worker sign-in and data connection.
+/* CPIC Workers on cpic.info: sign-in and data connection for every workers' page.
  *
- * Shepherd was first built inside Claude, where it used claude.use("db"),
- * claude.use("user") and claude.use("downloads"). This file provides the same
- * three things for the website, so the Shepherd app itself is unchanged:
- *   - sign-in with Netlify Identity (invite only: no public sign-up)
- *   - "db": the records, read and saved through /.netlify/functions/shepherd-db
- *   - "downloads": CSV exports saved straight to the device
- * Nothing loads until a worker has signed in. Sign-in tokens stay in this
- * browser only and are removed on sign out.
+ * Shepherd, Poster Studio, Sermon Clipper and Photo Desk were first built inside
+ * Claude, where they used claude.use("db"), "user", "downloads", "assets" and
+ * "sample". This file provides the same things on the website, so the apps
+ * themselves stay unchanged:
+ *   - sign-in with Netlify Identity (invite only: no public sign-up), shared by
+ *     all workers' pages, so one sign-in opens everything
+ *   - "db": records, through /.netlify/functions/shepherd-db (Shepherd) or
+ *     /.netlify/functions/media-db (Media tools)
+ *   - "assets": uploaded files, through /api/files, shown from /_blob/<id>
+ *   - "sample": Claude, through /api/ai, once the church adds an AI key
+ *   - "downloads": files saved straight to the device
+ * Which app this page is comes from <script src="/workers/auth.js" data-app="...">.
  */
 (function () {
   "use strict";
+  const SCRIPT = document.currentScript;
+  const APP = (SCRIPT && SCRIPT.dataset.app) || "shepherd";
+  const MEDIA = ["posters", "clipper", "photodesk"].includes(APP);
+  const HUB = APP === "hub";
+  const NAMES = { shepherd: "Shepherd", posters: "Poster Studio", clipper: "Sermon Clipper", photodesk: "Photo Desk", hub: "CPIC Workers" };
+  const TITLE = NAMES[APP] || "CPIC Workers";
   const IDENT = "/.netlify/identity";
-  const API = "/.netlify/functions/shepherd-db";
+  const API = APP === "shepherd" ? "/.netlify/functions/shepherd-db" : "/.netlify/functions/media-db?app=" + APP;
   const KEY = "cpic.shepherd.auth";
-  const COLS = ["newcomers", "members", "services", "reminders", "settings"];
+  const COLS = APP === "shepherd" ? ["newcomers", "members", "services", "reminders", "settings"] : [];
+  const VIRTUAL = ["sermons", "events"]; // fed live from Ekklesia on the Media tools
   const POLL_MS = 30000;
 
   /* ---------- tokens ---------- */
   let tok = null;
   try { tok = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (_) { tok = null; }
+  // The cookie lets <img>/<video> load private files from /_blob/ for signed-in workers.
+  function cookie(t) {
+    document.cookie = "cpic_at=" + (t ? encodeURIComponent(t.access_token) : "") + "; Path=/; SameSite=Strict" +
+      (location.protocol === "https:" ? "; Secure" : "") + "; Max-Age=" + (t ? Math.max(60, Math.floor((t.exp - Date.now()) / 1000)) : 0);
+  }
   function keep(t) {
     tok = t;
     try { t ? localStorage.setItem(KEY, JSON.stringify(t)) : localStorage.removeItem(KEY); } catch (_) {}
+    cookie(t);
   }
   function fromResponse(j) {
     return { access_token: j.access_token, refresh_token: j.refresh_token, exp: Date.now() + (Number(j.expires_in) || 3600) * 1000 };
@@ -73,7 +90,7 @@
   })();
 
   /* ---------- sign-in screen ---------- */
-  const LOGO = () => { const l = document.querySelector("header .logo"); return l ? l.getAttribute("src") : ""; };
+  const LOGO = () => { const l = document.querySelector("header .logo"); return l ? l.getAttribute("src") : "/icon-192.png"; };
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   let gate = null, mode = "signin", note = "", busy = false, lastEmail = "";
 
@@ -81,6 +98,7 @@
     if (document.getElementById("gateCss")) return;
     const st = document.createElement("style"); st.id = "gateCss";
     st.textContent = `
+#gate[hidden],#importBox[hidden]{display:none!important}
 #gate{position:fixed;inset:0;z-index:60;background:var(--bg,#F3F4F8);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:max(28px,env(safe-area-inset-top,0px)) 16px 40px}
 #gate .card{width:100%;max-width:420px;background:var(--surface,#fff);border:1px solid var(--line,#DCDFEA);border-radius:16px;padding:24px 20px;display:flex;flex-direction:column;gap:14px;margin-top:6vh}
 #gate .head{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
@@ -95,9 +113,14 @@
 #gate .links a,#gate .links button{color:var(--accent,#1F2A7A);background:none;border:0;padding:0;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
 #gate .btn{width:100%}
 .ws-bar{display:flex;align-items:center;gap:8px}
-.ws-bar a,.ws-bar button{font-size:12.5px;font-weight:600;color:var(--accent);background:none;border:1px solid var(--line);border-radius:8px;padding:4px 9px;cursor:pointer;text-decoration:none;white-space:nowrap}
-#importBox{max-width:760px;margin:16px auto 0;padding:0 16px}
-#importBox .section{border-color:var(--accent)}`;
+.ws-bar a,.ws-bar button{font-size:12.5px;font-weight:600;color:var(--accent,#1F2A7A);background:#fff;border:1px solid var(--line,#DCDFEA);border-radius:8px;padding:4px 9px;cursor:pointer;text-decoration:none;white-space:nowrap;font-family:inherit}
+.ws-float{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:55;background:rgba(255,255,255,.96);border:1px solid #DCDFEA;border-radius:12px;padding:6px;box-shadow:0 8px 24px rgba(20,24,51,.15)}
+#importBox{max-width:760px;margin:16px auto 0;padding:0 16px;font-family:Inter,system-ui,sans-serif;color:#141833}
+#importBox .ib{background:#fff;border:2px solid #1F2A7A;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+#importBox h3{margin:0;font-size:17px}
+#importBox p{margin:0;font-size:13.5px;color:#5D6382}
+#importBox .ibrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#importBox .ibbtn{display:inline-flex;align-items:center;min-height:40px;padding:8px 14px;border-radius:10px;background:#1F2A7A;color:#fff;font-weight:600;font-size:14px;cursor:pointer}`;
     document.head.appendChild(st);
   }
 
@@ -114,12 +137,12 @@
     const head = (title, sub) => `<div class="head">${LOGO() ? `<img src="${esc(LOGO())}" alt="CPIC">` : ""}<h2>${title}</h2><p class="muted">${sub}</p></div>`;
     const back = `<div class="links"><a href="/">‹ Back to Ekklesia</a>${mode === "signin" ? `<button type="button" data-g="forgot">Forgot password?</button>` : `<button type="button" data-g="signin">Sign in instead</button>`}</div>`;
     let body = "";
-    if (mode === "signin") body = head("Shepherd", "For CPIC workers only. Sign in with the email address the church invited.") + msg +
+    if (mode === "signin") body = head(esc(TITLE), "For CPIC workers only. Sign in with the email address the church invited.") + msg +
       `<form data-f="signin" class="field" style="gap:12px"><div class="field"><label for="gEmail">Email</label><input type="email" id="gEmail" autocomplete="username" required value="${esc(lastEmail)}"></div>
        <div class="field"><label for="gPass">Password</label><input type="password" id="gPass" autocomplete="current-password" required></div>
        <button class="btn primary" type="submit" ${busy ? "disabled" : ""}>${busy ? "Signing in…" : "Sign in"}</button></form>` + back +
       `<p class="small muted">New worker? Open the invitation email from CPIC and tap the link in it to create your password. There’s no public sign-up.</p>`;
-    else if (mode === "invite") body = head("Welcome to Shepherd", "Create your password to finish setting up your worker account.") + msg +
+    else if (mode === "invite") body = head("Welcome to CPIC Workers", "Create your password to finish setting up your worker account.") + msg +
       `<form data-f="invite" class="field" style="gap:12px"><div class="field"><label for="gNew">New password</label><input type="password" id="gNew" autocomplete="new-password" minlength="8" required><span class="hint">At least 8 characters.</span></div>
        <div class="field"><label for="gNew2">Type it again</label><input type="password" id="gNew2" autocomplete="new-password" minlength="8" required></div>
        <button class="btn primary" type="submit" ${busy ? "disabled" : ""}>${busy ? "Saving…" : "Create password and sign in"}</button></form>` + back;
@@ -142,7 +165,7 @@
     if (/expired|invalid.*token|not found/i.test(m)) return "bad:This link has expired or was already used. Ask Sam to send a new invitation, or use “Forgot password?”.";
     if (e && e.status === 404) return "bad:Worker sign-in isn’t switched on for this site yet. Ask Sam to turn on Identity in Netlify.";
     if (/Failed to fetch|NetworkError|^offline$/i.test(m)) return "bad:No connection. Check your internet and try again.";
-    if (/^server:/.test(m)) return "bad:You’re signed in, but Shepherd couldn’t load its records just now. Try again in a minute. If it keeps happening, tell Sam this: " + m.slice(7);
+    if (/^server:/.test(m)) return "bad:You’re signed in, but " + TITLE + " couldn’t load its records just now. Try again in a minute. If it keeps happening, tell Sam this: " + m.slice(7);
     return "bad:" + (m || "Something went wrong. Try again.");
   }
 
@@ -197,7 +220,7 @@
     try { r = await fetch(API, { method, cache: "no-store", headers: { Authorization: "Bearer " + t, "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); }
     catch (_) { throw err("unavailable", "offline"); }
     if (r.status === 401) { signedOut("bad:Your sign-in has ended. Please sign in again."); throw err("revoked"); }
-    if (r.status === 403) { signedOut("bad:This account wasn’t invited by the church, so it can’t open Shepherd. Ask Sam to send you an invitation."); throw err("revoked"); }
+    if (r.status === 403) { signedOut("bad:This account wasn’t invited by the church, so it can’t open the workers’ pages. Ask Sam to send you an invitation."); throw err("revoked"); }
     const j = await r.json().catch(() => ({}));
     if (r.status === 413) throw err("quota_exceeded");
     if (r.status >= 500) throw err("unavailable", "server:" + (j.detail || j.error || r.status));
@@ -217,9 +240,26 @@
     } catch (e) { console.error(e); }
   }
   const emit = () => subs.forEach(fire);
+  let EKK = null;
+  async function addEkklesia() {
+    try {
+      if (!EKK) {
+        const html = await (await fetch("/", { cache: "no-store" })).text();
+        const m = html.match(/<script type="application\/json" id="snapshot">([\s\S]*?)<\/script>/);
+        EKK = m ? JSON.parse(m[1]) : {};
+      }
+      for (const [col, list] of [["sermons", EKK.sermons], ["events", EKK.events]]) {
+        if (!Array.isArray(list)) continue;
+        DATA[col] = DATA[col] || {};
+        for (const x of list) { if (!x || !x.id) continue; const { id, ...rest } = x; DATA[col][id] = rest; }
+      }
+    } catch (_) {}
+  }
   async function pull() {
+    if (HUB) { DATA = {}; return; }
     const j = await api("GET");
     DATA = j.data || {}; for (const c of COLS) DATA[c] = DATA[c] || {};
+    if (MEDIA) await addEkklesia();
     emit(); importOffer();
   }
   function poll() {
@@ -228,9 +268,13 @@
   }
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && tok && DATA) pull().catch(() => {}); });
 
-  function check(col) { if (!COLS.includes(col)) throw err("invalid_argument", "Unknown list " + col); }
+  function check(col) {
+    const ok = COLS.length ? COLS.includes(col) : /^[A-Za-z][A-Za-z0-9_-]{0,40}$/.test(String(col));
+    if (!ok) throw err("invalid_argument", "Unknown list " + col);
+  }
   async function write(op, col, id, data) {
     check(col);
+    DATA[col] = DATA[col] || {};
     const before = clone((DATA[col] || {})[id]);
     if (op === "delete") delete DATA[col][id];
     else if (op === "set") DATA[col][id] = clone(data);
@@ -257,10 +301,13 @@
   const db = {
     collection(col) {
       check(col);
-      return {
+      const c = {
         doc: id => docRef(col, id || newId()),
+        limit: () => c,
+        orderBy: () => c,
         onSnapshot(cb, onErr) { const s = { col, id: null, cb, onErr }; subs.add(s); fire(s); return () => subs.delete(s); },
       };
+      return c;
     },
     doc(path) { const [col, id] = String(path).split("/"); check(col); return docRef(col, id); },
   };
@@ -278,52 +325,129 @@
     },
   };
 
-  // What the Shepherd app asks for. It waits here until a worker signs in.
+  /* ---------- files (Media tools) ---------- */
+  async function filesApi(method, qs, body, headers) {
+    const t = await accessToken();
+    let r;
+    try { r = await fetch("/api/files?app=" + (MEDIA ? APP : "posters") + (qs || ""), { method, cache: "no-store", headers: { Authorization: "Bearer " + t, ...(headers || {}) }, body }); }
+    catch (_) { throw err("unavailable", "offline"); }
+    if (r.status === 401) { signedOut("bad:Your sign-in has ended. Please sign in again."); throw err("revoked"); }
+    if (r.status === 403) { signedOut("bad:This account wasn’t invited by the church, so it can’t open the workers’ pages. Ask Sam to send you an invitation."); throw err("revoked"); }
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 413) throw err("quota_or_state", "This file is too big to save (the limit is about 5 MB).");
+    if (!r.ok) throw err(r.status >= 500 ? "unavailable" : "invalid_argument", j.detail || j.error);
+    return j;
+  }
+  const assets = {
+    async upload(file, opts) {
+      const j = await filesApi("POST", opts && opts.id ? "&id=" + encodeURIComponent(opts.id) : "", file,
+        { "Content-Type": (file && file.type) || "application/octet-stream", "X-File-Name": encodeURIComponent((file && file.name) || "") });
+      return { id: j.id, url: j.url };
+    },
+    list: () => filesApi("GET"),
+    delete: id => filesApi("DELETE", "&id=" + encodeURIComponent(id)),
+  };
+
+  /* ---------- Claude (Media tools, once the church adds an AI key) ---------- */
+  let AI = false;
+  const b64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(",")[1] || ""); r.onerror = rej; r.readAsDataURL(blob); });
+  async function aiCall(prompt, opts, asJson) {
+    const t = await accessToken();
+    const images = [];
+    for (const im of (opts && opts.images) || []) {
+      if (im instanceof Blob) images.push({ type: im.type || "image/png", data: await b64(im) });
+      else if (typeof im === "string" && /^data:image\//.test(im)) images.push({ type: im.slice(5, im.indexOf(";")), data: im.split(",")[1] });
+    }
+    let r;
+    try { r = await fetch("/api/ai", { method: "POST", headers: { Authorization: "Bearer " + t, "Content-Type": "application/json" }, body: JSON.stringify({ prompt, images, tier: (opts && opts.modelTier) || "default", json: !!asJson }), signal: opts && opts.signal }); }
+    catch (e) { if (e && e.name === "AbortError") throw err("cancelled"); throw err("unavailable"); }
+    if (r.status === 429) throw err("rate_limited");
+    if (r.status === 401 || r.status === 403 || r.status === 501) throw err("not_granted");
+    if (!r.ok) throw err("unavailable");
+    let text = "";
+    if (r.body && r.body.getReader && opts && opts.onText) {
+      const rd = r.body.getReader(), dec = new TextDecoder();
+      for (;;) { const { done, value } = await rd.read(); if (done) break; text += dec.decode(value, { stream: true }); try { opts.onText(text); } catch (_) {} }
+    } else text = await r.text();
+    return text;
+  }
+  function sample(prompt, opts) { return aiCall(prompt, opts, false).then(text => ({ text })); }
+  sample.json = async (prompt, opts) => {
+    const t = (await aiCall(prompt, opts, true)).trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+    try { return JSON.parse(t); } catch (_) { const m = t.match(/[\[{][\s\S]*[\]}]/); if (m) { try { return JSON.parse(m[0]); } catch (_) {} } throw err("invalid_json"); }
+  };
+  sample.limits = async () => ({ images: true });
+
+  // What the apps ask for. Each call waits here until a worker signs in.
   window.claude = {
     use: async name => {
       await ready;
-      if (name === "db") return db;
+      if (name === "db") return HUB ? null : db;
       if (name === "user") return user;
       if (name === "downloads") return downloads;
+      if (name === "assets") return MEDIA ? assets : null;
+      if (name === "sample") return MEDIA && AI ? sample : null;
       return null;
     },
   };
 
   /* ---------- one-time import from the Claude version ---------- */
+  const IMPORT = {
+    shepherd: { file: "cpic-shepherd-records.json", what: "everyone" },
+    posters: { file: "cpic-poster-studio-records.json", what: "the briefs, photos and finished posters" },
+    photodesk: { file: "cpic-photo-desk-records.json", what: "the team’s logo and watermark settings" },
+  }[APP];
+  function isEmpty() {
+    if (!DATA) return false;
+    const cols = COLS.length ? COLS : Object.keys(DATA).filter(c => !VIRTUAL.includes(c));
+    return cols.every(c => !Object.keys(DATA[c] || {}).length);
+  }
   function importOffer() {
-    const empty = DATA && COLS.every(c => !Object.keys(DATA[c] || {}).length);
     let box = document.getElementById("importBox");
-    if (!empty) { if (box) box.remove(); return; }
+    if (!IMPORT || !isEmpty()) { if (box) box.remove(); return; }
     if (box) return;
     box = document.createElement("div"); box.id = "importBox";
-    box.innerHTML = `<section class="section"><h3>Bring your records over</h3>
-      <p class="small muted" style="margin:0">Shepherd on cpic.info is empty. If you have the records file from the Claude version (cpic-shepherd-records.json), choose it here to bring everyone across. This only works once, while Shepherd is empty.</p>
-      <div class="row"><label class="btn primary" style="cursor:pointer">Choose records file<input type="file" id="importFile" accept=".json,application/json" hidden></label><span class="small muted" id="importMsg"></span></div></section>`;
-    const main = document.querySelector("main"); main.parentNode.insertBefore(box, main);
+    box.innerHTML = `<div class="ib"><h3>Bring your records over</h3>
+      <p>${esc(TITLE)} on cpic.info is empty. If you have the records file from the Claude version (${esc(IMPORT.file)}), choose it here to bring ${esc(IMPORT.what)} across. This only works once, while ${esc(TITLE)} is empty.</p>
+      <div class="ibrow"><label class="ibbtn">Choose records file<input type="file" id="importFile" accept=".json,application/json" hidden></label><span id="importMsg" style="font-size:13px;color:#5D6382"></span></div></div>`;
+    const main = document.querySelector("main");
+    if (main) main.parentNode.insertBefore(box, main); else document.body.insertBefore(box, document.body.firstChild);
     box.querySelector("#importFile").addEventListener("change", async e => {
       const f = e.target.files && e.target.files[0]; const msg = box.querySelector("#importMsg"); if (!f) return;
       try {
         msg.textContent = "Reading the file…";
-        const j = JSON.parse(await f.text()); const data = j && j.data ? j.data : j;
-        if (!data || !COLS.some(c => data[c] && Object.keys(data[c]).length)) throw new Error("This file has no Shepherd records in it.");
+        const j = JSON.parse(await f.text());
+        if (j.app && j.app !== APP) throw new Error("This records file is for a different tool.");
+        const data = j && j.data ? j.data : j;
+        if (!data || !Object.keys(data).some(c => data[c] && Object.keys(data[c]).length)) throw new Error("This file has no records in it.");
+        const files = Object.entries(j.files || {});
+        let n = 0;
+        for (const [id, fl] of files) {
+          msg.textContent = `Bringing files across… ${++n} of ${files.length}`;
+          const bin = Uint8Array.from(atob(fl.b64), ch => ch.charCodeAt(0));
+          await assets.upload(new File([bin], fl.name || id, { type: fl.type || "application/octet-stream" }), { id });
+        }
         msg.textContent = "Bringing records across…";
         const r = await api("POST", { op: "import", data });
         const c = r.counts || {};
         await pull();
-        alert(`Done. Brought across ${c.newcomers || 0} newcomers, ${c.members || 0} members and ${c.services || 0} services.`);
-      } catch (x) { msg.textContent = x.code === "invalid_argument" ? "Shepherd already has records, so nothing was imported." : (x.message || "Could not import the file."); }
+        const parts = Object.entries(c).filter(([, v]) => v).map(([k, v]) => `${v} ${k}`);
+        alert("Done. Brought across " + (parts.join(", ") || "the records") + (files.length ? ` and ${files.length} files` : "") + ".");
+      } catch (x) { msg.textContent = x.code === "invalid_argument" ? TITLE + " already has records, so nothing was imported." : (x.message || "Could not import the file."); }
     });
   }
 
   /* ---------- header: back to Ekklesia, who's signed in, sign out ---------- */
   function headerBar() {
-    const top = document.querySelector("header .top-in"); if (!top || document.getElementById("wsBar")) return;
-    const bar = document.createElement("div"); bar.className = "ws-bar"; bar.id = "wsBar";
-    bar.innerHTML = `<a href="/" title="Back to the public site">‹ Ekklesia</a><button type="button" id="wsOut" title="${esc(me && me.email || "")}">Sign out</button>`;
-    top.appendChild(bar);
+    if (document.getElementById("wsBar")) return;
+    const top = APP === "shepherd" || HUB ? document.querySelector("header .top-in") : null;
+    const bar = document.createElement("div"); bar.className = "ws-bar" + (top ? "" : " ws-float"); bar.id = "wsBar";
+    bar.innerHTML = (HUB ? `<a href="/" title="Back to the public site">‹ Ekklesia</a>` : `<a href="/workers/" title="All workers’ tools">‹ Workers</a>`) +
+      `<button type="button" id="wsOut" title="${esc(me && me.email || "")}">Sign out</button>`;
+    (top || document.body).appendChild(bar);
     bar.querySelector("#wsOut").addEventListener("click", () => {
       keep(null); try { sessionStorage.clear(); } catch (_) {}
-      location.replace("/shepherd/");
+      location.replace("/workers/");
     });
   }
 
@@ -333,8 +457,11 @@
   async function start() {
     try {
       me = await currentUser();
+      if (HUB) await filesApi("GET");        // confirms the account was invited
+      if (MEDIA) { try { AI = !!(await (await fetch("/api/ai", { cache: "no-store" })).json()).enabled; } catch (_) { AI = false; } }
       await pull();
-      hideGate(); headerBar(); poll();
+      hideGate(); headerBar(); if (!HUB) poll();
+      document.dispatchEvent(new CustomEvent("cpic:signedin", { detail: { email: me && me.email } }));
       startedResolve();
     } catch (e) {
       if (e && e.code === "revoked") showGate("signin", tok ? "" : note);
@@ -352,8 +479,10 @@
     }
     if (pending && pending.kind === "error") return showGate("signin", "bad:" + pending.msg);
     if (!tok) return showGate("signin");
-    showGate("wait", "Opening Shepherd…");
+    showGate("wait", "Opening " + TITLE + "…");
     start();
   }
+  if (tok) cookie(tok);
+  window.CPIC_WORKER = { signOut: () => { keep(null); location.replace("/workers/"); }, get email() { return me && me.email; } };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();

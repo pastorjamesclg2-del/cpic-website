@@ -7,3 +7,13 @@
   X-Robots-Tag: noindex, nofollow
   X-Frame-Options: DENY
   Referrer-Policy: same-origin
+/workers/*
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+  X-Frame-Options: DENY
+  Referrer-Policy: same-origin
+/media/*
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+  X-Frame-Options: DENY
+  Referrer-Policy: same-origin
