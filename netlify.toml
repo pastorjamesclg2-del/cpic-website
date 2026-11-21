@@ -1,0 +1,4 @@
+# Netlify settings for cpic.info
+# No build step: the website files in the main folder are published as they are.
+[build]
+  publish = "."
