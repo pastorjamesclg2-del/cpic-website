@@ -1,7 +1,8 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><script>if(/^#\/?(invite_token|recovery_token|confirmation_token)=/.test(location.hash))location.replace("/workers/"+location.hash);</script>
+<!doctype html><html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><script>if(/^#\/?(invite_token|recovery_token|confirmation_token)=/.test(location.hash))location.replace("/workers/"+location.hash);</script>
 <title>CPIC Ekklesia · Christ Power International Church</title>
 <meta name="description" content="Christ Power International Church (CPIC), Dubai: sermon notes, weekly programmes, events, prayer requests and testimonies.">
-<meta name="theme-color" content="#1F2A7A">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131833" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -14,7 +15,9 @@
 
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://i.ytimg.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: phone-first single column (max 760px), sticky header with logo and a tab row (Sermons, Events, Prayer); nothing pinned to the bottom edge */
 :root{
@@ -282,6 +285,244 @@ details.tpl summary::-webkit-details-marker{display:none}
 .ai-status{font-size:13.5px;color:var(--muted)}
 @media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(16px);opacity:.6}}}
 </style>
+<style>
+/* ===== CPIC look: navy and red from the logo, a warm serif for headings and scripture ===== */
+:root{
+  --bg:#F6F4EF; --surface:#FFFFFF; --surface-2:#EFECE5; --ink:#12152B; --muted:#5C6077; --line:#E3DFD5;
+  --accent:#1B2A8C; --accent-ink:#FFFFFF; --accent-soft:#E7EAF8;
+  --cross:#C81E28; --cross-soft:#FBE5E4; --gold:#9A6C17; --gold-soft:#F6ECD6;
+  --hero:#0E1757; --hero-ink:#F6F4EF; --hero-muted:#BAC1E6; --hero-line:rgba(255,255,255,.14);
+  --f-display:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-serif:"Fraunces", Georgia, "Times New Roman", serif;
+  --shadow:0 1px 2px rgba(18,21,43,.05), 0 8px 24px rgba(18,21,43,.06);
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A0D1E; --surface:#131833; --surface-2:#1B2141; --ink:#EEF0F8; --muted:#A3A8C3; --line:#262D50;
+  --accent:#5B8CFF; --accent-ink:#071030; --accent-soft:#18234D;
+  --cross:#FF5C63; --cross-soft:#3A1A20; --gold:#E7B65A; --gold-soft:#2E2510;
+  --hero:#0F1846; --hero-ink:#F3F4FA; --hero-muted:#AAB3E0; --hero-line:rgba(255,255,255,.12);
+  --shadow:none; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A0D1E; --surface:#131833; --surface-2:#1B2141; --ink:#EEF0F8; --muted:#A3A8C3; --line:#262D50;
+  --accent:#5B8CFF; --accent-ink:#071030; --accent-soft:#18234D;
+  --cross:#FF5C63; --cross-soft:#3A1A20; --gold:#E7B65A; --gold-soft:#2E2510;
+  --hero:#0F1846; --hero-ink:#F3F4FA; --hero-muted:#AAB3E0; --hero-line:rgba(255,255,255,.12);
+  --shadow:none; color-scheme:dark}
+
+html{-webkit-tap-highlight-color:transparent}
+body{font-size:15.5px}
+a,button{touch-action:manipulation}
+.wrap{transition:none}
+.wrap.wide{max-width:1080px}
+.top-in,.tabs-in{max-width:1080px}
+.brand h1{font-family:var(--f-serif);font-weight:600;font-size:21px;letter-spacing:-.01em}
+
+/* motion: buttons step and press, linked cards lift */
+.btn,.ibtn,.seg button,.seg a,.jump button{transition:transform .12s ease, background-color .15s ease, border-color .15s ease, color .15s ease}
+.btn:active,.ibtn:active,.seg button:active,.jump button:active{transform:scale(.97)}
+.item,.social,.lift{transition:transform .18s ease, border-color .18s ease, background-color .18s ease}
+@media (hover:hover){.lift:hover,.social:hover{transform:translateY(-2px)}}
+.zoom{overflow:hidden}
+.zoom img{transition:transform .5s ease}
+@media (hover:hover){.lift:hover .zoom img,.zoom:hover img{transform:scale(1.03)}}
+
+/* headings */
+h2.view-title{font-family:var(--f-serif);font-weight:600;font-size:30px;letter-spacing:-.015em}
+.h-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.h3{margin:0;font-family:var(--f-serif);font-weight:600;font-size:23px;line-height:1.15;letter-spacing:-.01em;text-wrap:balance}
+.h-row a{color:var(--accent);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap}
+.h-row a:hover{text-decoration:underline}
+.kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--cross)}
+
+/* header live chip */
+.livechip{display:inline-flex;align-items:center;gap:7px;background:var(--cross);color:#fff;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:700;text-decoration:none;white-space:nowrap}
+.livechip i{width:7px;height:7px;border-radius:50%;background:#fff;display:block}
+
+/* hero */
+.hero{position:relative;overflow:hidden;isolation:isolate;border-radius:22px;background:var(--hero);color:var(--hero-ink);padding:30px 22px 22px;display:flex;flex-direction:column;gap:16px}
+.hero::before{content:"";position:absolute;left:22px;top:0;width:64px;height:5px;background:var(--cross);border-radius:0 0 4px 4px}
+.hero .greek{position:absolute;right:-10px;bottom:-0.28em;font-family:var(--f-serif);font-style:italic;font-weight:600;font-size:clamp(110px,30vw,260px);line-height:1;color:#fff;opacity:.07;z-index:-1;white-space:nowrap;pointer-events:none;letter-spacing:-.02em}
+.hero .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--hero-muted);font-weight:600}
+.hero h2{margin:0;font-family:var(--f-serif);font-weight:600;font-size:clamp(34px,8.6vw,58px);line-height:1.02;letter-spacing:-.02em;text-wrap:balance;max-width:14ch}
+.hero .lead{margin:0;color:var(--hero-muted);font-size:16px;max-width:44ch}
+.hero .lead b{color:var(--hero-ink);font-weight:600}
+.live{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.07);border:1px solid var(--hero-line);border-radius:14px;padding:12px 14px;max-width:520px}
+.live .pulse{width:11px;height:11px;border-radius:50%;background:#FF4D55;flex:none}
+.live .pulse.idle{background:#E7B65A}
+.live .lv{display:flex;flex-direction:column;min-width:0}
+.live .lv b{font-weight:600;font-size:15px}
+.live .lv span{font-size:13.5px;color:var(--hero-muted)}
+.hero .actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn.light{background:#fff;border-color:#fff;color:#0E1757}
+.btn.light:hover{background:#EEF0FA}
+.btn.ghost-light{background:transparent;border-color:rgba(255,255,255,.35);color:#fff}
+.btn.ghost-light:hover{background:rgba(255,255,255,.08)}
+.btn .bi{width:18px;height:18px;flex:none}
+@media (min-width:760px){.hero{padding:44px 40px 36px;gap:18px}.hero::before{left:40px}}
+@media (prefers-reduced-motion:no-preference){
+  .live .pulse:not(.idle){animation:pulse 1.8s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,77,85,.55)}80%,100%{box-shadow:0 0 0 12px rgba(255,77,85,0)}}
+  [data-enter] > *{animation:enter .7s cubic-bezier(.2,.7,.2,1) both}
+  [data-enter] > *:nth-child(2){animation-delay:.06s}[data-enter] > *:nth-child(3){animation-delay:.12s}
+  [data-enter] > *:nth-child(4){animation-delay:.18s}[data-enter] > *:nth-child(5){animation-delay:.24s}[data-enter] > *:nth-child(6){animation-delay:.3s}
+  @keyframes enter{from{opacity:0;transform:translateY(14px)}}
+  [data-enter] > .greek{animation:greek 1.4s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes greek{from{opacity:0;transform:translateX(40px)}}
+}
+
+/* home layout */
+.home{display:flex;flex-direction:column;gap:28px}
+.home-grid{display:grid;gap:28px}
+@media (min-width:900px){.home-grid{grid-template-columns:1.15fr .85fr;align-items:start}}
+.block{display:flex;flex-direction:column;gap:12px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);min-width:0;color:var(--ink);text-decoration:none}
+.card .pad{padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card h4{margin:0;font-family:var(--f-serif);font-weight:600;font-size:21px;line-height:1.2;text-wrap:balance}
+.card .meta{font-size:13.5px;color:var(--muted)}
+a.card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+
+/* this week */
+.week{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(136px,1fr);gap:8px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding-inline:max(16px,env(safe-area-inset-left,0px));margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:2px max(16px,env(safe-area-inset-left,0px)) 6px;scrollbar-width:none;overscroll-behavior-x:contain}
+.week::-webkit-scrollbar{display:none}
+@media (min-width:900px){.week{grid-auto-flow:row;grid-template-columns:repeat(7,minmax(0,1fr));margin:0;padding:0;overflow:visible}}
+.day{scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 11px 12px;display:flex;flex-direction:column;gap:8px;min-height:124px;min-width:0}
+.day.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.day .dh{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.day .dn{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.day.today .dn{color:var(--accent)}
+.day .dd{font-family:var(--f-serif);font-size:22px;font-weight:600;line-height:1}
+.prog{font-size:12.5px;line-height:1.3;border-left:3px solid var(--accent);padding-left:8px;display:flex;flex-direction:column;gap:1px;color:var(--ink);text-decoration:none}
+.prog b{font-weight:600;overflow-wrap:anywhere}
+.prog span{color:var(--muted)}
+.prog.k-worship{border-color:var(--cross)} .prog.k-prayer{border-color:var(--gold)}
+.prog.now b::after{content:" · Live";color:var(--cross);font-weight:700}
+.day .none{font-size:12.5px;color:var(--muted)}
+
+/* latest message */
+.thumb{position:relative;display:block;aspect-ratio:16/9;background:var(--hero)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.yt-btn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:rgba(200,30,40,.92);display:grid;place-items:center;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.35);transition:transform .18s ease}
+.yt-btn svg{width:26px;height:26px;margin-left:3px}
+.yt-btn.sm{width:48px;height:48px}.yt-btn.sm svg{width:20px;height:20px}
+@media (hover:hover){.lift:hover .yt-btn,.yt-play:hover .yt-btn{transform:translate(-50%,-50%) scale(1.06)}}
+.ref-line{font-weight:600;color:var(--cross);font-size:14px}
+
+/* coming up */
+.next-ev .poster{border-radius:0;border:0;aspect-ratio:16/9}
+.mini{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid var(--line);color:var(--ink);text-decoration:none}
+.mini b{display:block;font-weight:600;line-height:1.25}
+.mini span.s{font-size:13px;color:var(--muted)}
+.until{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--cross);font-size:13.5px}
+
+/* verse of the week */
+.verse-card{background:var(--gold-soft);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:10px;border:1px solid color-mix(in srgb,var(--gold) 22%,transparent)}
+.verse-card .k{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--gold)}
+.verse-card .txt{font-family:var(--f-serif);font-size:23px;line-height:1.35;font-weight:500;text-wrap:pretty}
+.verse-card .ref{font-weight:700;color:var(--gold)}
+
+/* new here */
+.steps3{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:st}
+.steps3 li{counter-increment:st;display:grid;grid-template-columns:40px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.steps3 li::before{content:counter(st);width:36px;height:36px;border-radius:50%;background:var(--hero);color:#fff;display:grid;place-items:center;font-family:var(--f-serif);font-weight:600;font-size:17px}
+.steps3 b{display:block;font-size:16px;margin-bottom:2px}
+.steps3 p{margin:0;color:var(--muted);font-size:14px}
+.steps3 .row{margin-top:10px}
+
+/* brand logos */
+.logo-ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:var(--b);color:#fff;flex:none}
+.logo-ic svg{width:24px;height:24px;fill:currentColor}
+.logo-ic.dark{box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.logo-ic.kick{color:#000}
+.logos{display:flex;gap:10px;flex-wrap:wrap}
+.logos a{border-radius:12px;display:block}
+.logos .logo-ic{width:44px;height:44px}
+@media (hover:hover){.logos a:hover .logo-ic{transform:translateY(-2px)}}
+.logos .logo-ic{transition:transform .18s ease}
+.social{grid-template-columns:46px 1fr auto}
+
+/* install */
+.install{display:grid;grid-template-columns:52px 1fr;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;position:relative}
+.install img{width:52px;height:52px;border-radius:12px}
+.install b{display:block}
+.install p{margin:2px 0 8px;font-size:13.5px;color:var(--muted)}
+.install .x{position:absolute;right:6px;top:6px}
+
+/* sermons list */
+.feature{background:var(--hero);color:var(--hero-ink);padding:0;overflow:hidden;display:grid;grid-template-columns:1fr;gap:0;border-radius:20px}
+.feature .f-body{padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.feature .eyebrow{color:var(--hero-muted);opacity:1}
+.feature h3{font-family:var(--f-serif);font-weight:600;font-size:27px;line-height:1.1;letter-spacing:-.015em}
+.feature .ref{color:#FF8A8F}
+.feature p.sum{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;color:var(--hero-muted);opacity:1}
+.feature .go{background:#fff;color:#0E1757}
+@media (min-width:700px){.feature{grid-template-columns:44% 1fr}.feature .thumb{aspect-ratio:auto;min-height:100%}}
+.item .name{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.list{box-shadow:var(--shadow)}
+
+/* sermon reader */
+.progress{position:fixed;left:0;right:0;top:0;height:3px;background:var(--cross);transform:scaleX(0);transform-origin:left;z-index:12;pointer-events:none}
+.notes{font-size:var(--ns,16px)}
+.notes p,.notes li,.notes .verses div{font-size:1em}
+.notes-head h2{font-family:var(--f-serif);font-weight:600;font-size:clamp(30px,7vw,42px);line-height:1.05;letter-spacing:-.02em}
+.notes h3{color:var(--cross)}
+.notes section{scroll-margin-top:calc(var(--hh,120px) + 60px)}
+.jump{position:sticky;top:var(--hh,120px);z-index:4;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.jump::-webkit-scrollbar{display:none}
+.jump button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;min-height:34px}
+.jump button[aria-current=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.yt{position:relative;aspect-ratio:16/9;border-radius:var(--r);overflow:hidden;background:#000}
+.yt-play{all:unset;cursor:pointer;display:block;width:100%;height:100%;position:relative}
+.yt-play img{width:100%;height:100%;object-fit:cover;display:block;opacity:.92}
+.yt-play:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ibtn{appearance:none;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:inline-grid;place-items:center;cursor:pointer;text-decoration:none;font-weight:700;font-size:14px;flex:none}
+.ibtn:hover{background:var(--surface-2)}
+.ibtn svg{width:18px;height:18px}
+.ibtn.wa{background:var(--wa);border-color:var(--wa);color:var(--wa-ink)}
+.fs{display:inline-flex;gap:6px;margin-left:auto}
+.scripture .txt,.memory .txt{font-family:var(--f-serif);font-weight:500;font-size:1.3em;line-height:1.4}
+.quote{font-family:var(--f-serif);font-weight:500;font-style:italic;font-size:1.22em}
+.vref{all:unset;cursor:pointer;font-weight:700;color:inherit;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,currentColor 40%,transparent);border-radius:4px}
+.vref:hover{text-decoration-color:currentColor}
+.vref:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.todo{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.todo label{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer}
+.todo input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--ok)}
+.todo input:checked + span{color:var(--muted);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--muted) 60%,transparent)}
+.todo label:has(input:checked){background:color-mix(in srgb,var(--ok-soft) 55%,var(--surface));border-color:color-mix(in srgb,var(--ok) 30%,var(--line))}
+.memory .row{margin-top:6px}
+.blank{all:unset;cursor:pointer;color:transparent;background:color-mix(in srgb,var(--cross) 16%,transparent);border-bottom:2px solid var(--cross);border-radius:4px 4px 0 0;padding:0 2px}
+.blank:focus-visible{outline:2px solid var(--accent)}
+
+/* events */
+.desc.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.more{all:unset;cursor:pointer;color:var(--accent);font-weight:600;font-size:14px;align-self:flex-start;border-radius:4px}
+.more:hover{text-decoration:underline}
+.more:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ev-actions{gap:8px}
+.wk .poster.short{aspect-ratio:2/1}
+.weekly{grid-template-columns:1fr}
+@media (min-width:640px){.weekly{grid-template-columns:1fr 1fr}}
+.ev,.wk{box-shadow:var(--shadow)}
+
+/* sheets */
+.sheet h3{margin:0;font-family:var(--f-serif);font-weight:600;font-size:22px}
+.verse-txt{font-family:var(--f-serif);font-size:19px;line-height:1.55}
+.verse-txt sup{font-family:var(--f-body);font-size:11px;font-weight:700;color:var(--cross);margin-right:4px}
+.opt{display:flex;flex-direction:column;gap:10px}
+.opt .btn{justify-content:flex-start;min-height:48px}
+.scrim{overscroll-behavior:contain}
+
+/* footer */
+.site-foot{border-top:1px solid var(--line);margin-top:8px;padding:26px max(16px,env(safe-area-inset-right,0px)) calc(30px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));color:var(--muted);font-size:13.5px}
+.site-foot .in{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.site-foot b{color:var(--ink);font-family:var(--f-serif);font-weight:600;font-size:18px;display:block}
+.site-foot .fl{display:flex;gap:14px;flex-wrap:wrap}
+.site-foot a{color:var(--muted)}
+.site-foot a:hover{color:var(--ink)}
+main{padding-bottom:28px}
+</style>
 
 <header class="top">
   <div class="top-in">
@@ -292,10 +533,11 @@ details.tpl summary::-webkit-details-marker{display:none}
         <p id="todayLine">Christ Power International Church</p>
       </div>
     </div>
-    <div class="sync"><span class="dot wait" id="syncDot"></span><span id="syncText">Connecting</span></div>
+    <a class="livechip" id="liveChip" href="#home" hidden><i aria-hidden="true"></i><span id="liveText">Live now</span></a>
   </div>
   <nav class="tabs" aria-label="Sections">
   <div class="tabs-in">
+    <a href="#home" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M12 13v5M10 15h4"/></svg>Home</a>
     <a href="#sermons" data-tab="sermons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5C4 4.5 7.5 4 12 6c4.5-2 8-1.5 10-.5V19c-2-1-5.5-1.5-10 .5-4.5-2-8-1.5-10-.5z"/><path d="M12 6v13.5"/></svg>Sermons</a>
     <a href="#events" data-tab="events"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Events</a>
     <a href="#prayer" data-tab="prayer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.3-9.2C1.4 8.4 3.6 5 7 5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8C19.5 16.4 12 21 12 21z"/></svg>Prayer<span class="badge" id="prBadge" hidden></span></a>
@@ -305,7 +547,9 @@ details.tpl summary::-webkit-details-marker{display:none}
 </nav>
 </header>
 
+<div class="progress" id="readBar" aria-hidden="true"></div>
 <main><div class="wrap" id="app"></div></main>
+<footer class="site-foot" id="siteFoot"></footer>
 
 
 
@@ -362,6 +606,283 @@ function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clea
 const lines = s => String(s||"").split(/\n/).map(x=>x.replace(/^\s*(?:[-•*]|\d+[.)])\s*/,"").trim()).filter(Boolean);
 const WA_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.2A8.5 8.5 0 1 1 21 12z"/></svg>';
 
+/* ---------- icons: real platform logos (Simple Icons, CC0) and line icons ---------- */
+const BRAND = {"youtube":{"hex":"FF0000","path":"M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"},"facebook":{"hex":"0866FF","path":"M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"},"instagram":{"hex":"FF0069","path":"M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"},"tiktok":{"hex":"000000","path":"M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"},"twitch":{"hex":"9146FF","path":"M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"},"kick":{"hex":"53FC19","path":"M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z"},"whatsapp":{"hex":"25D366","path":"M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"}};
+const brandSvg = k => BRAND[k] ? `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${BRAND[k].path}"/></svg>` : "";
+const logoIc = k => `<span class="logo-ic ${k==="tiktok"?"dark":""} ${k==="kick"?"kick":""}" style="--b:#${BRAND[k]?BRAND[k].hex:"1B2A8C"}">${brandSvg(k)}</span>`;
+const ICON = {
+  cal:'<svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 14v4M10 16h4"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>',
+  share:'<svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
+  eye:'<svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+};
+
+/* ---------- Dubai time and the live programme (Dubai is UTC+4 all year) ---------- */
+const DXB_OFF = 4*3600e3;
+const toMin = t => { const [h,m] = String(t||"0:0").split(":").map(Number); return (h||0)*60+(m||0); };
+const dxbDayStart = ms => { const d = new Date(ms+DXB_OFF); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - DXB_OFF; };
+const dxbIso = ms => new Date(ms+DXB_OFF).toISOString().slice(0,10);
+const dxbWeekday = ms => new Date(ms+DXB_OFF).getUTCDay();
+function occurrences(fromDays=-1, toDays=8){
+  const out = []; const base = dxbDayStart(Date.now());
+  for(let i=fromDays;i<toDays;i++){
+    const day = base + i*864e5; const wd = dxbWeekday(day+60e3);
+    for(const ev of S.events){
+      if(!ev.recurring || !(ev.days||[]).includes(wd) || !ev.startTime) continue;
+      const st = day + toMin(ev.startTime)*6e4;
+      const en = ev.endTime ? day + toMin(ev.endTime)*6e4 : st + 3600e3;
+      out.push({ev, st, en, date: dxbIso(day+60e3)});
+    }
+  }
+  for(const ev of S.events){
+    if(ev.recurring || !ev.startDate) continue;
+    const [y,m,d] = ev.startDate.split("-").map(Number);
+    const day = Date.UTC(y,m-1,d) - DXB_OFF;
+    const st = ev.startTime ? day + toMin(ev.startTime)*6e4 : day;
+    let en;
+    if(ev.endTime){ const [y2,m2,d2] = (ev.endDate||ev.startDate).split("-").map(Number); en = Date.UTC(y2,m2-1,d2) - DXB_OFF + toMin(ev.endTime)*6e4; }
+    else { const [y2,m2,d2] = (ev.endDate||ev.startDate).split("-").map(Number); en = ev.startTime ? st + 3*3600e3 : Date.UTC(y2,m2-1,d2+1) - DXB_OFF; }
+    out.push({ev, st, en, date: ev.startDate, dated:true});
+  }
+  return out.sort((a,b)=>a.st-b.st);
+}
+function liveStatus(){
+  const now = Date.now(); const occ = occurrences();
+  const live = occ.find(o=>o.ev.startTime && o.st<=now && now<o.en);
+  const next = occ.find(o=>o.st>now && o.ev.startTime);
+  return {live, next};
+}
+function untilText(ms){
+  const m = Math.max(1, Math.round(ms/6e4)); const d = Math.floor(m/1440), h = Math.floor(m%1440/60), mi = m%60;
+  if(d>=2) return d+" days"; if(d===1) return "1 day"+(h?" "+h+" h":""); if(h) return h+" h"+(mi?" "+mi+" min":""); return mi+" min";
+}
+function whenLabel(o){
+  const t = dxbDayStart(Date.now()); const dd = Math.round((dxbDayStart(o.st+60e3)-t)/864e5);
+  const day = dd===0?"Today":dd===1?"Tomorrow":DAY_NAMES[dxbWeekday(o.st+60e3)];
+  return day+(o.ev.startTime?", "+fmtTime(o.ev.startTime):"");
+}
+/* where to watch, from what the programme itself says */
+function watchLinks(ev){
+  const txt = (ev.venue||"")+" "+(ev.description||"");
+  const h = (String(ev.description||"").match(/@([A-Za-z0-9_.]{3,})/)||[])[1];
+  const L = [];
+  if(ev.link) L.push({k:"live", label:"Watch live", url:ev.link});
+  const church = !h;
+  if(/youtube/i.test(txt) || !ev.online) L.push({k:"youtube", label:"YouTube", url: church ? "https://www.youtube.com/@christpowerintchurch/live" : `https://www.youtube.com/@${h}/live`});
+  if(/facebook/i.test(txt) || !ev.online) L.push({k:"facebook", label:"Facebook", url: church || !/facebook/i.test(txt) ? "https://www.facebook.com/cpicchurch" : `https://www.facebook.com/${h}`});
+  if(/tiktok/i.test(txt)) L.push({k:"tiktok", label:"TikTok", url: `https://www.tiktok.com/@${h||"christpowerintchurch"}/live`});
+  return L;
+}
+const watchBtns = (ev, cls) => watchLinks(ev).map(l=>`<a class="btn ${cls||""}" href="${esc(l.url)}" target="_blank" rel="noopener">${l.k==="live"?"":`<span class="bi" style="display:inline-grid">${brandSvg(l.k).replace('<svg','<svg width="18" height="18" fill="currentColor"')}</span>`}${l.k==="live"?esc(l.label):"Watch on "+esc(l.label)}</a>`).join("");
+
+/* ---------- YouTube ---------- */
+const ytId = u => (String(u||"").match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([\w-]{11})/)||[])[1] || "";
+const ytStart = u => { const m = String(u||"").match(/[?&](?:t|start)=(\d+)/); return m ? +m[1] : 0; };
+const ytThumb = id => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+
+/* ---------- Bible verses (KJV, bible-api.com) ---------- */
+const VCACHE = {};
+const isRef = r => /\d+:\d+/.test(String(r||""));
+const vref = r => isRef(r) ? `<button type="button" class="vref" data-verse="${esc(r)}" aria-label="Read ${esc(r)}">${esc(r)}</button>` : esc(r);
+async function fetchVerse(ref){
+  if(VCACHE[ref]) return VCACHE[ref];
+  const r = await fetch("https://bible-api.com/"+encodeURIComponent(ref.replace(/[–—]/g,"-"))+"?translation=kjv");
+  if(!r.ok) throw new Error("not found");
+  const j = await r.json(); if(!j.verses || !j.verses.length) throw new Error("not found");
+  return VCACHE[ref] = {ref:j.reference, verses:j.verses};
+}
+async function openVerse(ref, opener){
+  S.panel = {kind:"verse", ref, state:"loading"}; S.panelOpener = opener||null; renderSheet();
+  try{ const d = await fetchVerse(ref); if(S.panel && S.panel.ref===ref){ S.panel.state="ok"; S.panel.data=d; renderSheet(); } }
+  catch(_){ if(S.panel && S.panel.ref===ref){ S.panel.state="err"; renderSheet(); } }
+}
+
+/* ---------- "Live it out" ticks and the memory verse game (kept on this device) ---------- */
+const doneFor = id => { try{ return JSON.parse(lsGet("cpic.done."+id,"[]"))||[]; }catch(_){ return []; } };
+const FS_STEPS = [15,16,17,19,21];
+const fontSize = () => { const v = +lsGet("cpic.fs","16"); return FS_STEPS.includes(v) ? v : 16; };
+const PRAC = {};
+function memHtml(id, text){
+  const level = PRAC[id]||0; if(!level) return esc(text);
+  let n = 0;
+  return String(text).split(/(\s+)/).map(tok=>{
+    if(!tok.trim()) return tok;
+    const i = n++; const letters = tok.replace(/[^A-Za-z]/g,"").length;
+    const hide = letters>2 && (level===3 || i%(level===1?3:2)===1);
+    return hide ? `<button type="button" class="blank" aria-label="Hidden word. Tap to show it">${esc(tok)}</button>` : esc(tok);
+  }).join("");
+}
+const PRAC_LABEL = ["Practise it","Hide more words","Hide every word","Show the whole verse"];
+
+/* ---------- share the verse as a picture (for WhatsApp Status) ---------- */
+async function verseImage(ref, text){
+  const W=1080, H=1350, c=document.createElement("canvas"); c.width=W; c.height=H; const g=c.getContext("2d");
+  try{ await Promise.all([document.fonts.load('500 64px "Fraunces"'), document.fonts.load('italic 600 200px "Fraunces"'), document.fonts.load('700 30px "Inter"')]); }catch(_){}
+  g.fillStyle="#0E1757"; g.fillRect(0,0,W,H);
+  g.save(); g.globalAlpha=.07; g.fillStyle="#fff"; g.font='italic 600 330px "Fraunces", Georgia, serif'; g.fillText("ἐκκλησία", 20, H-110); g.restore();
+  g.fillStyle="#C81E28"; g.fillRect(90,0,110,12);
+  g.fillStyle="#BAC1E6"; g.font='700 30px "Inter", Arial, sans-serif'; g.fillText("VERSE FOR THIS WEEK", 90, 150);
+  const maxW = W-180; let size = 76, lines = [];
+  const wrap = s => { const out=[]; let cur=""; for(const w of s.split(/\s+/)){ const t = cur?cur+" "+w:w; if(g.measureText(t).width>maxW && cur){ out.push(cur); cur=w; } else cur=t; } if(cur) out.push(cur); return out; };
+  for(;;){ g.font = `500 ${size}px "Fraunces", Georgia, serif`; lines = wrap("“"+String(text).trim()+"”"); if(lines.length*size*1.32 <= 720 || size<=40) break; size -= 4; }
+  g.fillStyle="#F6F4EF"; let y = 230;
+  for(const l of lines){ y += size*1.32; g.fillText(l, 90, y); }
+  g.font='700 42px "Inter", Arial, sans-serif'; g.fillStyle="#FF8A8F"; g.fillText(ref, 90, y+96);
+  const logo = document.querySelector("header .logo");
+  if(logo && logo.complete && logo.naturalWidth){
+    const lw = 210, lh = lw*logo.naturalHeight/logo.naturalWidth, x=90, yy=H-100-lh;
+    g.fillStyle="#fff"; g.beginPath(); if(g.roundRect) g.roundRect(x-14, yy-12, lw+28, lh+24, 16); else g.rect(x-14, yy-12, lw+28, lh+24); g.fill();
+    g.drawImage(logo, x, yy, lw, lh);
+  }
+  g.fillStyle="#BAC1E6"; g.font='600 28px "Inter", Arial, sans-serif'; g.textAlign="right"; g.fillText("Christ Power International Church", W-90, H-128); g.fillText("cpic.info", W-90, H-88);
+  return new Promise(r=>c.toBlob(r,"image/png"));
+}
+async function shareVerse(s){
+  const mv = s.memoryVerse||{}; if(!mv.text) return;
+  toast("Making the picture…");
+  const blob = await verseImage(mv.ref, mv.text); if(!blob){ toast("Could not make the picture"); return; }
+  const file = new File([blob], "cpic-verse-"+slug(mv.ref)+".png", {type:"image/png"});
+  const text = `${mv.text} (${mv.ref})\n\nChrist Power International Church · cpic.info`;
+  if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file], text}); return; }catch(e){ if(e && e.name==="AbortError") return; } }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000); toast("Picture saved. Share it from your photos.");
+}
+
+/* ---------- calendar file (Apple Calendar, Outlook) ---------- */
+function icsFor(ev){
+  const z = n => String(n).padStart(2,"0");
+  const stamp = ms => { const d = new Date(ms); return d.getUTCFullYear()+z(d.getUTCMonth()+1)+z(d.getUTCDate())+"T"+z(d.getUTCHours())+z(d.getUTCMinutes())+"00Z"; };
+  const day = ev.recurring ? nextOccurrence(ev) : ev.startDate; const [y,m,d] = day.split("-").map(Number);
+  const L = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//CPIC//Ekklesia//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT","UID:"+(ev.id||slug(ev.title))+"@cpic.info","DTSTAMP:"+stamp(Date.now())];
+  if(ev.startTime){
+    const st = Date.UTC(y,m-1,d) - DXB_OFF + toMin(ev.startTime)*6e4; let en = st+3600e3;
+    if(ev.endTime){ const [y2,m2,d2] = (ev.recurring ? day : (ev.endDate||day)).split("-").map(Number); en = Date.UTC(y2,m2-1,d2) - DXB_OFF + toMin(ev.endTime)*6e4; }
+    L.push("DTSTART:"+stamp(st), "DTEND:"+stamp(en));
+  } else L.push("DTSTART;VALUE=DATE:"+day.replace(/-/g,""), "DTEND;VALUE=DATE:"+addDays(ev.endDate||day,1).replace(/-/g,""));
+  if(ev.recurring && (ev.days||[]).length) L.push("RRULE:FREQ=WEEKLY;BYDAY="+ev.days.map(x=>RR[x]).join(","));
+  const e = s => String(s||"").replace(/\\/g,"\\\\").replace(/\r?\n/g,"\\n").replace(/([,;])/g,"\\$1");
+  L.push("SUMMARY:"+e(ev.title), "LOCATION:"+e(ev.venue), "DESCRIPTION:"+e((ev.description||"")+(ev.link?"\n"+ev.link:"")+"\n\nChrist Power International Church · cpic.info"), "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+e(ev.title),"TRIGGER:-PT1H","END:VALARM","END:VEVENT","END:VCALENDAR");
+  return L.join("\r\n");
+}
+function downloadIcs(ev){
+  const blob = new Blob([icsFor(ev)], {type:"text/calendar;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = (slug(ev.title)||"cpic-event")+".ics";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+
+/* ---------- install as an app ---------- */
+let deferredInstall = null;
+addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); deferredInstall = e; if(S.view==="home") render(); });
+const standalone = () => { try{ return matchMedia("(display-mode: standalone)").matches || navigator.standalone===true; }catch(_){ return false; } };
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+function installCard(){
+  if(standalone() || lsGet("cpic.installx","")) return "";
+  if(!deferredInstall && !isIOS) return "";
+  return `<div class="install"><img src="/icon-192.png" alt="" width="52" height="52">
+    <div><b>Put CPIC on your home screen</b><p>${deferredInstall?"Open sermons, events and prayer in one tap, like an app.":"In Safari, tap the Share button, then “Add to Home Screen”."}</p>
+    ${deferredInstall?`<button type="button" class="btn sm primary" id="installBtn">Install the app</button>`:""}</div>
+    <button type="button" class="ibtn x" id="installX" aria-label="Hide this">${ICON.x}</button></div>`;
+}
+
+/* =========================================================
+   HOME
+   ========================================================= */
+function kindClass(ev){ const c=(ev.category||"").toLowerCase(); return c.includes("worship")||c.includes("service")?"k-worship":c.includes("prayer")?"k-prayer":""; }
+function weekStrip(){
+  const base = dxbDayStart(Date.now()); const now = Date.now(); const occ = occurrences(0,7);
+  let html = "";
+  for(let i=0;i<7;i++){
+    const day = base+i*864e5, date = dxbIso(day+60e3), wd = dxbWeekday(day+60e3);
+    const list = occ.filter(o=>o.date===date || (o.dated && o.ev.endDate && o.ev.startDate<=date && o.ev.endDate>=date && o.date!==date));
+    html += `<div class="day ${i===0?"today":""}"><div class="dh"><span class="dn">${i===0?"Today":DAY_NAMES[wd].slice(0,3)}</span><span class="dd num">${parse(date).getDate()}</span></div>
+      ${list.length?list.map(o=>`<a class="prog ${kindClass(o.ev)} ${o.st<=now&&now<o.en?"now":""}" href="#events"><b>${esc(o.ev.title)}</b><span>${esc(o.ev.startTime?fmtTime(o.ev.startTime):"All day")}</span></a>`).join(""):`<span class="none">No programme</span>`}</div>`;
+  }
+  return html;
+}
+function viewHome(){
+  const {live, next} = liveStatus();
+  const sunday = S.events.find(e=>e.recurring && (e.days||[]).includes(0) && /service|worship/i.test((e.category||"")+" "+e.title)) || S.events.find(e=>e.recurring);
+  const latest = sortedSermons()[0];
+  const verseFrom = sortedSermons().find(s=>(s.memoryVerse||{}).text);
+  const t = today();
+  const upcoming = sortedEvents().filter(e=>e.startDate && (e.endDate||e.startDate)>=t);
+  const first = upcoming[0];
+  const firstOcc = first && occurrences().find(o=>o.ev===first);
+  const yt = latest && ytId(latest.youtubeUrl);
+  const hello = "Hello Pastor, I found CPIC on cpic.info and I would like to visit on Sunday. Could you share the location with me?";
+  const followKeys = [["youtube","YouTube","https://www.youtube.com/@christpowerintchurch"],["facebook","Facebook","https://www.facebook.com/cpicchurch"],["instagram","Instagram","https://www.instagram.com/christpowerintchurch"],["tiktok","TikTok","https://www.tiktok.com/@christpowerintchurch"]];
+  return `<div class="home">
+  <section class="hero" data-enter aria-labelledby="heroTitle">
+    <span class="greek" aria-hidden="true" translate="no">ἐκκλησία</span>
+    <span class="eyebrow">CPIC · Dubai</span>
+    <h2 id="heroTitle">Welcome to the church family.</h2>
+    <p class="lead">${sunday?`<b>${esc(sunday.title)} every Sunday, ${esc(fmtTime(sunday.startTime))} to ${esc(fmtTime(sunday.endTime))}.</b> `:""}Come as you are. Everyone is welcome.</p>
+    ${live?`<div class="live" role="status"><span class="pulse" aria-hidden="true"></span><span class="lv"><b>Live now: ${esc(live.ev.title)}</b><span>Until ${esc(fmtTime(live.ev.endTime))}${live.ev.online?" · online":" · in church and online"}</span></span></div>
+      <div class="actions">${watchBtns(live.ev,"light")}</div>`
+    : next?`<div class="live" role="status"><span class="pulse idle" aria-hidden="true"></span><span class="lv"><b>Next: ${esc(next.ev.title)}</b><span>${esc(whenLabel(next))} · in <span data-until="${next.st}">${esc(untilText(next.st-Date.now()))}</span></span></span></div>
+      <div class="actions"><button type="button" class="btn light" data-jump="newHere">Plan your visit</button>${sunday?`<button type="button" class="btn ghost-light" data-cal="${esc(sunday.id)}">${ICON.cal}Add Sunday to calendar</button>`:""}</div>`:""}
+  </section>
+
+  <section class="block" aria-labelledby="wkTitle">
+    <div class="h-row"><h3 class="h3" id="wkTitle">This week at CPIC</h3><a href="#events">All events ›</a></div>
+    <div class="week">${weekStrip()}</div>
+  </section>
+
+  <div class="home-grid">
+    ${latest?`<section class="block" aria-labelledby="lmTitle">
+      <div class="h-row"><h3 class="h3" id="lmTitle">Latest message</h3><a href="#sermons">All sermons ›</a></div>
+      <a class="card lift" href="#sermon-${esc(latest.id)}">
+        ${yt?`<span class="thumb zoom"><img src="${esc(ytThumb(yt))}" alt="" width="480" height="360" loading="lazy"><span class="yt-btn" aria-hidden="true">${ICON.play}</span></span>`:""}
+        <span class="pad"><span class="kicker">${esc(latest.kind||"Sunday sermon")} · ${esc(fmt(latest.date))}</span>
+          <h4>${esc(latest.title||"Untitled message")}</h4>
+          <span class="meta">${esc([latest.preacher,(latest.mainText||{}).ref].filter(Boolean).join(" · "))}</span>
+          <span class="btn sm primary" style="align-self:flex-start;margin-top:4px">Read the notes</span></span>
+      </a>
+    </section>`:""}
+    ${first?`<section class="block" aria-labelledby="cuTitle">
+      <div class="h-row"><h3 class="h3" id="cuTitle">Coming up</h3><a href="#events">See all ›</a></div>
+      <div class="card next-ev">
+        ${first.posterId?`<button type="button" class="posterbtn zoom" data-poster="${esc(first.posterId)}" aria-label="View the ${esc(first.title)} poster"><img class="poster" src="${esc(posterSrc(first.posterId))}" alt="Poster for ${esc(first.title)}" loading="lazy"></button>`:""}
+        <div class="pad"><span class="until">${firstOcc && firstOcc.st>Date.now()?`In <span data-until="${firstOcc.st}">${esc(untilText(firstOcc.st-Date.now()))}</span>`:"Happening now"}</span>
+          <h4>${esc(first.title)}</h4><span class="meta">${esc(evWhen(first))}${first.venue?" · "+esc(first.venue):""}</span>
+          <div class="row" style="margin-top:4px"><button type="button" class="btn sm" data-cal="${esc(first.id)}">${ICON.cal}Add to calendar</button><a class="ibtn wa" href="${esc(waShare(evShare(first)))}" target="_blank" rel="noopener" aria-label="Share ${esc(first.title)} on WhatsApp" title="Share on WhatsApp">${WA_ICON}</a></div></div>
+        ${upcoming.slice(1,3).map(e=>`<a class="mini" href="#events">${dateChip(e.startDate,false)}<span><b>${esc(e.title)}</b><span class="s">${esc(evWhen(e))}</span></span></a>`).join("")}
+      </div>
+    </section>`:""}
+  </div>
+
+  <div class="home-grid">
+    ${verseFrom?`<section class="block" aria-labelledby="vTitle">
+      <h3 class="h3" id="vTitle">Carry this verse</h3>
+      <div class="verse-card"><span class="k">Memory verse · ${esc(fmt(verseFrom.date))}</span>
+        <span class="txt">${esc(verseFrom.memoryVerse.text)}</span><span class="ref">${vref(verseFrom.memoryVerse.ref)}</span>
+        <div class="row"><button type="button" class="btn sm" data-sharev="${esc(verseFrom.id)}">${ICON.share}Share as a picture</button><a class="btn sm ghost" href="#sermon-${esc(verseFrom.id)}">From “${esc(verseFrom.title)}”</a></div></div>
+    </section>`:""}
+    <section class="block" id="newHere" aria-labelledby="nhTitle" style="scroll-margin-top:calc(var(--hh,120px) + 12px)">
+      <h3 class="h3" id="nhTitle">New here? Start with Sunday</h3>
+      <ol class="steps3">
+        <li><div><b>Come on Sunday</b><p>${sunday?`${esc(sunday.title)} runs from ${esc(fmtTime(sunday.startTime))} to ${esc(fmtTime(sunday.endTime))}. Bring your family and friends.`:"Join us for Sunday worship."}</p></div></li>
+        <li><div><b>Say hello to a pastor</b><p>Send a WhatsApp message and they will share the location and welcome you.</p>
+          <div class="row">${PASTORS.map(p=>`<a class="btn sm wa" href="${esc(waLink(p.phone,hello))}" target="_blank" rel="noopener">${WA_ICON}${esc(p.name)}</a>`).join("")}</div></div></li>
+        <li><div><b>Stay close during the week</b><p>Morning prayers, Bible study and every Sunday service, live online.</p>
+          <div class="logos" style="margin-top:10px">${followKeys.map(([k,n,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener" aria-label="CPIC on ${n}" title="${n}">${logoIc(k)}</a>`).join("")}</div></div></li>
+      </ol>
+      ${installCard()}
+    </section>
+  </div>
+  </div>`;
+}
+function renderFooter(){
+  const f = $("siteFoot"); if(!f) return;
+  const keys = [["youtube","https://www.youtube.com/@christpowerintchurch"],["facebook","https://www.facebook.com/cpicchurch"],["instagram","https://www.instagram.com/christpowerintchurch"],["tiktok","https://www.tiktok.com/@christpowerintchurch"],["twitch","https://www.twitch.tv/cpic_church"],["kick","https://kick.com/christpowerchurch"]];
+  f.innerHTML = `<div class="in"><div><b>Christ Power International Church</b>Dubai, United Arab Emirates · Sunday Service, 2 to 6 pm</div>
+    <div class="logos">${keys.map(([k,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener" aria-label="CPIC on ${esc(k[0].toUpperCase()+k.slice(1))}">${logoIc(k)}</a>`).join("")}</div>
+    <div class="fl"><a href="#sermons">Sermons</a><a href="#events">Events</a><a href="#prayer">Prayer</a><a href="#follow">Follow</a><a href="/workers/">Workers</a></div>
+    <div class="small">${SNAP.at?"Last updated "+esc(fmtY(SNAP.at.slice(0,10)))+". ":""}Scripture in the King James Version.</div></div>`;
+}
+
 /* ---------- preloaded copy: readable by anyone, no sign-in needed ---------- */
 let SNAP = {sermons:[], events:[], wall:[], church:{}, posters:{}, at:""};
 try{ const raw = document.getElementById("snapshot").textContent; if(raw && raw.trim()[0]==="{") SNAP = Object.assign(SNAP, JSON.parse(raw)); }catch(_){}
@@ -404,12 +925,14 @@ function render(){
   let html = "";
   {
     if(S.db && S.stale) html += `<div class="banner"><b>Still connecting.</b> Showing the last published copy until the connection is back.</div>`;
-    if(S.view==="sermons") html += viewSermons();
+    if(S.view==="home") html += viewHome();
+    else if(S.view==="sermons") html += viewSermons();
     else if(S.view==="sermon") html += viewSermon();
     else if(S.view==="events") html += viewEvents();
     else if(S.view==="prayer") html += viewPrayer();
     else if(S.view==="follow") html += viewFollow();
   }
+  $("app").className = "wrap" + (S.view==="home" ? " wide" : "");
   $("app").innerHTML = html;
   restoreUI(ui);
   if(S.view==="prayer") syncWa();
@@ -452,16 +975,18 @@ function viewSermons(){
     ${S.isTeam?`<button class="btn primary" id="newSermon">Add sermon</button>`:""}</div>
   ${loading?`<div class="empty">Loading sermons…</div>`:
    latest && !q && S.sermonKind==="all" ? `
-  <a class="feature" href="#sermon-${esc(latest.id)}">
-    <span class="eyebrow">${esc(latest.kind||"Sunday sermon")} · ${esc(fmtLong(latest.date))}</span>
+  <a class="feature lift" href="#sermon-${esc(latest.id)}">
+    ${ytId(latest.youtubeUrl)?`<span class="thumb zoom"><img src="${esc(ytThumb(ytId(latest.youtubeUrl)))}" alt="" width="480" height="360" loading="lazy"><span class="yt-btn sm" aria-hidden="true">${ICON.play}</span></span>`:""}
+    <span class="f-body">
+    <span class="eyebrow">Latest · ${esc(latest.kind||"Sunday sermon")} · ${esc(fmtLong(latest.date))}</span>
     <h3>${esc(latest.title||"Untitled message")}</h3>
     ${(latest.mainText||{}).ref?`<p class="ref">${esc(latest.mainText.ref)}</p>`:""}
-    ${latest.summary?`<p>${esc(latest.summary)}</p>`:""}
-    <span class="go">Read the notes</span>
+    ${latest.summary?`<p class="sum">${esc(latest.summary)}</p>`:""}
+    <span class="go">Read the notes</span></span>
   </a>`:""}
   ${all.length?`
   <input type="search" id="sermonSearch" placeholder="Search by title, verse, preacher or series" value="${esc(S.sermonQuery)}" aria-label="Search sermons">
-  <div class="seg" role="group" aria-label="Filter">${[["all","All"],...SERMON_KINDS.map(k=>[k,k+"s"])].map(([k,l])=>`<button data-skind="${esc(k)}" aria-pressed="${S.sermonKind===k}">${esc(l)}</button>`).join("")}</div>
+  <div class="seg" role="group" aria-label="Filter">${[["all","All"],...SERMON_KINDS.map(k=>[k,k==="Bible study"?"Bible studies":k+"s"])].map(([k,l])=>`<button data-skind="${esc(k)}" aria-pressed="${S.sermonKind===k}">${esc(l)}</button>`).join("")}</div>
   <div class="list">${list.length?list.map(s=>`
     <a class="item" href="#sermon-${esc(s.id)}">${dateChip(s.date,true)}
       <span class="main"><span class="name">${esc(s.title||"Untitled message")}</span>
@@ -475,34 +1000,41 @@ function viewSermon(){
   const s = S.sermons.find(x=>x.id===S.sermonId);
   if(!s) return `<a class="back" href="#sermons">‹ All sermons</a>${S.db&&!S.loaded.sermons?`<div class="empty">Loading…</div>`:`<div class="list"><div class="empty"><b>Sermon not found</b>It may have been removed.</div></div>`}`;
   const mt = s.mainText||{}; const mv = s.memoryVerse||{};
-  const shareText = [`*${s.title}*`, `${s.preacher?s.preacher+" · ":""}${fmtLong(s.date)}`, mt.ref?`Text: ${mt.ref}`:"", s.summary||"", (s.points||[]).length?"\n"+(s.points||[]).map((p,i)=>`${i+1}. ${p.title}`).join("\n"):"", mv.ref?`\nMemory verse: ${mv.ref}${mv.text?" — "+mv.text:""}`:"", s.youtubeUrl?`\nWatch: ${s.youtubeUrl}`:""].filter(Boolean).join("\n");
+  const shareText = [`*${s.title}*`, `${s.preacher?s.preacher+" · ":""}${fmtLong(s.date)}`, mt.ref?`Text: ${mt.ref}`:"", s.summary||"", (s.points||[]).length?"\n"+(s.points||[]).map((p,i)=>`${i+1}. ${p.title}`).join("\n"):"", mv.ref?`\nMemory verse: ${mv.ref}${mv.text?" — "+mv.text:""}`:"", `\nRead the notes: https://cpic.info/#sermon-${s.id}`, s.youtubeUrl?`Watch: ${s.youtubeUrl}`:""].filter(Boolean).join("\n");
   const notesOff = !S.db || !S.uid;
+  const yt = ytId(s.youtubeUrl);
+  const done = doneFor(s.id); const nApp = (s.application||[]).length;
+  const secs = [["brief","In brief",s.summary],["text","Main text",mt.ref],["points","Points",(s.points||[]).length],["verses","Scriptures",(s.scriptures||[]).length],["quotes","Quotes",(s.quotes||[]).length],["live","Live it out",nApp],["study","Bible study",(s.questions||[]).length||mv.ref],["prayer","Prayer",s.prayer],["mine","My notes",1]].filter(x=>x[2]);
   return `
   <a class="back" href="#sermons">‹ All sermons</a>
-  <article class="notes">
+  <article class="notes" id="notesArt" style="--ns:${fontSize()}px">
     <div class="notes-head">
       <div class="pills"><span class="pill acc">${esc(s.kind||"Sunday sermon")}</span>${s.series?`<span class="pill">${esc(s.series)}</span>`:""}</div>
       <h2>${esc(s.title||"Untitled message")}</h2>
       <div class="meta">${esc([s.preacher, fmtLong(s.date)].filter(Boolean).join(" · "))}</div>
+      ${yt?`<div class="yt" id="ytBox"><button type="button" class="yt-play" data-yt="${esc(yt)}" data-start="${ytStart(s.youtubeUrl)}" aria-label="Play the message video here"><img src="${esc(ytThumb(yt))}" alt="" width="480" height="360"><span class="yt-btn" aria-hidden="true">${ICON.play}</span></button></div>`:""}
       <div class="row">
-        ${s.youtubeUrl?`<a class="btn primary" href="${esc(s.youtubeUrl)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>Watch on YouTube</a>`:""}
         <a class="btn wa" href="${esc(waShare(shareText))}" target="_blank" rel="noopener">${WA_ICON}Share on WhatsApp</a>
+        ${s.youtubeUrl?`<a class="btn" href="${esc(s.youtubeUrl)}" target="_blank" rel="noopener">Open in YouTube</a>`:""}
         ${S.isTeam?`<button class="btn" id="editSermon">Edit</button>`:""}
+        <span class="fs" role="group" aria-label="Text size"><button type="button" class="ibtn" data-fs="-1" aria-label="Smaller text">A−</button><button type="button" class="ibtn" data-fs="1" aria-label="Larger text">A+</button></span>
       </div>
     </div>
-    ${s.summary?`<section><h3>The message in brief</h3><p>${esc(s.summary)}</p></section>`:""}
-    ${mt.ref?`<section><h3>Main text</h3><div class="scripture"><span class="ref">${esc(mt.ref)}</span>${mt.text?`<span class="txt">${esc(mt.text)}</span>`:""}</div></section>`:""}
-    ${(s.points||[]).length?`<section><h3>Main points</h3><ol class="points">${s.points.map(p=>`<li><div><b>${esc(p.title)}</b>${p.body?`<span>${esc(p.body)}</span>`:""}</div></li>`).join("")}</ol></section>`:""}
-    ${(s.scriptures||[]).length?`<section><h3>Scriptures read</h3><div class="verses">${s.scriptures.map(v=>`<div><b>${esc(v.ref)}</b>${v.note?` · <span class="muted">${esc(v.note)}</span>`:""}</div>`).join("")}</div></section>`:""}
-    ${(s.quotes||[]).length?`<section><h3>Quotes from the pulpit</h3>${s.quotes.map(q=>`<blockquote class="quote">${esc(q)}</blockquote>`).join("")}</section>`:""}
-    ${(s.application||[]).length?`<section><h3>Live it out this week</h3><ul class="checklist">${s.application.map(a=>`<li>${esc(a)}</li>`).join("")}</ul></section>`:""}
-    ${(s.questions||[]).length||mv.ref?`<section class="section"><h3 style="color:var(--accent)">Bible study</h3>
+    <nav class="jump" aria-label="Jump to a part of the notes">${secs.map(([k,l])=>`<button type="button" data-jump="sec-${k}">${esc(l)}</button>`).join("")}</nav>
+    ${s.summary?`<section id="sec-brief"><h3>The message in brief</h3><p>${esc(s.summary)}</p></section>`:""}
+    ${mt.ref?`<section id="sec-text"><h3>Main text</h3><div class="scripture"><span class="ref">${vref(mt.ref)}</span>${mt.text?`<span class="txt">${esc(mt.text)}</span>`:""}</div></section>`:""}
+    ${(s.points||[]).length?`<section id="sec-points"><h3>Main points</h3><ol class="points">${s.points.map(p=>`<li><div><b>${esc(p.title)}</b>${p.body?`<span>${esc(p.body)}</span>`:""}</div></li>`).join("")}</ol></section>`:""}
+    ${(s.scriptures||[]).length?`<section id="sec-verses"><h3>Scriptures read</h3><p class="small muted" style="margin:-4px 0 0">Tap a verse to read it.</p><div class="verses">${s.scriptures.map(v=>`<div><b>${vref(v.ref)}</b>${v.note?` · <span class="muted">${esc(v.note)}</span>`:""}</div>`).join("")}</div></section>`:""}
+    ${(s.quotes||[]).length?`<section id="sec-quotes"><h3>Quotes from the pulpit</h3>${s.quotes.map(q=>`<blockquote class="quote">${esc(q)}</blockquote>`).join("")}</section>`:""}
+    ${nApp?`<section id="sec-live"><h3>Live it out this week</h3><ul class="todo">${s.application.map((a,i)=>`<li><label><input type="checkbox" data-todo="${esc(s.id)}" data-i="${i}" ${done.includes(i)?"checked":""}><span>${esc(a)}</span></label></li>`).join("")}</ul><span class="small muted" id="todoCount" aria-live="polite">${done.length} of ${nApp} done. Your ticks stay on this phone.</span></section>`:""}
+    ${(s.questions||[]).length||mv.ref?`<section class="section" id="sec-study"><h3 style="color:var(--accent)">Bible study</h3>
       ${(s.questions||[]).length?`<ol class="qlist">${s.questions.map(q=>`<li>${esc(q)}</li>`).join("")}</ol>`:""}
-      ${mv.ref?`<div class="memory"><span class="label" style="color:var(--cross)">Memory verse</span><span class="ref">${esc(mv.ref)}</span>${mv.text?`<span class="txt">${esc(mv.text)}</span>`:""}</div>`:""}
+      ${mv.ref?`<div class="memory"><span class="label" style="color:var(--cross)">Memory verse</span><span class="ref">${vref(mv.ref)}</span>${mv.text?`<span class="txt" id="memTxt">${memHtml(s.id, mv.text)}</span>
+        <div class="row"><button type="button" class="btn sm" id="pracBtn" data-practise="${esc(s.id)}">${ICON.eye}${esc(PRAC_LABEL[PRAC[s.id]||0])}</button><button type="button" class="btn sm" data-sharev="${esc(s.id)}">${ICON.share}Share as a picture</button></div>`:""}</div>`:""}
     </section>`:""}
-    ${s.prayer?`<section><h3>Prayer</h3><p>${esc(s.prayer)}</p></section>`:""}
-    <section><h3>My notes</h3>
-      <textarea id="myNotes" class="tall" placeholder="Write what God is saying to you through this message" aria-label="My notes"></textarea>
+    ${s.prayer?`<section id="sec-prayer"><h3>Prayer</h3><p>${esc(s.prayer)}</p></section>`:""}
+    <section id="sec-mine"><h3>My notes</h3>
+      <textarea id="myNotes" class="tall" placeholder="Write what God is saying to you through this message…" aria-label="My notes"></textarea>
       <span class="small muted" id="notesState">${notesOff?"Saved on this device only.":"Private to you. Saved automatically."}</span>
     </section>
   </article>`;
@@ -669,37 +1201,44 @@ function posterImg(ev, cls){
 }
 function evShare(ev){ return `*${ev.title}*\n${evWhen(ev)}${ev.venue?"\n"+ev.venue:""}${ev.description?"\n\n"+ev.description:""}${ev.link?"\n"+ev.link:""}\n\nChrist Power International Church`; }
 function evButtons(ev, past){
-  return `<div class="row" style="margin-top:4px">
+  return `<div class="row ev-actions" style="margin-top:4px">
     ${ev.link?`<a class="btn sm primary" href="${esc(ev.link)}" target="_blank" rel="noopener">Watch live</a>`:""}
-    ${!past?`<a class="btn sm" href="${esc(gcalLink(ev))}" target="_blank" rel="noopener">Add to calendar</a>`:""}
-    ${(ev.venue||ev.mapLink)&&!ev.online?`<a class="btn sm" href="${esc(mapLink(ev))}" target="_blank" rel="noopener">Directions</a>`:""}
-    <a class="btn sm wa" href="${esc(waShare(evShare(ev)))}" target="_blank" rel="noopener">${WA_ICON}Share</a>
+    ${!past?`<button type="button" class="btn sm" data-cal="${esc(ev.id)}">${ICON.cal}Add to calendar</button>`:""}
+    ${(ev.venue||ev.mapLink)&&!ev.online?`<a class="ibtn" href="${esc(mapLink(ev))}" target="_blank" rel="noopener" aria-label="Directions to ${esc(ev.venue||"the venue")}" title="Directions">${ICON.pin}</a>`:""}
+    <a class="ibtn wa" href="${esc(waShare(evShare(ev)))}" target="_blank" rel="noopener" aria-label="Share ${esc(ev.title)} on WhatsApp" title="Share on WhatsApp">${WA_ICON}</a>
     ${S.isTeam?`<button class="btn sm ghost" data-edit-ev="${esc(ev.id)}">Edit</button>`:""}
   </div>`;
+}
+const OPEN_DESC = new Set();
+function descBlock(ev){
+  const t = ev.description||""; if(!t) return "";
+  const long = t.length>170 || t.split("\n").length>3; const open = OPEN_DESC.has(ev.id);
+  return `<p class="desc ${long&&!open?"clamp":""}" id="d_${esc(ev.id)}">${esc(t)}</p>${long?`<button type="button" class="more" data-more="${esc(ev.id)}" aria-expanded="${open}" aria-controls="d_${esc(ev.id)}">${open?"Show less":"Read more"}</button>`:""}`;
 }
 function evCard(ev, isNext){
   const past = (ev.endDate||ev.startDate) < today();
   const days = daysBetween(today(), ev.startDate);
   const when = days===0?"Today":days===1?"Tomorrow":days>1?`In ${days} days`:"";
+  const occ = isNext && occurrences().find(o=>o.ev===ev);
   return `<article class="ev ${isNext?"next":""}">${dateChip(ev.startDate,past)}
     <div class="body">
       ${posterImg(ev)}
-      <div class="pills" style="margin:0">${isNext?`<span class="pill cross">Next up</span>`:""}${when&&!past?`<span class="pill acc">${esc(when)}</span>`:""}<span class="pill">${esc(ev.category||"Event")}</span></div>
+      <div class="pills" style="margin:0">${isNext?`<span class="pill cross">Next up</span>`:""}${when&&!past?`<span class="pill acc">${isNext&&occ&&occ.st>Date.now()?`In <span data-until="${occ.st}">${esc(untilText(occ.st-Date.now()))}</span>`:esc(when)}</span>`:""}<span class="pill">${esc(ev.category||"Event")}</span></div>
       <h4>${esc(ev.title)}</h4>
       <div class="meta"><span>${esc(evWhen(ev))}</span>${ev.venue?`<span>${esc(ev.venue)}</span>`:""}${ev.contactName||ev.contactPhone?`<span>${esc(ev.contactName||"Contact")}: ${ev.contactPhone?`<span class="phone">${esc(prettyPhone(ev.contactPhone))}</span>`:""}</span>`:""}</div>
-      ${ev.description?`<p>${esc(ev.description)}</p>`:""}
+      ${descBlock(ev)}
       ${evButtons(ev, past)}
     </div></article>`;
 }
 function wkCard(ev){
   const isToday = (ev.days||[]).includes(parse(today()).getDay());
-  return `<article class="wk">${posterImg(ev,"flush")}
+  return `<article class="wk">${ev.posterId?`<button type="button" class="posterbtn flush zoom" data-poster="${esc(ev.posterId)}" aria-label="View the ${esc(ev.title)} poster"><img class="poster short" src="${esc(posterSrc(ev.posterId))}" alt="Poster for ${esc(ev.title)}" loading="lazy"></button>`:""}
     <div class="body">
       <div class="pills" style="margin:0">${isToday?`<span class="pill cross">Today</span>`:`<span class="pill acc">Next: ${esc(fmt(nextOccurrence(ev)))}</span>`}<span class="pill">${esc(ev.category||"Weekly")}</span></div>
       <h4>${esc(ev.title)}</h4>
       <div class="days" aria-label="${esc(daysLabel(ev.days))}">${[1,2,3,4,5,6,0].map(d=>`<span class="${(ev.days||[]).includes(d)?"on":""}">${DAY_NAMES[d][0]}</span>`).join("")}</div>
       <div class="meta"><span>${esc(evWhen(ev))}</span>${ev.venue?`<span>${esc(ev.venue)}</span>`:""}</div>
-      ${ev.description?`<p>${esc(ev.description)}</p>`:""}
+      ${descBlock(ev)}
       ${evButtons(ev, false)}
     </div></article>`;
 }
@@ -771,20 +1310,20 @@ function eventEditor(){
    FOLLOW US
    ========================================================= */
 const SOCIALS = [
-  {name:"YouTube",   handle:"@christpowerintchurch",   url:"https://www.youtube.com/@christpowerintchurch",    what:"Full services, sermons, the podcast and Shorts", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>'},
-  {name:"Facebook",  handle:"@cpicchurch",             url:"https://www.facebook.com/cpicchurch",            what:"Live every service, events and church family news", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5M15 14.2c3.4-.6 6.5 1.9 6.5 5.8"/></svg>'},
-  {name:"Instagram", handle:"@christpowerintchurch",   url:"https://www.instagram.com/christpowerintchurch",   what:"Photos, flyers, Reels and daily Stories", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>'},
-  {name:"TikTok",    handle:"@christpowerintchurch",   url:"https://www.tiktok.com/@christpowerintchurch",     what:"Sermon clips, worship moments, Teens and Youth", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>'},
-  {name:"Twitch",    handle:"@cpic_church",            url:"https://www.twitch.tv/cpic_church",       what:"Our live services, streamed as they happen", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 16.2a6 6 0 0 0 0-8.4M4.9 4.9a10 10 0 0 0 0 14.2M19.1 19.1a10 10 0 0 0 0-14.2"/></svg>'},
-  {name:"Kick",      handle:"@ChristPowerChurch",      url:"https://kick.com/christpowerchurch",            what:"Our live services, streamed as they happen", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="3"/><path d="M8 2l4 4 4-4"/></svg>'}
+  {key:"youtube", name:"YouTube",   handle:"@christpowerintchurch",   url:"https://www.youtube.com/@christpowerintchurch",    what:"Full services, sermons, the podcast and Shorts", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>'},
+  {key:"facebook", name:"Facebook",  handle:"@cpicchurch",             url:"https://www.facebook.com/cpicchurch",            what:"Live every service, events and church family news", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5M15 14.2c3.4-.6 6.5 1.9 6.5 5.8"/></svg>'},
+  {key:"instagram", name:"Instagram", handle:"@christpowerintchurch",   url:"https://www.instagram.com/christpowerintchurch",   what:"Photos, flyers, Reels and daily Stories", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>'},
+  {key:"tiktok", name:"TikTok",    handle:"@christpowerintchurch",   url:"https://www.tiktok.com/@christpowerintchurch",     what:"Sermon clips, worship moments, Teens and Youth", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>'},
+  {key:"twitch", name:"Twitch",    handle:"@cpic_church",            url:"https://www.twitch.tv/cpic_church",       what:"Our live services, streamed as they happen", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 16.2a6 6 0 0 0 0-8.4M4.9 4.9a10 10 0 0 0 0 14.2M19.1 19.1a10 10 0 0 0 0-14.2"/></svg>'},
+  {key:"kick", name:"Kick",      handle:"@ChristPowerChurch",      url:"https://kick.com/christpowerchurch",            what:"Our live services, streamed as they happen", icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="3"/><path d="M8 2l4 4 4-4"/></svg>'}
 ];
 function viewFollow(){
   const share = "Follow Christ Power International Church online:\n"+SOCIALS.map(x=>x.name+": "+x.url).join("\n");
   return `
   <div><h2 class="view-title">Follow CPIC</h2><p class="view-sub">Worship with us, catch every sermon and stay close to the church family on every platform.</p></div>
   <div class="socials">${SOCIALS.map(x=>`
-    <a class="social" href="${esc(x.url)}" target="_blank" rel="noopener">
-      <span class="s-ic">${x.icon}</span>
+    <a class="social lift" href="${esc(x.url)}" target="_blank" rel="noopener">
+      ${logoIc(x.key)}
       <span class="s-main"><span class="s-name">${esc(x.name)}</span><span class="s-handle">${esc(x.handle)}</span><span class="s-what">${esc(x.what)}</span></span>
       <span class="s-go">Follow</span>
     </a>`).join("")}</div>
@@ -798,7 +1337,7 @@ function viewFollow(){
 function viewPrayer(){
   const items = S.isTeam ? allPrayerItems() : [];
   const newCount = items.filter(i=>(i.status||"new")==="new").length;
-  const tabs = [["pray","Pray with us"],["wall","Testimonies"]].concat(S.isTeam?[["inbox","Pastor’s inbox"]]:[]);
+  const tabs = [["pray","Pray with us"]].concat(S.isTeam||S.wall.length?[["wall","Testimonies"]]:[]).concat(S.isTeam?[["inbox","Pastor’s inbox"]]:[]);
   if(!tabs.some(t=>t[0]===S.prTab)) S.prTab="pray";
   return `
   <div><h2 class="view-title">Prayer & testimonies</h2><p class="view-sub">“The effectual fervent prayer of a righteous man availeth much.” James 5:16</p></div>
@@ -899,15 +1438,37 @@ function inbox(items){
 }
 
 function renderSheet(){
-  const root=$("sheetRoot");
-  if(!S.posterView){ root.innerHTML=""; return; }
-  root.innerHTML = `<div class="scrim" id="scrim"><div class="sheet lightbox" role="dialog" aria-modal="true" aria-label="Poster">
-    <div class="section-head"><span class="label">Poster</span><button class="btn ghost" id="closePoster" aria-label="Close">✕</button></div>
-    <img src="${esc(posterSrc(S.posterView))}" alt="Event poster"></div></div>`;
+  const root=$("sheetRoot"); const P = S.panel;
+  if(!S.posterView && !P){ root.innerHTML=""; return; }
+  let body;
+  if(S.posterView){
+    body = `<div class="sheet lightbox" role="dialog" aria-modal="true" aria-label="Poster">
+    <div class="section-head"><span class="label">Poster</span><button class="ibtn" id="closePoster" aria-label="Close">${ICON.x}</button></div>
+    <img src="${esc(posterSrc(S.posterView))}" alt="Event poster"></div>`;
+  } else if(P.kind==="verse"){
+    const gw = "https://www.biblegateway.com/passage/?search="+encodeURIComponent(P.ref)+"&version=KJV";
+    body = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+      <div class="section-head"><h3 id="pTitle">${esc(P.state==="ok"?P.data.ref:P.ref)}</h3><button class="ibtn" id="closePoster" aria-label="Close">${ICON.x}</button></div>
+      ${P.state==="loading"?`<p class="muted" aria-live="polite">Opening the verse…</p>`
+       :P.state==="err"?`<p class="muted">This verse couldn’t be opened here just now.</p>`
+       :`<div class="verse-txt">${P.data.verses.map(v=>`<sup>${esc(v.verse)}</sup>${esc(String(v.text).replace(/\s+/g," ").trim())} `).join("")}</div>`}
+      <div class="row"><a class="btn sm" href="${esc(gw)}" target="_blank" rel="noopener">Read the whole chapter</a><span class="small muted">King James Version</span></div></div>`;
+  } else if(P.kind==="cal"){
+    const ev = S.events.find(x=>x.id===P.id);
+    if(!ev){ S.panel=null; root.innerHTML=""; return; }
+    body = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+      <div class="section-head"><h3 id="pTitle">Add to your calendar</h3><button class="ibtn" id="closePoster" aria-label="Close">${ICON.x}</button></div>
+      <p class="muted" style="margin:0">${esc(ev.title)} · ${esc(evWhen(ev))}</p>
+      <div class="opt"><a class="btn" href="${esc(gcalLink(ev))}" target="_blank" rel="noopener">Google Calendar</a>
+        <button type="button" class="btn" data-ics="${esc(ev.id)}">iPhone, Apple Calendar or Outlook</button></div>
+      <p class="small muted" style="margin:0">${ev.recurring?"It repeats every week, with a reminder an hour before.":"With a reminder an hour before."}</p></div>`;
+  }
+  root.innerHTML = `<div class="scrim" id="scrim">${body}</div>`;
   setTimeout(()=>{ const c=$("closePoster"); c&&c.focus(); },0);
 }
-document.addEventListener("error", e=>{ const el=e.target; if(el && el.classList && el.classList.contains("poster")){ const b=el.closest(".posterbtn"); if(b) b.hidden=true; else el.hidden=true; } }, true);
-document.addEventListener("keydown", e=>{ if(e.key==="Escape" && S.posterView){ S.posterView=null; renderSheet(); } });
+function closeSheet(){ const o = S.panelOpener; S.posterView=null; S.panel=null; S.panelOpener=null; renderSheet(); if(o && document.body.contains(o)) try{ o.focus({preventScroll:true}); }catch(_){} }
+document.addEventListener("error", e=>{ const el=e.target; if(el && el.tagName==="IMG" && el.closest && el.closest(".thumb,.yt-play")){ el.style.visibility="hidden"; return; } if(el && el.classList && el.classList.contains("poster")){ const b=el.closest(".posterbtn"); if(b) b.hidden=true; else el.hidden=true; } }, true);
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && (S.posterView||S.panel)) closeSheet(); });
 
 /* ---------- writes ---------- */
 function guard(){ if(!S.db){ toast("Not connected. Sign in to Claude to save."); return false; } if(!S.isTeam){ toast("Only the church leaders can change this."); return false; } return true; }
@@ -1008,7 +1569,20 @@ function saveMyNotes(id, v){
 /* ---------- events ---------- */
 document.addEventListener("click", e=>{
   const t = e.target.closest("button,a");
-  if(!t){ if(e.target.id==="scrim"){ S.posterView=null; renderSheet(); } return; }
+  if(!t){ if(e.target.id==="scrim") closeSheet(); return; }
+  if(t.id==="closePoster"){ closeSheet(); return; }
+  if(t.dataset.verse){ openVerse(t.dataset.verse, t); return; }
+  if(t.dataset.cal){ S.panel={kind:"cal", id:t.dataset.cal}; S.panelOpener=t; renderSheet(); return; }
+  if(t.dataset.ics){ const ev=S.events.find(x=>x.id===t.dataset.ics); if(ev){ downloadIcs(ev); closeSheet(); toast("Calendar file ready. Open it to add the event."); } return; }
+  if(t.dataset.jump){ const el=$(t.dataset.jump); if(el){ el.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"start"}); } return; }
+  if(t.dataset.yt){ const box=$("ytBox"); if(box) box.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(t.dataset.yt)}?autoplay=1&rel=0&playsinline=1${+t.dataset.start?"&start="+(+t.dataset.start):""}" title="Message video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`; return; }
+  if(t.dataset.fs){ const i=Math.max(0,Math.min(FS_STEPS.length-1, FS_STEPS.indexOf(fontSize())+(+t.dataset.fs))); lsSet("cpic.fs",String(FS_STEPS[i])); const a=$("notesArt"); if(a) a.style.setProperty("--ns",FS_STEPS[i]+"px"); return; }
+  if(t.dataset.practise){ const id=t.dataset.practise; const s=S.sermons.find(x=>x.id===id); PRAC[id]=((PRAC[id]||0)+1)%4; const m=$("memTxt"); if(m&&s) m.innerHTML=memHtml(id,(s.memoryVerse||{}).text||""); t.innerHTML=ICON.eye+esc(PRAC_LABEL[PRAC[id]]); return; }
+  if(t.classList.contains("blank")){ t.replaceWith(document.createTextNode(t.textContent)); return; }
+  if(t.dataset.sharev){ const s=S.sermons.find(x=>x.id===t.dataset.sharev); if(s) shareVerse(s).catch(()=>toast("Could not make the picture")); return; }
+  if(t.dataset.more){ const id=t.dataset.more; if(OPEN_DESC.has(id)) OPEN_DESC.delete(id); else OPEN_DESC.add(id); const p=$("d_"+id), open=OPEN_DESC.has(id); if(p) p.classList.toggle("clamp", !open); t.setAttribute("aria-expanded", String(open)); t.textContent = open?"Show less":"Read more"; return; }
+  if(t.id==="installBtn"){ if(deferredInstall){ deferredInstall.prompt(); deferredInstall.userChoice.finally(()=>{ deferredInstall=null; render(); }); } return; }
+  if(t.id==="installX"){ lsSet("cpic.installx","1"); render(); return; }
   /* sermons */
   if(t.dataset.skind){ S.sermonKind=t.dataset.skind; render(); return; }
   if(t.id==="newSermon"){ S.sermonEdit={id:null, draft:{date:lastSunday(today()), kind:"Sunday sermon"}}; S.aiMsg=""; render(); window.scrollTo(0,0); return; }
@@ -1026,8 +1600,7 @@ document.addEventListener("click", e=>{
   if(t.id==="togglePast"){ S.evPast=!S.evPast; render(); return; }
   if(t.id==="newEvent"){ S.evEdit={id:null, draft:{category:"Special service"}}; render(); window.scrollTo(0,0); return; }
   if(t.dataset.editEv){ const ev=S.events.find(x=>x.id===t.dataset.editEv); if(!ev) return; S.evEdit={id:ev.id, draft:{...ev}}; render(); window.scrollTo(0,0); return; }
-  if(t.dataset.poster){ S.posterView=t.dataset.poster; renderSheet(); return; }
-  if(t.id==="closePoster"){ S.posterView=null; renderSheet(); return; }
+  if(t.dataset.poster){ S.posterView=t.dataset.poster; S.panelOpener=t; renderSheet(); return; }
   if(t.id==="rmPoster"){ S.evEdit.draft = readEventDraft(); delete S.evEdit.draft.posterId; S.evEdit.draft.posterId=""; render(); return; }
   if(t.id==="cancelEvent"||t.id==="cancelEvent2"){ e.preventDefault(); S.evEdit=null; render(); return; }
   if(t.id==="delEvent"){
@@ -1071,6 +1644,7 @@ document.addEventListener("input", e=>{
 });
 document.addEventListener("change", e=>{
   const t=e.target;
+  if(t.dataset && t.dataset.todo){ const id=t.dataset.todo; const all=[...document.querySelectorAll('input[data-todo="'+CSS.escape(id)+'"]')]; const on=all.map((x,i)=>x.checked?i:-1).filter(i=>i>=0); lsSet("cpic.done."+id, JSON.stringify(on)); const c=$("todoCount"); if(c) c.textContent = on.length+" of "+all.length+" done"+(on.length===all.length?". Well done this week!":". Your ticks stay on this phone."); return; }
   if(t.closest && t.closest("#prayerForm")) syncWa();
   if(t.id==="eRepeat"){ S.evEdit.draft = readEventDraft(); render(); }
   if(t.id==="ePoster"){ uploadPoster(t.files && t.files[0]); t.value=""; }
@@ -1087,31 +1661,50 @@ document.addEventListener("submit", e=>{
 });
 
 /* ---------- routing ---------- */
-const VIEWS=["sermons","events","prayer","follow"];
+const VIEWS=["home","sermons","events","prayer","follow"];
 function route(){
   const h=location.hash.replace("#","");
   S.sheetId=null; S.delArm=null;
   if(h.startsWith("sermon-")){ S.view="sermon"; S.sermonId=h.slice(7); }
-  else S.view = VIEWS.includes(h)?h:"sermons";
+  else S.view = VIEWS.includes(h)?h:"home";
   if(S.view!=="sermons") { if(S.aiCtl && S.aiBusy) S.aiCtl.abort(); S.sermonEdit=null; }
   if(S.view!=="events") S.evEdit=null;
-  render(); window.scrollTo(0,0);
+  render(); window.scrollTo(0,0); readBar();
   if(S.view==="sermon") setTimeout(()=>loadMyNotes(S.sermonId),0);
 }
 window.addEventListener("hashchange", route);
 
 /* ---------- sync status ---------- */
 function setSync(){
-  const dot=$("syncDot"), txt=$("syncText");
-  if(!S.db){ dot.className="dot"; txt.textContent = SNAP.at ? "Updated "+fmt(SNAP.at.slice(0,10)) : ""; return; }
-  const all = S.need.every(k=>S.loaded[k]);
-  if(all && !S.stale){ dot.className="dot on"; txt.textContent="Live"; }
-  else { dot.className="dot wait"; txt.textContent = S.stale?"Reconnecting":"Connecting"; }
+  const chip=$("liveChip"); if(!chip) return;
+  const {live} = liveStatus();
+  chip.hidden = !live;
+  if(live){ $("liveText").textContent = "Live now"; chip.title = live.ev.title+" is live now"; chip.setAttribute("aria-label", live.ev.title+" is live now. Open the home page to watch."); }
 }
+let liveKey = "";
+function tick(){
+  const {live,next} = liveStatus(); const k = (live?live.ev.id:"")+"|"+(next?next.ev.id+next.st:"");
+  if(k!==liveKey){ const first=!liveKey; liveKey=k; setSync(); if(!first && S.view==="home" && !document.querySelector("#app :focus")) render(); }
+  document.querySelectorAll("[data-until]").forEach(el=>{ el.textContent = untilText(+el.dataset.until - Date.now()); });
+}
+function setHeaderVar(){ const h=document.querySelector("header.top"); if(h) document.documentElement.style.setProperty("--hh", h.offsetHeight+"px"); }
+let barRaf=0;
+function readBar(){
+  barRaf=0; const bar=$("readBar"), art=$("notesArt");
+  if(!bar) return; if(S.view!=="sermon" || !art){ bar.style.transform="scaleX(0)"; return; }
+  const r=art.getBoundingClientRect(); const total=r.height - innerHeight*0.6; const p=Math.max(0,Math.min(1,(innerHeight*0.25 - r.top)/Math.max(1,total)));
+  bar.style.transform="scaleX("+p.toFixed(4)+")";
+  const secs=[...art.querySelectorAll("section[id]")]; let cur=null; for(const sct of secs){ if(sct.getBoundingClientRect().top < innerHeight*0.35) cur=sct.id; }
+  art.querySelectorAll(".jump button").forEach(b=>b.setAttribute("aria-current", String(b.dataset.jump===cur)));
+}
+addEventListener("scroll", ()=>{ if(!barRaf) barRaf=requestAnimationFrame(readBar); }, {passive:true});
+addEventListener("resize", ()=>{ setHeaderVar(); if(!barRaf) barRaf=requestAnimationFrame(readBar); });
+setInterval(tick, 20000);
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) tick(); });
 
 /* ---------- boot ---------- */
 async function boot(){
-  S.ready = true; route(); setSync();
+  S.ready = true; setHeaderVar(); renderFooter(); route(); tick();
   let db=null, user=null;
   if(window.claude && claude.use){ try{ [db,user] = await Promise.all([claude.use("db"), claude.use("user")]); }catch(_){} }
   S.db = db;
