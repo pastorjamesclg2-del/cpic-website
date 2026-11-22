@@ -5,7 +5,7 @@ Christ Power International Church, Dubai.
 ## What's here
 
 - `public/index.html`: **Ekklesia**, the public site. Its content (sermons, events, posters) lives in the one `<script id="snapshot">` block; updating Ekklesia means replacing only that block, which keeps the design. The page has Home (welcome, live status, this week, latest message, coming up, verse, new here), Sermons (reader with verse pop-ups, video, ticks, memory game, verse pictures), Events, Prayer and Follow.
-- Ekklesia (older note): (sermon notes, events and posters, prayer requests by WhatsApp to Pastor James or Pastor Blessing James). Its last tab, **Workers**, opens the workers' page.
+  Prayer requests go by WhatsApp to Pastor James or Pastor Blessing James. The last tab, **Workers**, opens the workers' page.
 - `public/workers/`: **CPIC Workers**, for invited workers only.
   - `index.html` lists everything: Shepherd and the Media department.
   - `auth.js` is the shared sign-in (Netlify Identity, invite only) used by every workers' page. It also connects each app to its private records, files and (once an AI key is added) Claude.
