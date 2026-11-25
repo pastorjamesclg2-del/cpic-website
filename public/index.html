@@ -1000,11 +1000,36 @@ function viewSermons(){
   : !loading ? `<div class="list"><div class="empty"><b>No sermons yet</b>${S.isTeam?"Tap “Add sermon”, paste the YouTube link and transcript, and Claude will write the notes for you to check.":"Notes from each Sunday’s message will appear here."}</div></div>`:""}`;
 }
 
+/* WhatsApp message for a sermon: the heart of the message, then an invitation to read and watch it in full */
+function sermonShareText(s){
+  const mt=s.mainText||{}, mv=s.memoryVerse||{};
+  const cut=(t,n)=>{ t=String(t||"").replace(/\s+/g," ").trim(); return t.length>n?t.slice(0,n-1).replace(/[\s,;:.]+\S*$/,"")+"…":t; };
+  const same=(a,b)=>String(a||"").replace(/\s/g,"").toLowerCase()===String(b||"").replace(/\s/g,"").toLowerCase();
+  const pts=(s.points||[]).filter(p=>p&&p.title), live=(s.application||[]).filter(Boolean), qs=(s.quotes||[]).map(q=>typeof q==="string"?q:(q&&q.text)||"").filter(Boolean);
+  const vs=(s.scriptures||[]).filter(v=>v&&v.ref&&!same(v.ref,mt.ref)&&!same(v.ref,mv.ref));
+  const url=`https://cpic.info/#sermon-${String(s.id).replace(/-+$/,"")}`;  // WhatsApp drops a trailing "-" from links
+  const L=[];
+  L.push(`📖 *${s.title||"This week’s message"}*`);
+  L.push(`_${[s.kind||"Sunday sermon", s.preacher, fmtLong(s.date)].filter(Boolean).join(" · ")}_`);
+  if(mt.ref) L.push("", `*Main text: ${mt.ref}*`+(mt.text?`\n“${cut(mt.text,220)}”`:""));
+  if(pts.length){ L.push("", "*Key points*"); pts.slice(0,3).forEach((p,i)=>L.push(`${i+1}. ${p.title}`)); if(pts.length>3) L.push(`_…and ${pts.length-3} more in the full notes_`); }
+  if(qs.length){ L.push("", "*Quotes to remember*"); qs.slice(0,2).forEach(q=>L.push(`💬 “${cut(q.replace(/^["“”']+|["“”']+$/g,""),170)}”`)); }
+  if(vs.length){ L.push("", "*Scriptures to read*"); vs.slice(0,3).forEach(v=>L.push(`• ${v.ref}${v.note?" — "+cut(v.note,110):""}`)); }
+  if(live.length){ L.push("", "*Live it out this week*"); live.slice(0,3).forEach(a=>L.push(`✅ ${cut(a,170)}`)); }
+  if(mv.ref&&!same(mv.ref,mt.ref)) L.push("", `*Memory verse: ${mv.ref}*`+(mv.text?`\n“${cut(mv.text,220)}”`:""));
+  L.push("", `👉 Get the full brief on the CPIC website (all the points, scriptures, Bible study questions and prayer):\n${url}`);
+  if(s.youtubeUrl) L.push("", `▶️ Watch the full message:\n${s.youtubeUrl}`);
+  L.push("", "_Christ Power International Church, Dubai · cpic.info_");
+  return L.join("\n");
+}
+
 function viewSermon(){
-  const s = S.sermons.find(x=>x.id===S.sermonId);
+  const trim=v=>String(v||"").replace(/-+$/,"");
+  const s = S.sermons.find(x=>x.id===S.sermonId) || S.sermons.find(x=>trim(x.id)===trim(S.sermonId));
+  if(s && s.id!==S.sermonId){ S.sermonId=s.id; setTimeout(()=>loadMyNotes(s.id),0); }
   if(!s) return `<a class="back" href="#sermons">‹ All sermons</a>${S.db&&!S.loaded.sermons?`<div class="empty">Loading…</div>`:`<div class="list"><div class="empty"><b>Sermon not found</b>It may have been removed.</div></div>`}`;
   const mt = s.mainText||{}; const mv = s.memoryVerse||{};
-  const shareText = [`*${s.title}*`, `${s.preacher?s.preacher+" · ":""}${fmtLong(s.date)}`, mt.ref?`Text: ${mt.ref}`:"", s.summary||"", (s.points||[]).length?"\n"+(s.points||[]).map((p,i)=>`${i+1}. ${p.title}`).join("\n"):"", mv.ref?`\nMemory verse: ${mv.ref}${mv.text?" — "+mv.text:""}`:"", `\nRead the notes: https://cpic.info/#sermon-${s.id}`, s.youtubeUrl?`Watch: ${s.youtubeUrl}`:""].filter(Boolean).join("\n");
+  const shareText = sermonShareText(s);
   const notesOff = !S.db || !S.uid;
   const yt = ytId(s.youtubeUrl);
   const done = doneFor(s.id); const nApp = (s.application||[]).length;
