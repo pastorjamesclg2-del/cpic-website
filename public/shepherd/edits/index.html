@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Edits · CPIC Shepherd</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1F2A7A">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F3F4F8; --surface:#FFFFFF; --surface-2:#EBEDF4; --ink:#141833; --muted:#5D6382; --line:#DCDFEA;
+  --accent:#1F2A7A; --accent-ink:#FFFFFF; --accent-soft:#E4E7F6;
+  --ok:#0E7C53; --ok-soft:#DDF3E9; --warn:#9A5600; --warn-soft:#FBEBD3; --bad:#B42335; --bad-soft:#F8DFE2;
+  --f-display:"Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --f-body:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1122; --surface:#181B30; --surface-2:#22263F; --ink:#ECEEF8; --muted:#9EA3C0; --line:#2D3150;
+  --accent:#8C9CFF; --accent-ink:#0F1122; --accent-soft:#232A55;
+  --ok:#4CC995; --ok-soft:#12352A; --warn:#F0B45A; --warn-soft:#3A2A12; --bad:#F27C8A; --bad-soft:#3D1A21;
+  color-scheme:dark}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);
+  padding:12px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.top-in{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{height:38px;width:auto;flex:none;background:#fff;border-radius:8px;padding:3px 6px;border:1px solid var(--line)}
+.brand h1{margin:0;font-family:var(--f-display);font-size:18px;line-height:1.1;font-weight:700}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+nav.seg{max-width:760px;margin:10px auto 0;display:grid;grid-template-columns:repeat(4,1fr)}
+nav.seg button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 4px 9px;font-weight:600;font-size:13px;color:var(--muted);cursor:pointer}
+nav.seg button[aria-current=page]{color:var(--accent);border-bottom-color:var(--accent)}
+main{padding:18px max(16px,env(safe-area-inset-right,0px)) calc(40px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h2{font-family:var(--f-display);font-size:22px;margin:0;line-height:1.2}
+h3{font-family:var(--f-display);font-size:16px;margin:0}
+.sub{color:var(--muted);margin:4px 0 0;font-size:14px}
+.muted{color:var(--muted)} .small{font-size:13px}
+.section{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600;cursor:pointer;text-decoration:none;color:var(--ink)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.sm{min-height:34px;padding:0 12px;font-size:13.5px}
+.btn:disabled{opacity:.55;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:0;border-top:1px solid var(--line);background:none;text-align:left;cursor:pointer;width:100%}
+.item:first-child{border-top:0}
+.item:hover{background:var(--surface-2)}
+.item .t{flex:1;min-width:0}
+.item b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item span.m{display:block;color:var(--muted);font-size:13px}
+.item img{width:44px;height:44px;object-fit:cover;border-radius:8px;flex:none;background:var(--surface-2)}
+.tag{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.tag.edited{color:var(--ok);background:var(--ok-soft)}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label,.lbl{font-size:13px;font-weight:600}
+.hint{font-size:12.5px;color:var(--muted)}
+input[type=text],input[type=url],input[type=tel],input[type=date],input[type=time],select,textarea{width:100%;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:16px}
+textarea{min-height:90px;resize:vertical;line-height:1.45}
+textarea.tall{min-height:200px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.check{display:flex;gap:8px;align-items:center;font-size:14.5px}
+.check input{width:20px;height:20px}
+.days{display:flex;gap:6px;flex-wrap:wrap}
+.days label{border:1px solid var(--line);border-radius:999px;padding:5px 11px;display:flex;gap:6px;align-items:center;font-size:14px}
+.poster{max-width:220px;width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+.back{font-weight:600;text-decoration:none;font-size:14px;align-self:flex-start;background:none;border:0;color:var(--accent);cursor:pointer;padding:0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:50;max-width:calc(100vw - 32px);box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.banner{border-radius:var(--r);padding:12px 14px;font-size:14px;background:var(--warn-soft);border:1px solid var(--line)}
+.banner.ok{background:var(--ok-soft)}
+.soc{display:grid;grid-template-columns:110px 1fr;gap:8px;padding:12px;border:1px solid var(--line);border-radius:10px}
+.soc .full{grid-column:1/-1}
+@media (max-width:560px){.soc{grid-template-columns:1fr}}
+.prog{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--line);border-radius:10px}
+.prog .when{font-size:13px;color:var(--muted)}
+.log li{padding:8px 0;border-top:1px solid var(--line);list-style:none}
+.log{margin:0;padding:0}
+.empty{text-align:center;padding:24px;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ws-bar{display:flex;gap:10px;align-items:center;font-size:13px}
+.ws-bar a,.ws-bar button{color:var(--accent);background:none;border:0;font-weight:600;cursor:pointer;text-decoration:none;padding:4px 0}
+</style>
+</head><body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><img class="logo" src="/logo.jpg" alt="CPIC"><div><h1>Edits</h1><p>Change what everyone sees on cpic.info</p></div></div>
+  </div>
+  <nav class="seg" aria-label="What to edit" id="seg">
+    <button data-tab="sermons">Sermons</button>
+    <button data-tab="events">Events</button>
+    <button data-tab="links">Live &amp; links</button>
+    <button data-tab="history">History</button>
+  </nav>
+</header>
+<main><div class="wrap" id="app"><p class="muted">Loading…</p></div></main>
+<script src="/workers/auth.js" data-app="edits"></script>
+<script>
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const lines = v => String(v||"").split("\n").map(x=>x.trim()).filter(Boolean);
+const slug = s => String(s||"").toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g,"").trim().replace(/[\s_]+/g,"-").replace(/-+/g,"-").slice(0,40).replace(/-$/,"");
+const rnd = () => Math.random().toString(36).slice(2,6);
+const DAY = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const SERMON_KINDS = ["Sunday sermon","Bible study"];
+const EVENT_CATS = ["Worship service","Special service","Bible study","Prayer","Conference","Youth","Outreach","Fellowship","Wedding & dedication","Other"];
+const PLATFORMS = [["youtube","YouTube"],["facebook","Facebook"],["instagram","Instagram"],["tiktok","TikTok"],["twitch","Twitch"],["kick","Kick"],["whatsapp","WhatsApp"],["link","Other link"]];
+const SOCIALS_DEFAULT = [
+  {key:"youtube", name:"YouTube", handle:"@christpowerintchurch", url:"https://www.youtube.com/@christpowerintchurch", what:"Full services, sermons, the podcast and Shorts"},
+  {key:"facebook", name:"Facebook", handle:"@cpicchurch", url:"https://www.facebook.com/cpicchurch", what:"Live every service, events and church family news"},
+  {key:"instagram", name:"Instagram", handle:"@christpowerintchurch", url:"https://www.instagram.com/christpowerintchurch", what:"Photos, flyers, Reels and daily Stories"},
+  {key:"tiktok", name:"TikTok", handle:"@christpowerintchurch", url:"https://www.tiktok.com/@christpowerintchurch", what:"Sermon clips, worship moments, Teens and Youth"},
+  {key:"twitch", name:"Twitch", handle:"@cpic_church", url:"https://www.twitch.tv/cpic_church", what:"Our live services, streamed as they happen"},
+  {key:"kick", name:"Kick", handle:"@ChristPowerChurch", url:"https://kick.com/christpowerchurch", what:"Our live services, streamed as they happen"}
+];
+
+const S = { tab: sessionStorage.getItem("edits.tab")||"sermons", base:null, live:null, data:null, posters:{}, edit:null, busy:false, log:null, follow:null, canEdit:false, msg:"" };
+
+function toast(m){ const t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),3200); }
+const fmtDate = d => { if(!d) return ""; const x=new Date(d+"T12:00:00"); return isNaN(x)?d:x.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"}); };
+const fmtTime = t => { if(!t) return ""; const [h,m]=t.split(":").map(Number); return ((h%12)||12)+(m?":"+String(m).padStart(2,"0"):"")+(h<12?" am":" pm"); };
+const fmtAt = a => a ? new Date(a).toLocaleString("en-GB",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"}) : "";
+const posterSrc = id => S.posters[id] || "/api/site/poster/"+id;
+
+/* ---------- data: built-in copy of Ekklesia + live edits ---------- */
+function merge(base, live){
+  const out = {};
+  for(const col of ["sermons","events"]){
+    const map = new Map((base[col]||[]).map(x=>[x.id,x]));
+    const edited = new Set();
+    for(const x of (live[col]||[])){ const o=map.get(x.id); if(!o || String(x.updatedAt||"")>=String(o.updatedAt||"")){ map.set(x.id,x); edited.add(x.id); } }
+    for(const [id,at] of Object.entries((live.deleted||{})[col]||{})){ const o=map.get(id); if(o && String(at)>=String(o.updatedAt||"")) map.delete(id); }
+    out[col] = [...map.values()].map(x=>({...x, _edited: edited.has(x.id)}));
+  }
+  out.church = {...(base.church||{}), ...(live.church||{})};
+  return out;
+}
+async function load(){
+  const [html, live] = await Promise.all([
+    fetch("/", {cache:"no-store"}).then(r=>r.text()),
+    fetch("/api/site", {cache:"no-store"}).then(r=>r.ok?r.json():{}).catch(()=>({}))
+  ]);
+  const m = html.match(/<script type="application\/json" id="snapshot">([\s\S]*?)<\/script>/);
+  const base = m ? JSON.parse(m[1]) : {};
+  S.posters = base.posters || {};
+  S.base = {sermons:base.sermons||[], events:base.events||[], church:base.church||{}};
+  S.live = live || {};
+  S.data = merge(S.base, S.live);
+}
+async function call(body){
+  const t = await CPIC_WORKER.token();
+  const r = await fetch("/api/site", {method:"POST", headers:{"Content-Type":"application/json", Authorization:"Bearer "+t}, body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({}));
+  if(r.status===401){ CPIC_WORKER.expired(); throw new Error("Please sign in again."); }
+  if(r.status===403) throw new Error("Your account can’t make edits. Ask Sam to add you as an editor.");
+  if(r.status===413) throw new Error("That’s too long to save in one go.");
+  if(!r.ok) throw new Error("Couldn’t save just now ("+(j.error||r.status)+"). Try again.");
+  S.live = j.content; S.data = merge(S.base, S.live);
+  return j;
+}
+async function uploadPoster(file){
+  let blob = file;
+  if(file.size > 2.5*1024*1024 || !/^image\/(jpeg|png|webp)$/.test(file.type)) blob = await shrink(file);
+  const t = await CPIC_WORKER.token();
+  const r = await fetch("/api/site/poster", {method:"POST", headers:{"Content-Type":blob.type||"image/jpeg", Authorization:"Bearer "+t}, body:blob});
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(r.status===413?"That picture is too big. Try a smaller one.":"Couldn’t upload the poster ("+(j.error||r.status)+").");
+  return j.id;
+}
+function shrink(file){
+  return new Promise((res,rej)=>{
+    const img=new Image(); const u=URL.createObjectURL(file);
+    img.onload=()=>{ const k=Math.min(1, 2000/Math.max(img.width,img.height)); const c=document.createElement("canvas"); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(u); c.toBlob(b=>b?res(b):rej(new Error("Couldn’t read that picture.")),"image/jpeg",0.86); };
+    img.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error("Couldn’t read that picture.")); };
+    img.src=u;
+  });
+}
+
+/* ---------- where “Watch live” goes (same rules as Ekklesia) ---------- */
+function socials(){ const f=(S.data.church||{}).follow; return Array.isArray(f)&&f.some(x=>x&&x.url)?f:SOCIALS_DEFAULT; }
+function currentYoutube(ev){
+  if(ev.youtube) return ev.youtube;
+  if(/youtube\.com|youtu\.be/i.test(ev.link||"")) return ev.link;
+  const h=(String(ev.description||"").match(/@([A-Za-z0-9_.]{3,})/)||[])[1];
+  if(h) return "https://www.youtube.com/@"+h;
+  const y=socials().find(x=>x.key==="youtube"); return y?y.url:"https://www.youtube.com/@christpowerintchurch";
+}
+
+const ytLive = u => /youtube\.com\/(@[^/?#]+|channel\/[^/?#]+|c\/[^/?#]+|user\/[^/?#]+)\/?$/i.test(u||"") ? String(u).replace(/\/?$/,"/live") : u;
+
+/* ---------- views ---------- */
+function render(){
+  document.querySelectorAll("#seg button").forEach(b=>{ if(b.dataset.tab===S.tab && !S.edit) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+  const app=$("app");
+  if(!S.data){ app.innerHTML=`<p class="muted">Loading…</p>`; return; }
+  const ro = S.canEdit ? "" : `<div class="banner">You can look, but your account can’t make edits. Ask Sam to add you as an editor.</div>`;
+  if(S.edit && S.edit.col==="sermons") app.innerHTML = ro+sermonForm();
+  else if(S.edit && S.edit.col==="events") app.innerHTML = ro+eventForm();
+  else app.innerHTML = ro+({sermons:sermonList, events:eventList, links:linksView, history:historyView}[S.tab]||sermonList)();
+}
+const editedTag = x => x._edited ? `<span class="tag edited">Edited</span>` : "";
+
+function sermonList(){
+  const list=[...S.data.sermons].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  return `<div class="head"><div><h2>Sermons</h2><p class="sub">The notes people read on cpic.info › Sermons.</p></div><button class="btn primary" data-new="sermons">+ Add a sermon</button></div>
+  <div class="list">${list.length?list.map(x=>`<button class="item" data-open="sermons" data-id="${esc(x.id)}"><span class="t"><b>${esc(x.title||"Untitled")}</b><span class="m">${esc(fmtDate(x.date))} · ${esc(x.kind||"")}${x.preacher?" · "+esc(x.preacher):""}</span></span>${editedTag(x)}<span aria-hidden="true">›</span></button>`).join(""):`<div class="empty">No sermons yet.</div>`}</div>`;
+}
+function eventList(){
+  const today=new Date().toISOString().slice(0,10);
+  const rec=S.data.events.filter(e=>e.recurring).sort((a,b)=>Math.min(...(a.days.length?a.days:[7]))-Math.min(...(b.days.length?b.days:[7])));
+  const up=S.data.events.filter(e=>!e.recurring && (e.endDate||e.startDate||"")>=today).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
+  const past=S.data.events.filter(e=>!e.recurring && (e.endDate||e.startDate||"")<today).sort((a,b)=>String(b.startDate).localeCompare(String(a.startDate)));
+  const row = e => `<button class="item" data-open="events" data-id="${esc(e.id)}">${e.posterId?`<img src="${esc(posterSrc(e.posterId))}" alt="">`:""}<span class="t"><b>${esc(e.title||"Untitled")}</b><span class="m">${e.recurring?esc((e.days||[]).map(d=>DAY[d].slice(0,3)).join(", ")):esc(fmtDate(e.startDate))}${e.startTime?" · "+esc(fmtTime(e.startTime)):""}${e.venue?" · "+esc(e.venue):""}</span></span>${editedTag(e)}<span aria-hidden="true">›</span></button>`;
+  return `<div class="head"><div><h2>Events &amp; posters</h2><p class="sub">Programmes and special events on cpic.info, with their posters.</p></div><button class="btn primary" data-new="events">+ Add an event</button></div>
+  <h3>Coming up</h3><div class="list">${up.length?up.map(row).join(""):`<div class="empty">Nothing coming up.</div>`}</div>
+  <h3>Every week</h3><div class="list">${rec.map(row).join("")||`<div class="empty">No weekly programmes.</div>`}</div>
+  ${past.length?`<details><summary class="small muted" style="cursor:pointer">Past events (${past.length})</summary><div class="list" style="margin-top:8px">${past.map(row).join("")}</div></details>`:""}`;
+}
+function sermonForm(){
+  const e=S.edit.draft; const isNew=!S.edit.id;
+  const pts=(e.points||[]).map(p=>p.title+(p.body?"\n"+p.body:"")).join("\n\n");
+  const vs=(e.scriptures||[]).map(v=>v.ref+(v.note?" — "+v.note:"")).join("\n");
+  return `<button class="back" data-back>‹ All sermons</button>
+  <div><h2>${isNew?"Add a sermon":"Edit sermon"}</h2>${isNew?"":`<p class="sub"><a href="/#sermon-${esc(S.edit.id)}" target="_blank" rel="noopener">See it on cpic.info ›</a></p>`}</div>
+  <form id="form" class="section" autocomplete="off">
+    <div class="grid2">
+      <div class="field"><label for="sTitle">Sermon title</label><input type="text" id="sTitle" required value="${esc(e.title)}"></div>
+      <div class="field"><label for="sDate">Date</label><input type="date" id="sDate" required value="${esc(e.date)}"></div>
+      <div class="field"><label for="sKind">Type</label><select id="sKind">${SERMON_KINDS.concat(SERMON_KINDS.includes(e.kind)||!e.kind?[]:[e.kind]).map(k=>`<option ${e.kind===k?"selected":""}>${esc(k)}</option>`).join("")}</select></div>
+      <div class="field"><label for="sPreacher">Preacher</label><input type="text" id="sPreacher" value="${esc(e.preacher)}" placeholder="e.g. Pastor Blessing"></div>
+      <div class="field"><label for="sYoutube">YouTube video</label><input type="url" id="sYoutube" value="${esc(e.youtubeUrl)}" placeholder="https://www.youtube.com/watch?v=…"></div>
+      <div class="field"><label for="sSeries">Series (optional)</label><input type="text" id="sSeries" value="${esc(e.series)}"></div>
+    </div>
+    <div class="field"><label for="sSummary">The message in brief</label><textarea id="sSummary">${esc(e.summary)}</textarea></div>
+    <div class="grid2">
+      <div class="field"><label for="sMainRef">Main text</label><input type="text" id="sMainRef" value="${esc((e.mainText||{}).ref)}" placeholder="e.g. Matthew 16:18"></div>
+      <div class="field"><label for="sMainTxt">Verse wording</label><textarea id="sMainTxt" style="min-height:44px">${esc((e.mainText||{}).text)}</textarea></div>
+    </div>
+    <div class="field"><label for="sPoints">Main points</label><textarea id="sPoints" class="tall">${esc(pts)}</textarea><span class="hint">Leave a blank line between points. The first line of each is its heading.</span></div>
+    <div class="field"><label for="sVerses">Scriptures read</label><textarea id="sVerses">${esc(vs)}</textarea><span class="hint">One per line, e.g. “Romans 8:28 — how it was used”.</span></div>
+    <div class="field"><label for="sQuotes">Quotes from the pulpit</label><textarea id="sQuotes">${esc((e.quotes||[]).join("\n"))}</textarea><span class="hint">One per line.</span></div>
+    <div class="field"><label for="sApply">Live it out this week</label><textarea id="sApply">${esc((e.application||[]).join("\n"))}</textarea><span class="hint">One action per line.</span></div>
+    <div class="field"><label for="sQuestions">Bible study questions</label><textarea id="sQuestions">${esc((e.questions||[]).join("\n"))}</textarea><span class="hint">One per line.</span></div>
+    <div class="grid2">
+      <div class="field"><label for="sMemRef">Memory verse</label><input type="text" id="sMemRef" value="${esc((e.memoryVerse||{}).ref)}"></div>
+      <div class="field"><label for="sMemTxt">Memory verse wording</label><textarea id="sMemTxt" style="min-height:44px">${esc((e.memoryVerse||{}).text)}</textarea></div>
+    </div>
+    <div class="field"><label for="sPrayer">Prayer</label><textarea id="sPrayer">${esc(e.prayer)}</textarea></div>
+    <div class="row">
+      <button class="btn primary" type="submit" ${S.busy||!S.canEdit?"disabled":""}>${S.busy?"Saving…":isNew?"Publish sermon":"Save changes"}</button>
+      <button class="btn" type="button" data-back>Cancel</button>
+      ${isNew?"":`<button class="btn danger" type="button" data-del ${!S.canEdit?"disabled":""}>Delete</button>`}
+    </div>
+  </form>`;
+}
+function readSermon(){
+  const g=id=>$(id).value.trim();
+  const points=String($("sPoints").value||"").split(/\n\s*\n/).map(b=>b.trim()).filter(Boolean).map(b=>{ const L=lines(b); return {title:L[0].replace(/^\s*(?:\d+[.)]|[-•*])\s*/,""), body:L.slice(1).join(" ")}; });
+  const scriptures=lines($("sVerses").value).map(l=>{ const m=l.split(/\s[—–-]\s|\s\|\s/); return {ref:m[0].trim(), note:m.slice(1).join(" — ").trim()}; });
+  return {...S.edit.draft, title:g("sTitle"), date:g("sDate"), kind:$("sKind").value, preacher:g("sPreacher"), youtubeUrl:g("sYoutube"), series:g("sSeries"), summary:g("sSummary"),
+    mainText:{ref:g("sMainRef"), text:g("sMainTxt")}, points, scriptures, quotes:lines($("sQuotes").value), application:lines($("sApply").value), questions:lines($("sQuestions").value),
+    memoryVerse:{ref:g("sMemRef"), text:g("sMemTxt")}, prayer:g("sPrayer")};
+}
+function eventForm(){
+  const e=S.edit.draft; const isNew=!S.edit.id; const rec=!!e.recurring; const days=e.days||[];
+  const ytNow = currentYoutube({...e, youtube:""});
+  return `<button class="back" data-back>‹ All events</button>
+  <div><h2>${isNew?"Add an event":"Edit event"}</h2>${isNew?"":`<p class="sub"><a href="/#events" target="_blank" rel="noopener">See events on cpic.info ›</a></p>`}</div>
+  <form id="form" class="section" autocomplete="off">
+    <div class="field"><label for="eTitle">Event name</label><input type="text" id="eTitle" required value="${esc(e.title)}" placeholder="e.g. Youth Day 2026"></div>
+    <div class="field"><span class="lbl">Poster</span>
+      ${e.posterId?`<img class="poster" src="${esc(posterSrc(e.posterId))}" alt="Current poster">`:`<span class="hint">No poster yet.</span>`}
+      <div class="row"><label class="btn sm" for="ePoster" style="cursor:pointer">${e.posterId?"Replace poster":"Upload poster"}</label><input type="file" id="ePoster" accept="image/*" class="sr" ${!S.canEdit?"disabled":""}>
+      ${e.posterId?`<button type="button" class="btn sm" id="rmPoster">Remove poster</button>`:""}<span class="small muted" id="posterState"></span></div>
+    </div>
+    <label class="check"><input type="checkbox" id="eRepeat" ${rec?"checked":""}><span>Repeats every week</span></label>
+    ${rec?`<div class="field"><span class="lbl">On these days</span><div class="days">${[1,2,3,4,5,6,0].map(d=>`<label><input type="checkbox" id="eDay${d}" ${days.includes(d)?"checked":""}>${DAY[d].slice(0,3)}</label>`).join("")}</div></div>`:""}
+    <div class="grid2">
+      <div class="field"><label for="eCat">Type</label><select id="eCat">${EVENT_CATS.map(c=>`<option ${e.category===c?"selected":""}>${c}</option>`).join("")}</select></div>
+      <div class="field"><label for="eVenue">Venue, or where to watch</label><input type="text" id="eVenue" value="${esc(e.venue)}" placeholder="e.g. Creek Park, Dubai"></div>
+      ${rec?"":`<div class="field"><label for="eStart">Date</label><input type="date" id="eStart" value="${esc(e.startDate)}"></div>
+      <div class="field"><label for="eEnd">End date (if more than one day)</label><input type="date" id="eEnd" value="${esc(e.endDate)}"></div>`}
+      <div class="field"><label for="eT1">Starts at</label><input type="time" id="eT1" value="${esc(e.startTime)}"></div>
+      <div class="field"><label for="eT2">Ends at</label><input type="time" id="eT2" value="${esc(e.endTime)}"></div>
+    </div>
+    <div class="field"><label for="eDesc">Details</label><textarea id="eDesc" placeholder="Theme, speakers, dress code, what to bring">${esc(e.description)}</textarea></div>
+    <h3 style="margin-top:4px">Watching live</h3>
+    <p class="hint" style="margin:-6px 0 0">When this is on, the “Live now” button on cpic.info opens this programme’s own page. Leave a box empty to use the church’s main page.</p>
+    <div class="grid2">
+      <div class="field"><label for="eYt">YouTube page for this programme</label><input type="url" id="eYt" value="${esc(e.youtube)}" placeholder="${esc(ytNow)}"><span class="hint">Now: ${esc(e.youtube||ytNow)}</span></div>
+      <div class="field"><label for="eFb">Facebook page (optional)</label><input type="url" id="eFb" value="${esc(e.facebook)}" placeholder="https://www.facebook.com/…"></div>
+      <div class="field"><label for="eTt">TikTok page (optional)</label><input type="url" id="eTt" value="${esc(e.tiktok)}" placeholder="https://www.tiktok.com/@…"></div>
+      <div class="field"><label for="eLink">Other livestream link (optional)</label><input type="url" id="eLink" value="${esc(/youtube\.com|youtu\.be/i.test(e.link||"")?"":e.link)}" placeholder="Zoom, Twitch…"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="eOnline" ${e.online?"checked":""}><span>Online only (no directions button)</span></label>
+    <div class="grid2">
+      <div class="field"><label for="eMap">Google Maps link (optional)</label><input type="url" id="eMap" value="${esc(e.mapLink)}"></div>
+      <div class="field"><label for="eCName">Contact person (optional)</label><input type="text" id="eCName" value="${esc(e.contactName)}"></div>
+      <div class="field"><label for="eCPhone">Contact number (optional)</label><input type="tel" id="eCPhone" value="${esc(e.contactPhone)}"></div>
+    </div>
+    <div class="row">
+      <button class="btn primary" type="submit" ${S.busy||!S.canEdit?"disabled":""}>${S.busy?"Saving…":isNew?"Add event":"Save changes"}</button>
+      <button class="btn" type="button" data-back>Cancel</button>
+      ${isNew?"":`<button class="btn danger" type="button" data-del ${!S.canEdit?"disabled":""}>Delete</button>`}
+    </div>
+  </form>`;
+}
+function readEvent(){
+  const g=id=>{ const el=$(id); return el?el.value.trim():""; };
+  const rec=$("eRepeat").checked;
+  const days=rec?[0,1,2,3,4,5,6].filter(d=>{ const el=$("eDay"+d); return el?el.checked:(S.edit.draft.days||[]).includes(d); }):[];
+  const link=g("eLink");
+  return {...S.edit.draft, title:g("eTitle"), category:$("eCat").value, venue:g("eVenue"), recurring:rec, days,
+    startDate:rec?"":g("eStart"), endDate:rec?"":g("eEnd"), startTime:g("eT1"), endTime:g("eT2"), description:g("eDesc"),
+    youtube:g("eYt"), facebook:g("eFb"), tiktok:g("eTt"), link: link || (/youtube\.com|youtu\.be/i.test(S.edit.draft.link||"") ? "" : S.edit.draft.link||""),
+    online:$("eOnline").checked, mapLink:g("eMap"), contactName:g("eCName"), contactPhone:g("eCPhone")};
+}
+function linksView(){
+  const progs=S.data.events.filter(e=>e.recurring || e.online || e.youtube).sort((a,b)=>(b.recurring?1:0)-(a.recurring?1:0));
+  const f = S.follow || (S.follow = socials().map(x=>({...x})));
+  const ch = S.data.church||{};
+  return `<div><h2>Live &amp; links</h2><p class="sub">Where people go to watch, and the Follow page.</p></div>
+  <section class="section">
+    <h3>Watch live, per programme</h3>
+    <p class="hint" style="margin:0">While a programme is on, “Live now” on cpic.info opens its YouTube page. Give Morning Glory its own page, and the Sunday service the church’s page.</p>
+    ${progs.map(e=>`<div class="prog"><div><b>${esc(e.title)}</b><div class="when">${e.recurring?esc((e.days||[]).map(d=>DAY[d].slice(0,3)).join(", ")):esc(fmtDate(e.startDate))}${e.startTime?" · "+esc(fmtTime(e.startTime))+(e.endTime?" to "+esc(fmtTime(e.endTime)):""):""}</div></div>
+      <div class="field"><label for="yt_${esc(e.id)}">YouTube page</label><input type="url" id="yt_${esc(e.id)}" data-yt="${esc(e.id)}" value="${esc(e.youtube||"")}" placeholder="${esc(currentYoutube({...e,youtube:""}))}"></div>
+      <div class="row"><button class="btn sm primary" data-saveyt="${esc(e.id)}" ${!S.canEdit?"disabled":""}>Save</button><span class="hint">Opens: ${esc(ytLive(currentYoutube(e)))}</span></div></div>`).join("")||`<p class="muted">No programmes yet.</p>`}
+  </section>
+  <section class="section">
+    <div class="head"><div><h3>Follow page</h3><p class="hint" style="margin:2px 0 0">These show on cpic.info › Follow, on the home page and at the bottom of every page.</p></div><button class="btn sm" data-addsoc>+ Add a platform</button></div>
+    ${f.map((x,i)=>`<div class="soc" data-soc="${i}">
+      <div class="field"><label for="sk${i}">Platform</label><select id="sk${i}" data-f="key">${PLATFORMS.map(([k,n])=>`<option value="${k}" ${x.key===k?"selected":""}>${n}</option>`).join("")}</select></div>
+      <div class="field"><label for="sn${i}">Name shown</label><input type="text" id="sn${i}" data-f="name" value="${esc(x.name)}"></div>
+      <div class="field"><label for="sh${i}">Handle</label><input type="text" id="sh${i}" data-f="handle" value="${esc(x.handle)}" placeholder="@…"></div>
+      <div class="field"><label for="su${i}">Link</label><input type="url" id="su${i}" data-f="url" value="${esc(x.url)}" placeholder="https://…"></div>
+      <div class="field full"><label for="sw${i}">What people find there</label><input type="text" id="sw${i}" data-f="what" value="${esc(x.what)}"></div>
+      <div class="row full"><button class="btn sm" data-up="${i}" ${i?"":"disabled"} aria-label="Move up">↑</button><button class="btn sm" data-down="${i}" ${i<f.length-1?"":"disabled"} aria-label="Move down">↓</button><button class="btn sm danger" data-rmsoc="${i}">Remove</button></div>
+    </div>`).join("")}
+    <div class="row"><button class="btn primary" data-savesoc ${S.busy||!S.canEdit?"disabled":""}>${S.busy?"Saving…":"Save Follow page"}</button><button class="btn" data-resetsoc>Undo changes</button></div>
+  </section>
+  <section class="section">
+    <h3>Church WhatsApp</h3>
+    <div class="field"><label for="chWa">Number for prayer requests and visits (optional)</label><input type="tel" id="chWa" value="${esc(ch.whatsapp)}" placeholder="+971…"><span class="hint">With country code. Leave empty to send people to the pastors’ own numbers.</span></div>
+    <div class="row"><button class="btn primary" data-savewa ${!S.canEdit?"disabled":""}>Save</button></div>
+  </section>`;
+}
+function readFollow(){
+  return [...document.querySelectorAll("[data-soc]")].map(el=>{ const o={}; el.querySelectorAll("[data-f]").forEach(i=>o[i.dataset.f]=i.value.trim()); return o; });
+}
+function historyView(){
+  if(!S.log){ loadLog(); return `<div><h2>History</h2><p class="sub">Recent changes from Edits.</p></div><p class="muted">Loading…</p>`; }
+  const what = x => x.op==="church" ? "Live & links / Follow page" : (x.col==="sermons"?"Sermon":"Event")+": "+(x.title||x.id);
+  return `<div><h2>History</h2><p class="sub">Recent changes from Edits, newest first.</p></div>
+  <section class="section">${S.log.length?`<ul class="log">${S.log.map(x=>`<li><b>${x.op==="delete"?"Deleted":x.op==="church"?"Changed":"Saved"}</b> ${esc(what(x))}<div class="hint">${esc(fmtAt(x.at))} · ${esc(x.by||"")}</div></li>`).join("")}</ul>`:`<p class="muted" style="margin:0">No changes yet.</p>`}</section>`;
+}
+async function loadLog(){
+  try{ const t=await CPIC_WORKER.token(); const r=await fetch("/api/site?log=1",{cache:"no-store",headers:{Authorization:"Bearer "+t}}); S.log=(await r.json()).log||[]; }catch(_){ S.log=[]; }
+  if(S.tab==="history" && !S.edit) render();
+}
+
+/* ---------- actions ---------- */
+async function save(col, item, done){
+  S.busy=true; render();
+  try{ const {_edited, ...clean}=item; await call({op:"put", col, item:clean}); S.log=null; toast("Saved. It’s live on cpic.info now."); if(done) done(); }
+  catch(e){ toast(e.message); }
+  S.busy=false; render();
+}
+async function saveChurch(patch, msg){
+  S.busy=true; render();
+  try{ await call({op:"church", church:{...(S.data.church||{}), ...patch}}); S.log=null; toast(msg||"Saved. It’s live on cpic.info now."); }
+  catch(e){ toast(e.message); }
+  S.busy=false; render();
+}
+function openEdit(col, id){
+  const x = id ? (S.data[col]||[]).find(y=>y.id===id) : null;
+  const today=new Date().toISOString().slice(0,10);
+  const draft = x ? JSON.parse(JSON.stringify(x)) : col==="sermons" ? {date:today, kind:"Sunday sermon", points:[], scriptures:[]} : {category:"Fellowship", recurring:false, days:[], startDate:today};
+  delete draft._edited;
+  S.edit={col, id:id||null, draft}; render(); scrollTo(0,0);
+}
+const close = () => { S.edit=null; render(); scrollTo(0,0); };
+
+document.addEventListener("click", async ev=>{
+  const t=ev.target.closest("button,[data-open]"); if(!t) return;
+  if(t.dataset.tab){ S.tab=t.dataset.tab; sessionStorage.setItem("edits.tab",S.tab); S.edit=null; if(S.tab==="links") S.follow=null; render(); return; }
+  if(t.dataset.open){ openEdit(t.dataset.open, t.dataset.id); return; }
+  if(t.dataset.new){ openEdit(t.dataset.new); return; }
+  if(t.hasAttribute("data-back")){ close(); return; }
+  if(t.hasAttribute("data-del")){
+    const x=S.edit; const name=x.draft.title||"this";
+    if(!confirm(`Delete “${name}” from cpic.info? People won’t see it any more.`)) return;
+    S.busy=true; render();
+    try{ await call({op:"delete", col:x.col, id:x.id, title:x.draft.title}); S.log=null; toast("Deleted from cpic.info."); S.edit=null; }catch(e){ toast(e.message); }
+    S.busy=false; render(); return;
+  }
+  if(t.id==="rmPoster"){ S.edit.draft=readEvent(); delete S.edit.draft.posterId; render(); toast("Poster removed. Save to make it live."); return; }
+  if(t.dataset.saveyt){
+    const id=t.dataset.saveyt; const x=S.data.events.find(e=>e.id===id); if(!x) return;
+    const v=document.querySelector(`[data-yt="${CSS.escape(id)}"]`).value.trim();
+    if(v && !/^https?:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//i.test(v)){ toast("That doesn’t look like a YouTube link."); return; }
+    await save("events", {...x, youtube:v}); return;
+  }
+  if(t.hasAttribute("data-addsoc")){ S.follow=readFollow(); S.follow.push({key:"link",name:"",handle:"",url:"",what:""}); render(); return; }
+  if(t.dataset.rmsoc!==undefined){ S.follow=readFollow(); S.follow.splice(+t.dataset.rmsoc,1); render(); return; }
+  if(t.dataset.up!==undefined||t.dataset.down!==undefined){ S.follow=readFollow(); const i=+(t.dataset.up??t.dataset.down), j=i+(t.dataset.up!==undefined?-1:1); [S.follow[i],S.follow[j]]=[S.follow[j],S.follow[i]]; render(); return; }
+  if(t.hasAttribute("data-resetsoc")){ S.follow=null; render(); return; }
+  if(t.hasAttribute("data-savesoc")){
+    const f=readFollow().filter(x=>x.url);
+    const bad=f.find(x=>!/^https?:\/\//i.test(x.url)); if(bad){ toast("Each link must start with https://"); return; }
+    f.forEach(x=>{ if(!x.name) x.name=(PLATFORMS.find(p=>p[0]===x.key)||[,"Link"])[1]; });
+    S.follow=f; await saveChurch({follow:f}, "Follow page saved. It’s live on cpic.info now."); S.follow=null; render(); return;
+  }
+  if(t.hasAttribute("data-savewa")){ await saveChurch({whatsapp:$("chWa").value.replace(/[^\d+]/g,"")}, "WhatsApp number saved."); return; }
+});
+document.addEventListener("change", async ev=>{
+  const t=ev.target;
+  if(t.id==="eRepeat"){ S.edit.draft=readEvent(); render(); return; }
+  if(t.id==="ePoster" && t.files && t.files[0]){
+    const st=$("posterState"); if(st) st.textContent="Uploading…";
+    try{ const id=await uploadPoster(t.files[0]); S.edit.draft=readEvent(); S.edit.draft.posterId=id; render(); toast("Poster uploaded. Save to make it live."); }
+    catch(e){ if(st) st.textContent=""; toast(e.message); }
+  }
+  if(t.dataset && t.dataset.f==="key"){ const box=t.closest("[data-soc]"); const n=box.querySelector('[data-f="name"]'); if(!n.value) n.value=(PLATFORMS.find(p=>p[0]===t.value)||[,""])[1]; }
+});
+document.addEventListener("submit", ev=>{
+  if(ev.target.id!=="form") return; ev.preventDefault();
+  const x=S.edit;
+  if(x.col==="sermons"){
+    const d=readSermon();
+    if(!d.title){ toast("Add the sermon title first."); return; }
+    if(!x.id){ d.id=(d.date+"-"+(slug(d.title)||rnd())); d.createdAt=new Date().toISOString(); if(S.data.sermons.some(s=>s.id===d.id)) d.id+="-"+rnd(); } else d.id=x.id;
+    save("sermons", d, ()=>{ S.edit=null; });
+  } else {
+    const d=readEvent();
+    if(!d.title){ toast("Add the event name."); return; }
+    if(d.recurring && !d.days.length){ toast("Pick the days it happens on."); return; }
+    if(!d.recurring && !d.startDate){ toast("Add the date."); return; }
+    if(d.endDate && d.endDate<d.startDate) d.endDate="";
+    for(const [k,label] of [["youtube","YouTube"],["facebook","Facebook"],["tiktok","TikTok"],["link","livestream"],["mapLink","Maps"]]) if(d[k] && !/^https?:\/\//i.test(d[k])){ toast("The "+label+" link must start with https://"); return; }
+    if(!x.id){ d.id=(slug(d.title)||"event")+"-"+rnd(); } else d.id=x.id;
+    save("events", d, ()=>{ S.edit=null; });
+  }
+});
+
+document.addEventListener("cpic:signedin", async e=>{
+  S.canEdit = !!(e.detail && e.detail.canEdit);
+  try{ await load(); }catch(err){ $("app").innerHTML=`<div class="banner">Couldn’t load cpic.info’s content just now. Check your connection and reload.</div>`; return; }
+  render();
+});
+render();
+})();
+</script>
+</body></html>

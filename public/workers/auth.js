@@ -19,7 +19,8 @@
   const APP = (SCRIPT && SCRIPT.dataset.app) || "shepherd";
   const MEDIA = ["posters", "clipper", "photodesk"].includes(APP);
   const HUB = APP === "hub";
-  const NAMES = { shepherd: "Shepherd", posters: "Poster Studio", clipper: "Sermon Clipper", photodesk: "Photo Desk", hub: "CPIC Workers" };
+  const EDITS = APP === "edits"; // Shepherd › Edits: changes Ekklesia's sermons, events and links
+  const NAMES = { shepherd: "Shepherd", posters: "Poster Studio", clipper: "Sermon Clipper", photodesk: "Photo Desk", hub: "CPIC Workers", edits: "Edits" };
   const TITLE = NAMES[APP] || "CPIC Workers";
   const IDENT = "/.netlify/identity";
   const API = APP === "shepherd" ? "/.netlify/functions/shepherd-db" : "/.netlify/functions/media-db?app=" + APP;
@@ -256,6 +257,15 @@
         const html = await (await fetch("/", { cache: "no-store" })).text();
         const m = html.match(/<script type="application\/json" id="snapshot">([\s\S]*?)<\/script>/);
         EKK = m ? JSON.parse(m[1]) : {};
+        try {
+          const live = await (await fetch("/api/site", { cache: "no-store" })).json();
+          for (const col of ["sermons", "events"]) {
+            const map = new Map((EKK[col] || []).map(x => [x.id, x]));
+            for (const x of live[col] || []) { const o = map.get(x.id); if (!o || String(x.updatedAt || "") >= String(o.updatedAt || "")) map.set(x.id, x); }
+            for (const [id, at] of Object.entries((live.deleted || {})[col] || {})) { const o = map.get(id); if (o && String(at) >= String(o.updatedAt || "")) map.delete(id); }
+            EKK[col] = [...map.values()];
+          }
+        } catch (_) {}
       }
       for (const [col, list] of [["sermons", EKK.sermons], ["events", EKK.events]]) {
         if (!Array.isArray(list)) continue;
@@ -265,7 +275,7 @@
     } catch (_) {}
   }
   async function pull() {
-    if (HUB) { DATA = {}; return; }
+    if (HUB || EDITS) { DATA = {}; return; }
     const j = await api("GET");
     DATA = j.data || {}; for (const c of COLS) DATA[c] = DATA[c] || {};
     if (MEDIA) await addEkklesia();
@@ -449,9 +459,9 @@
   /* ---------- header: back to Ekklesia, who's signed in, sign out ---------- */
   function headerBar() {
     if (document.getElementById("wsBar")) return;
-    const top = APP === "shepherd" || HUB ? document.querySelector("header .top-in") : null;
+    const top = APP === "shepherd" || HUB || EDITS ? document.querySelector("header .top-in") : null;
     const bar = document.createElement("div"); bar.className = "ws-bar" + (top ? "" : " ws-float"); bar.id = "wsBar";
-    bar.innerHTML = (HUB ? `<a href="/" title="Back to the public site">‹ Ekklesia</a>` : `<a href="/workers/" title="All workers’ tools">‹ Workers</a>`) +
+    bar.innerHTML = (HUB ? `<a href="/" title="Back to the public site">‹ Ekklesia</a>` : EDITS ? `<a href="/shepherd/" title="Back to Shepherd">‹ Shepherd</a>` : `<a href="/workers/" title="All workers’ tools">‹ Workers</a>`) +
       `<button type="button" id="wsOut" title="${esc(me && me.email || "")}">Sign out</button>`;
     (top || document.body).appendChild(bar);
     bar.querySelector("#wsOut").addEventListener("click", () => {
@@ -467,10 +477,19 @@
     try {
       me = await currentUser();
       if (HUB) await filesApi("GET");        // confirms the account was invited
+      if (EDITS) {
+        let r;
+        try { r = await fetch("/api/site?check=1", { cache: "no-store", headers: { Authorization: "Bearer " + (await accessToken()) } }); }
+        catch (_) { throw new Error("offline"); }
+        if (r.status === 401) throw err("revoked");
+        if (r.status === 403) { signedOut("bad:This account wasn’t invited by the church, so it can’t open the workers’ pages. Ask Sam to send you an invitation."); return; }
+        if (!r.ok) throw new Error("server:" + r.status);
+        EDIT = await r.json();
+      }
       if (MEDIA) { try { AI = !!(await (await fetch("/api/ai", { cache: "no-store" })).json()).enabled; } catch (_) { AI = false; } }
       await pull();
-      hideGate(); headerBar(); if (!HUB) poll();
-      document.dispatchEvent(new CustomEvent("cpic:signedin", { detail: { email: me && me.email } }));
+      hideGate(); headerBar(); if (!HUB && !EDITS) poll();
+      document.dispatchEvent(new CustomEvent("cpic:signedin", { detail: { email: me && me.email, canEdit: !!(EDIT && EDIT.canEdit) } }));
       startedResolve();
     } catch (e) {
       if (e && e.code === "revoked") showGate("signin", tok ? "" : note);
@@ -492,6 +511,8 @@
     start();
   }
   if (tok) cookie(tok);
-  window.CPIC_WORKER = { signOut: () => { keep(null); location.replace("/workers/"); }, get email() { return me && me.email; } };
+  let EDIT = null;
+  window.CPIC_WORKER = { signOut: () => { keep(null); location.replace("/workers/"); }, get email() { return me && me.email; },
+    token: () => accessToken(), get canEdit() { return !!(EDIT && EDIT.canEdit); }, expired: () => signedOut("bad:Your sign-in has ended. Please sign in again.") };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
