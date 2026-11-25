@@ -420,6 +420,20 @@ a.card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
 .verse-card .k{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--gold)}
 .verse-card .txt{font-family:var(--f-serif);font-size:23px;line-height:1.35;font-weight:500;text-wrap:pretty}
 .verse-card .ref{font-weight:700;color:var(--gold)}
+.verse-card .txt.q{font-style:italic}
+.verse-card .body{font-size:15px;line-height:1.5;opacity:.88}
+.verse-card .src{font-size:13px;color:var(--muted);line-height:1.45;border-top:1px solid color-mix(in srgb,var(--gold) 25%,transparent);padding-top:10px}
+.verse-card .src a{color:inherit;font-weight:600}
+.verse-card .row{align-items:center}
+.carry-seg{margin:10px 0 12px}
+.carry-nav{display:inline-flex;gap:6px}
+.carry-nav .ibtn{font-size:20px;line-height:1}
+.points li{grid-template-columns:30px 1fr auto}
+.ibtn.pic{width:36px;height:36px;border-radius:50%;color:var(--muted)}
+.ibtn.pic:hover{color:var(--accent)}
+.quote .ibtn.pic{position:absolute;top:8px;right:8px;font-style:normal}
+.quote{padding-right:52px}
+svg.inl{width:14px;height:14px;vertical-align:-2px}
 
 /* new here */
 .steps3{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:st}
@@ -720,20 +734,48 @@ function memHtml(id, text){
 }
 const PRAC_LABEL = ["Practise it","Hide more words","Hide every word","Show the whole verse"];
 
-/* ---------- share the verse as a picture (for WhatsApp Status) ---------- */
-async function verseImage(ref, text){
+/* ---------- share a verse, quote or main point as a picture (for WhatsApp Status) ---------- */
+const kindOf = s => s.kind||"Sunday sermon";
+const dayLong = d => d ? parse(d).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}) : "";
+const srcMeta = s => [s.preacher, kindOf(s), dayLong(s.date)].filter(Boolean).join(" · ");
+const unquote = q => String(q||"").trim().replace(/^["“”']+|["“”']+$/g,"").trim();
+const quoteText = q => typeof q==="string" ? q : (q&&q.text)||"";
+async function cardImage(o){
   const W=1080, H=1350, c=document.createElement("canvas"); c.width=W; c.height=H; const g=c.getContext("2d");
-  try{ await Promise.all([document.fonts.load('500 64px "Fraunces"'), document.fonts.load('italic 600 200px "Fraunces"'), document.fonts.load('700 30px "Inter"')]); }catch(_){}
+  try{ await Promise.all([document.fonts.load('500 64px "Fraunces"'), document.fonts.load('italic 500 64px "Fraunces"'), document.fonts.load('italic 600 200px "Fraunces"'), document.fonts.load('700 30px "Inter"'), document.fonts.load('400 30px "Inter"')]); }catch(_){}
   g.fillStyle="#0E1757"; g.fillRect(0,0,W,H);
   g.save(); g.globalAlpha=.07; g.fillStyle="#fff"; g.font='italic 600 330px "Fraunces", Georgia, serif'; g.fillText("ἐκκλησία", 20, H-110); g.restore();
   g.fillStyle="#C81E28"; g.fillRect(90,0,110,12);
-  g.fillStyle="#BAC1E6"; g.font='700 30px "Inter", Arial, sans-serif'; g.fillText("VERSE FOR THIS WEEK", 90, 150);
-  const maxW = W-180; let size = 76, lines = [];
-  const wrap = s => { const out=[]; let cur=""; for(const w of s.split(/\s+/)){ const t = cur?cur+" "+w:w; if(g.measureText(t).width>maxW && cur){ out.push(cur); cur=w; } else cur=t; } if(cur) out.push(cur); return out; };
-  for(;;){ g.font = `500 ${size}px "Fraunces", Georgia, serif`; lines = wrap("“"+String(text).trim()+"”"); if(lines.length*size*1.32 <= 720 || size<=40) break; size -= 4; }
-  g.fillStyle="#F6F4EF"; let y = 230;
-  for(const l of lines){ y += size*1.32; g.fillText(l, 90, y); }
-  g.font='700 42px "Inter", Arial, sans-serif'; g.fillStyle="#FF8A8F"; g.fillText(ref, 90, y+96);
+  g.fillStyle="#BAC1E6"; g.font='700 30px "Inter", Arial, sans-serif'; g.fillText(o.kicker.toUpperCase(), 90, 150);
+  const maxW = W-180;
+  const wrap = (s,font) => { g.font=font; const out=[]; let cur=""; for(const w of String(s).split(/\s+/).filter(Boolean)){ const t = cur?cur+" "+w:w; if(g.measureText(t).width>maxW && cur){ out.push(cur); cur=w; } else cur=t; } if(cur) out.push(cur); return out; };
+  const clip = (lines,n,font) => { if(lines.length<=n) return lines; g.font=font; const l=lines.slice(0,n); let last=l[n-1]; while(last && g.measureText(last+"…").width>maxW) last=last.replace(/\s*\S+$/,""); l[n-1]=last.replace(/[\s,;:.]+$/,"")+"…"; return l; };
+  const mainFont = sz => `${o.italic?"italic ":""}500 ${sz}px "Fraunces", Georgia, serif`;
+  const bodyF='400 33px "Inter", Arial, sans-serif', titleF='italic 500 38px "Fraunces", Georgia, serif', metaF='600 27px "Inter", Arial, sans-serif';
+  const tLines = o.title ? clip(wrap("“"+o.title+"”",titleF),2,titleF) : [];
+  const mLines = o.meta ? clip(wrap(o.meta,metaF),2,metaF) : [];
+  const attrH = o.title||o.meta ? 70 + tLines.length*50 + mLines.length*40 : 0;
+  const bLinesAll = o.body ? wrap(o.body,bodyF) : [];
+  const bottom = H-250, top = 230;
+  let size = 76, lines = [], bLines = [];
+  for(;;){
+    lines = wrap(o.quoteMarks===false ? String(o.text).trim() : "“"+String(o.text).trim()+"”", mainFont(size));
+    const refH = o.ref ? 96 : 0;
+    const room = bottom - top - attrH - refH - lines.length*size*1.3;
+    bLines = o.body ? clip(bLinesAll, Math.max(0, Math.floor((room-60)/47)), bodyF) : [];
+    if((room >= (o.body ? 60+Math.min(bLinesAll.length,4)*47 : 0)) || size<=40) break;
+    size -= 4;
+  }
+  const used = lines.length*size*1.3 + (o.ref?96:0) + (bLines.length?30+bLines.length*47:0) + (attrH?76+tLines.length*50+mLines.length*40:0);
+  g.fillStyle="#F6F4EF"; g.font=mainFont(size); let y = top + Math.max(0, (bottom-top-used)*0.42);
+  for(const l of lines){ y += size*1.3; g.fillText(l, 90, y); }
+  if(o.ref){ g.font='700 42px "Inter", Arial, sans-serif'; g.fillStyle="#FF8A8F"; g.fillText(o.ref, 90, y+96); y += 96; }
+  if(bLines.length){ y += 30; g.font=bodyF; g.fillStyle="#D3D8F0"; for(const l of bLines){ y += 47; g.fillText(l, 90, y); } }
+  if(attrH){
+    y += 62; g.fillStyle="#C81E28"; g.fillRect(90, y, 64, 6); y += 14;
+    g.font=titleF; g.fillStyle="#F6F4EF"; for(const l of tLines){ y += 50; g.fillText(l, 90, y); }
+    g.font=metaF; g.fillStyle="#BAC1E6"; for(const l of mLines){ y += 40; g.fillText(l, 90, y); }
+  }
   const logo = document.querySelector("header .logo");
   if(logo && logo.complete && logo.naturalWidth){
     const lw = 210, lh = lw*logo.naturalHeight/logo.naturalWidth, x=90, yy=H-100-lh;
@@ -743,15 +785,31 @@ async function verseImage(ref, text){
   g.fillStyle="#BAC1E6"; g.font='600 28px "Inter", Arial, sans-serif'; g.textAlign="right"; g.fillText("Christ Power International Church", W-90, H-128); g.fillText("cpic.info", W-90, H-88);
   return new Promise(r=>c.toBlob(r,"image/png"));
 }
-async function shareVerse(s){
-  const mv = s.memoryVerse||{}; if(!mv.text) return;
-  toast("Making the picture…");
-  const blob = await verseImage(mv.ref, mv.text); if(!blob){ toast("Could not make the picture"); return; }
-  const file = new File([blob], "cpic-verse-"+slug(mv.ref)+".png", {type:"image/png"});
-  const text = `${mv.text} (${mv.ref})\n\nChrist Power International Church · cpic.info`;
+const notesUrl = s => `https://cpic.info/#sermon-${String(s.id).replace(/-+$/,"")}`;
+async function sharePicture(blob, name, text){
+  if(!blob){ toast("Could not make the picture"); return; }
+  const file = new File([blob], name+".png", {type:"image/png"});
   if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file], text}); return; }catch(e){ if(e && e.name==="AbortError") return; } }
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000); toast("Picture saved. Share it from your photos.");
+}
+async function shareVerse(s){
+  const mv = s.memoryVerse||{}; if(!mv.text) return;
+  toast("Making the picture…");
+  const blob = await cardImage({kicker:"Verse for this week", text:mv.text, ref:mv.ref, title:s.title, meta:srcMeta(s)});
+  await sharePicture(blob, "cpic-verse-"+slug(mv.ref), `${mv.text} (${mv.ref})\n\nFrom “${s.title}” · ${srcMeta(s)}\nRead the full notes: ${notesUrl(s)}\n\nChrist Power International Church · cpic.info`);
+}
+async function shareQuote(s, i){
+  const q = unquote(quoteText((s.quotes||[])[i])); if(!q) return;
+  toast("Making the picture…");
+  const blob = await cardImage({kicker:"Quote from the pulpit", text:q, italic:true, title:s.title, meta:srcMeta(s)});
+  await sharePicture(blob, "cpic-quote-"+slug(s.title)+"-"+(i+1), `“${q}”\n— ${s.preacher||"CPIC"}, “${s.title}” (${[kindOf(s), dayLong(s.date)].filter(Boolean).join(", ")})\n\nRead the full notes: ${notesUrl(s)}\n\nChrist Power International Church · cpic.info`);
+}
+async function sharePoint(s, i){
+  const pts = s.points||[], p = pts[i]; if(!p||!p.title) return;
+  toast("Making the picture…");
+  const blob = await cardImage({kicker:`Main point ${i+1} of ${pts.length}`, text:p.title, quoteMarks:false, body:p.body, title:s.title, meta:srcMeta(s)});
+  await sharePicture(blob, "cpic-point-"+slug(s.title)+"-"+(i+1), `*${p.title}*${p.body?"\n"+p.body:""}\n\nMain point ${i+1} of ${pts.length} from “${s.title}” · ${srcMeta(s)}\nRead the full notes: ${notesUrl(s)}\n\nChrist Power International Church · cpic.info`);
 }
 
 /* ---------- calendar file (Apple Calendar, Outlook) ---------- */
@@ -805,6 +863,29 @@ function weekStrip(){
   }
   return html;
 }
+/* ---------- "Carry this verse / quote / point" on Home ---------- */
+const carryFrom = k => sortedSermons().find(s => k==="verse" ? (s.memoryVerse||{}).text : k==="quote" ? (s.quotes||[]).some(q=>unquote(quoteText(q))) : (s.points||[]).some(p=>p&&p.title));
+const carryKinds = () => ["verse","quote","point"].filter(k=>carryFrom(k));
+function carryHtml(){
+  const kinds = carryKinds(); if(!kinds.length) return "";
+  if(!S.carry || !kinds.includes(S.carry.k)) S.carry = {k:kinds[0], i:0};
+  const k = S.carry.k, s = carryFrom(k);
+  const items = k==="quote" ? (s.quotes||[]).map(q=>unquote(quoteText(q))).filter(Boolean) : k==="point" ? (s.points||[]).filter(p=>p&&p.title) : [s.memoryVerse];
+  const n = items.length, i = Math.min(S.carry.i, n-1); S.carry.i = i;
+  const LBL = {verse:"Verse", quote:"Quote", point:"Main point"};
+  const src = `<span class="src">From <a href="#sermon-${esc(s.id)}">“${esc(s.title)}”</a><br>${esc(srcMeta(s))}</span>`;
+  let body = "";
+  if(k==="verse") body = `<span class="k">Memory verse · ${esc(fmt(s.date))}</span><span class="txt">${esc(s.memoryVerse.text)}</span><span class="ref">${vref(s.memoryVerse.ref)}</span>`;
+  else if(k==="quote") body = `<span class="k">Quote ${n>1?`${i+1} of ${n}`:""} · ${esc(fmt(s.date))}</span><span class="txt q">“${esc(items[i])}”</span>`;
+  else body = `<span class="k">Main point ${i+1} of ${n} · ${esc(fmt(s.date))}</span><span class="txt">${esc(items[i].title)}</span>${items[i].body?`<span class="body">${esc(items[i].body)}</span>`:""}`;
+  const share = k==="verse" ? `data-sharev="${esc(s.id)}"` : k==="quote" ? `data-shareq="${esc(s.id)}" data-i="${i}"` : `data-sharep="${esc(s.id)}" data-i="${i}"`;
+  return `<h3 class="h3" id="vTitle">Carry this ${k==="point"?"point":k}</h3>
+    ${kinds.length>1?`<div class="seg carry-seg" role="group" aria-label="Choose what to carry">${kinds.map(x=>`<button type="button" data-carry="${x}" aria-pressed="${x===k}">${LBL[x]}</button>`).join("")}</div>`:""}
+    <div class="verse-card">${body}${src}
+      <div class="row">${n>1?`<span class="carry-nav"><button type="button" class="ibtn" data-carrynav="-1" aria-label="Previous ${LBL[k].toLowerCase()}">‹</button><button type="button" class="ibtn" data-carrynav="1" aria-label="Next ${LBL[k].toLowerCase()}">›</button></span>`:""}<button type="button" class="btn sm" ${share}>${ICON.share}Share as a picture</button></div></div>`;
+}
+const redrawCarry = () => { const el=$("carry"); if(el) el.innerHTML=carryHtml(); };
+
 function viewHome(){
   const {live, next} = liveStatus();
   const sunday = S.events.find(e=>e.recurring && (e.days||[]).includes(0) && /service|worship/i.test((e.category||"")+" "+e.title)) || S.events.find(e=>e.recurring);
@@ -858,12 +939,7 @@ function viewHome(){
   </div>
 
   <div class="home-grid">
-    ${verseFrom?`<section class="block" aria-labelledby="vTitle">
-      <h3 class="h3" id="vTitle">Carry this verse</h3>
-      <div class="verse-card"><span class="k">Memory verse · ${esc(fmt(verseFrom.date))}</span>
-        <span class="txt">${esc(verseFrom.memoryVerse.text)}</span><span class="ref">${vref(verseFrom.memoryVerse.ref)}</span>
-        <div class="row"><button type="button" class="btn sm" data-sharev="${esc(verseFrom.id)}">${ICON.share}Share as a picture</button><a class="btn sm ghost" href="#sermon-${esc(verseFrom.id)}">From “${esc(verseFrom.title)}”</a></div></div>
-    </section>`:""}
+    ${carryKinds().length?`<section class="block" aria-labelledby="vTitle" id="carry">${carryHtml()}</section>`:""}
     <section class="block" id="newHere" aria-labelledby="nhTitle" style="scroll-margin-top:calc(var(--hh,120px) + 12px)">
       <h3 class="h3" id="nhTitle">New here? Start with Sunday</h3>
       <ol class="steps3">
@@ -1052,9 +1128,9 @@ function viewSermon(){
     <nav class="jump" aria-label="Jump to a part of the notes">${secs.map(([k,l])=>`<button type="button" data-jump="sec-${k}">${esc(l)}</button>`).join("")}</nav>
     ${s.summary?`<section id="sec-brief"><h3>The message in brief</h3><p>${esc(s.summary)}</p></section>`:""}
     ${mt.ref?`<section id="sec-text"><h3>Main text</h3><div class="scripture"><span class="ref">${vref(mt.ref)}</span>${mt.text?`<span class="txt">${esc(mt.text)}</span>`:""}</div></section>`:""}
-    ${(s.points||[]).length?`<section id="sec-points"><h3>Main points</h3><ol class="points">${s.points.map(p=>`<li><div><b>${esc(p.title)}</b>${p.body?`<span>${esc(p.body)}</span>`:""}</div></li>`).join("")}</ol></section>`:""}
+    ${(s.points||[]).length?`<section id="sec-points"><h3>Main points</h3><ol class="points">${s.points.map((p,i)=>`<li><div><b>${esc(p.title)}</b>${p.body?`<span>${esc(p.body)}</span>`:""}</div><button type="button" class="ibtn pic" data-sharep="${esc(s.id)}" data-i="${i}" aria-label="Share point ${i+1} as a picture" title="Share as a picture">${ICON.share}</button></li>`).join("")}</ol></section>`:""}
     ${(s.scriptures||[]).length?`<section id="sec-verses"><h3>Scriptures read</h3><p class="small muted" style="margin:-4px 0 0">Tap a verse to read it.</p><div class="verses">${s.scriptures.map(v=>`<div><b>${vref(v.ref)}</b>${v.note?` · <span class="muted">${esc(v.note)}</span>`:""}</div>`).join("")}</div></section>`:""}
-    ${(s.quotes||[]).length?`<section id="sec-quotes"><h3>Quotes from the pulpit</h3>${s.quotes.map(q=>`<blockquote class="quote">${esc(q)}</blockquote>`).join("")}</section>`:""}
+    ${(s.quotes||[]).length?`<section id="sec-quotes"><h3>Quotes from the pulpit</h3><p class="small muted" style="margin:-4px 0 0">Tap ${ICON.share.replace('class="bi"','class="bi inl"')} to share a quote or point as a picture.</p>${s.quotes.map((q,i)=>`<blockquote class="quote">${esc(unquote(quoteText(q)))}<button type="button" class="ibtn pic" data-shareq="${esc(s.id)}" data-i="${i}" aria-label="Share this quote as a picture" title="Share as a picture">${ICON.share}</button></blockquote>`).join("")}</section>`:""}
     ${nApp?`<section id="sec-live"><h3>Live it out this week</h3><ul class="todo">${s.application.map((a,i)=>`<li><label><input type="checkbox" data-todo="${esc(s.id)}" data-i="${i}" ${done.includes(i)?"checked":""}><span>${esc(a)}</span></label></li>`).join("")}</ul><span class="small muted" id="todoCount" aria-live="polite">${done.length} of ${nApp} done. Your ticks stay on this phone.</span></section>`:""}
     ${(s.questions||[]).length||mv.ref?`<section class="section" id="sec-study"><h3 style="color:var(--accent)">Bible study</h3>
       ${(s.questions||[]).length?`<ol class="qlist">${s.questions.map(q=>`<li>${esc(q)}</li>`).join("")}</ol>`:""}
@@ -1613,6 +1689,10 @@ document.addEventListener("click", e=>{
   if(t.dataset.fs){ const i=Math.max(0,Math.min(FS_STEPS.length-1, FS_STEPS.indexOf(fontSize())+(+t.dataset.fs))); lsSet("cpic.fs",String(FS_STEPS[i])); const a=$("notesArt"); if(a) a.style.setProperty("--ns",FS_STEPS[i]+"px"); return; }
   if(t.dataset.practise){ const id=t.dataset.practise; const s=S.sermons.find(x=>x.id===id); PRAC[id]=((PRAC[id]||0)+1)%4; const m=$("memTxt"); if(m&&s) m.innerHTML=memHtml(id,(s.memoryVerse||{}).text||""); t.innerHTML=ICON.eye+esc(PRAC_LABEL[PRAC[id]]); return; }
   if(t.classList.contains("blank")){ t.replaceWith(document.createTextNode(t.textContent)); return; }
+  if(t.dataset.carry){ S.carry={k:t.dataset.carry, i:0}; redrawCarry(); const b=document.querySelector(`[data-carry="${t.dataset.carry}"]`); if(b) b.focus(); return; }
+  if(t.dataset.carrynav){ const el=$("carry"); const n=+((el&&el.querySelector(".verse-card .k")||{}).textContent||"").replace(/.*?(\d+) of (\d+).*/s,"$2")||1; S.carry.i=((S.carry.i+(+t.dataset.carrynav))%n+n)%n; redrawCarry(); const b=document.querySelector(`[data-carrynav="${t.dataset.carrynav}"]`); if(b) b.focus(); return; }
+  if(t.dataset.shareq){ const s=S.sermons.find(x=>x.id===t.dataset.shareq); if(s) shareQuote(s,+t.dataset.i).catch(()=>toast("Could not make the picture")); return; }
+  if(t.dataset.sharep){ const s=S.sermons.find(x=>x.id===t.dataset.sharep); if(s) sharePoint(s,+t.dataset.i).catch(()=>toast("Could not make the picture")); return; }
   if(t.dataset.sharev){ const s=S.sermons.find(x=>x.id===t.dataset.sharev); if(s) shareVerse(s).catch(()=>toast("Could not make the picture")); return; }
   if(t.dataset.more){ const id=t.dataset.more; if(OPEN_DESC.has(id)) OPEN_DESC.delete(id); else OPEN_DESC.add(id); const p=$("d_"+id), open=OPEN_DESC.has(id); if(p) p.classList.toggle("clamp", !open); t.setAttribute("aria-expanded", String(open)); t.textContent = open?"Show less":"Read more"; return; }
   if(t.id==="installBtn"){ if(deferredInstall){ deferredInstall.prompt(); deferredInstall.userChoice.finally(()=>{ deferredInstall=null; render(); }); } return; }
